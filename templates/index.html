@@ -11,21 +11,22 @@
 
     <style>
         :root {
-            --bg-color: #f8f9fa;
+            --bg-color: #f0f2f5; /* Slightly different background */
             --card-bg-color: #ffffff;
-            --text-color: #212529;
-            --muted-text-color: #6c757d;
-            --border-color: #dee2e6;
-            --accent-color: #007bff;
-            --accent-hover-color: #0056b3;
-            --positive-color: #198754; /* Slightly darker green */
-            --negative-color: #dc3545;
-            --button-bg-color: #e9ecef;
-            --button-hover-bg-color: #ced4da;
-            --button-active-bg-color: #adb5bd;
-            --shadow-color: rgba(0, 0, 0, 0.06); /* Softer shadow */
-            --list-hover-bg: #f1f3f5;
-            --list-selected-bg: #e0e7ff; /* Highlight for selected item */
+            --text-color: #172b4d; /* Dark blue-grey text */
+            --muted-text-color: #6b778c;
+            --border-color: #dfe1e6;
+            --accent-color: #0052cc; /* Atlassian blue */
+            --accent-hover-color: #003f99;
+            --positive-color: #006644; /* Dark green */
+            --negative-color: #bf2600; /* Dark red */
+            --button-bg-color: #f4f5f7;
+            --button-hover-bg-color: #e9ecef;
+            --button-active-bg-color: #dfe1e6;
+            --shadow-color: rgba(9, 30, 66, 0.1); /* Subtle shadow based on text */
+            --table-header-bg: #fafbfc;
+            --table-row-hover-bg: #f8f9fa;
+            --table-row-selected-bg: #e7f0ff;
         }
 
         body {
@@ -34,24 +35,26 @@
             padding: 0;
             background-color: var(--bg-color);
             color: var(--text-color);
-            line-height: 1.65; /* Increased line height slightly */
+            line-height: 1.5; /* Standard line height */
+            font-size: 14px; /* Base font size for density */
         }
         .container {
-            max-width: 1700px; /* Increased max-width slightly */
-            margin: 25px auto;
-            padding: 15px 35px; /* More horizontal padding */
+            max-width: 95%; /* Use more screen width */
+            margin: 20px auto;
+            padding: 0 20px; /* Adjust padding */
             box-sizing: border-box;
         }
         h1 {
             text-align: center;
-            color: #343a40;
-            margin-bottom: 20px; /* More space below h1 */
-            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 15px;
+            font-weight: 600; /* Slightly less bold */
+            font-size: 1.75em;
         }
         .status {
             text-align: center;
-            margin-bottom: 30px; /* More space below status */
-            font-size: 0.9em;
+            margin-bottom: 25px;
+            font-size: 0.85em; /* Smaller status */
             color: var(--muted-text-color);
         }
 
@@ -62,37 +65,38 @@
             justify-content: space-between;
             align-items: center;
             background-color: var(--card-bg-color);
-            padding: 18px 25px; /* Increased padding */
-            border-radius: 8px;
-            box-shadow: 0 2px 5px var(--shadow-color);
-            margin-bottom: 40px; /* More space below controls */
-            gap: 20px;
-        }
-        .search-form { display: flex; gap: 10px; align-items: center; }
-        .search-form input[type="text"] {
-            padding: 10px 15px; /* Increased padding */
+            padding: 12px 20px; /* Reduced padding */
+            border-radius: 6px; /* Less rounded */
+            box-shadow: 0 1px 3px var(--shadow-color);
+            margin-bottom: 30px;
+            gap: 15px;
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            min-width: 280px; /* Wider search */
-            font-size: 1em; /* Slightly larger font */
+        }
+        .controls-left, .controls-right { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+
+        .search-form input[type="text"], .category-filter select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            min-width: 200px;
+            font-size: 0.9em;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .search-form input[type="text"]:focus {
+        .search-form input[type="text"]:focus, .category-filter select:focus {
             border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+            box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.25);
             outline: none;
         }
-        .sort-options { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        .sort-options span { font-weight: 600; color: var(--text-color); margin-right: 8px; }
+        .sort-options span { font-weight: 600; color: var(--text-color); margin-right: 5px; font-size: 0.9em; }
         .sort-options button {
-            padding: 8px 15px; /* Increased padding */
+            padding: 6px 12px; /* Smaller buttons */
             background-color: var(--button-bg-color);
             color: var(--text-color);
-            border-radius: 6px;
+            border-radius: 4px;
             text-decoration: none;
-            font-size: 0.95em; /* Slightly larger font */
+            font-size: 0.85em;
             transition: background-color 0.2s, border-color 0.2s;
-            border: 1px solid var(--button-bg-color);
+            border: 1px solid transparent;
             cursor: pointer;
             font-weight: 500;
         }
@@ -104,48 +108,36 @@
             font-weight: 600;
         }
 
-        /* Layout for List and Chart */
-        .main-layout { display: flex; flex-wrap: wrap; gap: 40px; /* Increased gap */ }
-        .item-list-container { flex: 1; min-width: 400px; max-width: 600px; }
-        .chart-display-container { flex: 2; min-width: 500px; }
+        /* Layout for Table and Chart */
+        .main-layout { display: flex; flex-wrap: wrap; gap: 25px; }
+        .item-table-container { flex: 3; min-width: 500px; /* Table takes more space */ }
+        .chart-display-container { flex: 2; min-width: 400px; }
 
-        /* Item List Styling */
-        #item-list { list-style: none; padding: 0; margin: 0; max-height: 75vh; overflow-y: auto; background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 3px 8px var(--shadow-color); }
-        #item-list li {
-            padding: 15px 20px; /* Increased padding */
-            border-bottom: 1px solid #f1f3f5;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px; /* Increased gap */
-            flex-wrap: nowrap;
-            transition: background-color 0.15s ease-in-out;
-        }
-        #item-list li:last-child { border-bottom: none; }
-        #item-list li:hover { background-color: var(--list-hover-bg); }
-        /* Style for selected item */
-        #item-list li.selected-item {
-             background-color: var(--list-selected-bg);
-             border-left: 4px solid var(--accent-color); /* Add left border */
-             padding-left: 16px; /* Adjust padding */
-        }
-        #item-list li a { color: var(--accent-color); text-decoration: none; font-weight: 600; /* Bolder link */ cursor: pointer; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 1.05em; /* Slightly larger item name */ }
-        #item-list li a:hover { color: var(--accent-hover-color); text-decoration: underline; }
-        .item-details { display: flex; gap: 15px; /* Increased gap */ flex-shrink: 0; }
-        .item-details span { font-size: 0.9em; /* Larger detail text */ color: var(--muted-text-color); white-space: nowrap; }
-        .trend-positive { color: var(--positive-color); font-weight: 600; }
-        .trend-negative { color: var(--negative-color); font-weight: 600; }
-        .vendor-price { color: #6f42c1; }
+        /* Item Table Styling */
+        .table-wrapper { max-height: 75vh; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 1px 3px var(--shadow-color); background-color: var(--card-bg-color); }
+        #item-table { width: 100%; border-collapse: collapse; }
+        #item-table th, #item-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+        #item-table th { background-color: var(--table-header-bg); font-weight: 600; font-size: 0.85em; text-transform: uppercase; color: var(--muted-text-color); position: sticky; top: 0; z-index: 1; }
+        #item-table tbody tr:hover { background-color: var(--table-row-hover-bg); }
+        #item-table tbody tr.selected-item { background-color: var(--table-row-selected-bg); font-weight: 500; }
+        #item-table td:nth-child(1) { font-weight: 500; cursor: pointer; color: var(--accent-color); } /* Product Name */
+        #item-table td:nth-child(1):hover { text-decoration: underline; color: var(--accent-hover-color); }
+        #item-table td:nth-child(2) { font-size: 0.9em; color: var(--muted-text-color); } /* Category */
+        #item-table td:nth-child(n+3) { text-align: right; font-family: monospace; font-size: 0.95em; } /* Numeric columns */
+
+        .trend-positive { color: var(--positive-color); }
+        .trend-negative { color: var(--negative-color); }
+        .vendor-price { color: #6f42c1; } /* Purple */
+        .na-value { color: #ccc; } /* Style for N/A */
 
         /* Chart Area Styling */
-        .chart-display { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 10px; box-shadow: 0 5px 15px var(--shadow-color); padding: 25px; min-height: 450px; /* Adjusted min-height */ position: relative; }
+        .chart-display { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 1px 3px var(--shadow-color); padding: 20px; min-height: 420px; position: relative; }
         .chart-placeholder { text-align: center; color: #aaa; padding: 60px; font-size: 1.1em; }
-        /* Reduce chart max height */
-        .chart-plot canvas { max-width: 100%; max-height: 400px; /* Reduced max height */ }
+        .chart-plot canvas { max-width: 100%; max-height: 400px; }
 
         /* Pagination styling */
-        .pagination { text-align: center; margin-top: 30px; /* More space above pagination */ padding-bottom: 20px; }
-        .pagination button { margin: 0 4px; padding: 9px 16px; /* Increased padding */ background-color: var(--card-bg-color); border: 1px solid var(--border-color); color: var(--accent-color); border-radius: 6px; transition: background-color 0.2s, color 0.2s, border-color 0.2s; cursor: pointer; font-weight: 500; }
+        .pagination { text-align: center; margin-top: 20px; padding-bottom: 20px; }
+        .pagination button { margin: 0 3px; padding: 7px 14px; background-color: var(--card-bg-color); border: 1px solid var(--border-color); color: var(--accent-color); border-radius: 4px; transition: background-color 0.2s, color 0.2s, border-color 0.2s; cursor: pointer; font-weight: 500; font-size: 0.9em; }
         .pagination button:hover:not(:disabled) { background-color: #f1f3f5; border-color: #adb5bd; }
         .pagination button.current { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: bold; cursor: default; }
         .pagination button:disabled { color: #adb5bd; background-color: #f8f9fa; cursor: not-allowed; border-color: #e9ecef; }
@@ -154,7 +146,7 @@
         .error-message { color: var(--negative-color); }
 
         /* Footer */
-        footer { text-align: center; margin-top: 50px; padding: 25px 0; font-size: 0.9em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); }
+        footer { text-align: center; margin-top: 40px; padding: 20px 0; font-size: 0.9em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); }
 
     </style>
 </head>
@@ -165,23 +157,52 @@
         <div class="status"> Data Generated: <span id="last-update">{{ last_update }}</span> </div>
 
         <div class="controls">
-            <div class="search-form">
-                <input type="text" id="search-input" placeholder="Search Product Name...">
+            <div class="controls-left">
+                 <div class="search-form">
+                    <input type="text" id="search-input" placeholder="Search Product Name...">
+                </div>
+                <div class="category-filter">
+                     <select id="category-filter">
+                         <option value="All">All Categories</option>
+                         {% for category in categories %}
+                         <option value="{{ category }}">{{ category }}</option>
+                         {% endfor %}
+                     </select>
+                </div>
             </div>
-            <div class="sort-options" id="sort-options">
-                <span>Sort By:</span>
-                <button data-sort="name_asc" class="current-sort">Name A-Z</button>
-                <button data-sort="name_desc">Name Z-A</button>
-                <button data-sort="trend_dec">Largest Change % &#9660;</button>
-                <button data-sort="trend_inc">Largest Change % &#9650;</button>
+            <div class="controls-right">
+                <div class="sort-options" id="sort-options">
+                    <span>Sort By:</span>
+                    <button data-sort="name_asc" class="current-sort">Name</button>
+                    <button data-sort="category_asc">Category</button>
+                    <button data-sort="buy_desc">Buy</button>
+                    <button data-sort="ask_asc">Ask</button>
+                    <button data-sort="vendor_desc">Vendor</button>
+                    <button data-sort="trend_dec">Trend %</button>
+                </div>
             </div>
         </div>
 
         <div class="main-layout">
-            <div class="item-list-container">
+            <div class="item-table-container">
                 <div id="loading-message" class="loading-message">Loading market data...</div>
                 <div id="error-message" class="error-message" style="display: none;"></div>
-                <ul id="item-list" style="display: none;"></ul>
+                <div class="table-wrapper" style="display: none;">
+                    <table id="item-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Buy</th>
+                                <th>Ask</th>
+                                <th>Vendor</th>
+                                <th>Trend (24h)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="item-table-body">
+                            </tbody>
+                    </table>
+                </div>
                 <div class="pagination" id="pagination" style="display: none;">
                     <button id="prev-page" disabled>&laquo; Previous</button>
                     <span id="page-info">Page 1 of 1</span>
@@ -191,7 +212,7 @@
 
             <div class="chart-display-container">
                 <div class="chart-display" id="chart-display">
-                    <div class="chart-placeholder" id="chart-placeholder">Select an item from the list to view its chart.</div>
+                    <div class="chart-placeholder" id="chart-placeholder">Select an item name from the table to view its chart.</div>
                     <div class="chart-plot" style="display: none;">
                         <canvas id="single-chart-canvas"></canvas>
                     </div>
@@ -205,23 +226,26 @@
 
     <script>
         // --- Global State ---
-        let allMarketData = [];
-        let marketSummary = [];
+        let allMarketData = []; // Holds raw history [{product, timestamp, buy, ask}, ...]
+        let marketSummary = []; // Holds summary [{name, category, buy, ask, vendor, trend}, ...]
         let filteredAndSortedSummary = [];
         let currentChart = null;
         let currentPage = 1;
-        const itemsPerPage = 20;
+        const itemsPerPage = 20; // Keep consistent
         let currentSort = 'name_asc';
         let currentSearch = '';
-        let selectedListItem = null; // Keep track of selected item LI element
+        let currentCategoryFilter = 'All';
+        let selectedTableRow = null; // Keep track of selected table row TR element
 
         // --- DOM Elements ---
-        const itemListEl = document.getElementById('item-list');
+        const tableBodyEl = document.getElementById('item-table-body');
+        const tableWrapperEl = document.querySelector('.table-wrapper');
         const paginationEl = document.getElementById('pagination');
         const pageInfoEl = document.getElementById('page-info');
         const prevButton = document.getElementById('prev-page');
         const nextButton = document.getElementById('next-page');
         const searchInput = document.getElementById('search-input');
+        const categoryFilterEl = document.getElementById('category-filter');
         const sortOptionsEl = document.getElementById('sort-options');
         const chartCanvas = document.getElementById('single-chart-canvas');
         const chartPlotContainer = document.querySelector('.chart-plot');
@@ -231,13 +255,13 @@
 
         // --- Utility Functions ---
         function formatPrice(price) {
-            if (price === null || price === undefined || isNaN(price)) return 'N/A';
+            if (price === null || price === undefined || isNaN(price)) return '<span class="na-value">N/A</span>';
             return price.toLocaleString();
         }
 
         function formatTrend(trend) {
-            if (trend === null || trend === undefined || isNaN(trend)) return 'N/A';
-            const arrow = trend > 0 ? '▲' : trend < 0 ? '▼' : ''; // Trend arrow
+            if (trend === null || trend === undefined || isNaN(trend)) return '<span class="na-value">N/A</span>';
+            const arrow = trend > 0 ? '▲' : trend < 0 ? '▼' : '';
             const trendClass = trend > 0 ? 'trend-positive' : trend < 0 ? 'trend-negative' : '';
             return `<span class="${trendClass}">${arrow} ${trend.toFixed(2)}%</span>`;
         }
@@ -247,24 +271,29 @@
             try {
                 loadingMessageEl.style.display = 'block';
                 errorMessageEl.style.display = 'none';
-                itemListEl.style.display = 'none';
+                tableWrapperEl.style.display = 'none';
                 paginationEl.style.display = 'none';
 
+                console.log("Fetching data files...");
+                // Fetch data files generated by build_site.py
                 const [historyRes, summaryRes] = await Promise.all([
-                    fetch('./data/market_history.json'),
-                    fetch('./data/market_summary.json')
+                    fetch('./data/market_history.json'), // Contains [{product, timestamp, buy, ask}, ...]
+                    fetch('./data/market_summary.json') // Contains [{name, category, buy, ask, vendor, trend}, ...]
                 ]);
+                console.log("Fetch responses received.");
 
                 if (!historyRes.ok) throw new Error(`Failed to fetch market_history.json (Status: ${historyRes.status})`);
                 if (!summaryRes.ok) throw new Error(`Failed to fetch market_summary.json (Status: ${summaryRes.status})`);
 
+                console.log("Parsing JSON data...");
                 allMarketData = await historyRes.json();
                 marketSummary = await summaryRes.json();
+                console.log(`Loaded ${allMarketData.length} history points and ${marketSummary.length} summary items.`);
 
                 loadingMessageEl.style.display = 'none';
-                itemListEl.style.display = 'block';
+                tableWrapperEl.style.display = 'block'; // Show table wrapper
                 paginationEl.style.display = 'block';
-                applyFiltersAndSort();
+                applyFiltersAndSort(); // Initial display
 
             } catch (error) {
                 console.error("Error loading data:", error);
@@ -276,60 +305,95 @@
 
         // --- Filtering and Sorting ---
         function applyFiltersAndSort() {
+            console.log(`Applying filter: "${currentSearch}", category: "${currentCategoryFilter}", sort: "${currentSort}"`);
             let result = [...marketSummary];
+
+            // Apply category filter
+            if (currentCategoryFilter !== 'All') {
+                result = result.filter(item => item.category === currentCategoryFilter);
+            }
+
+            // Apply search filter
             const searchTerm = currentSearch.toLowerCase();
             if (searchTerm) {
                 result = result.filter(item => item.name.toLowerCase().includes(searchTerm));
             }
 
+            // Apply sorting
             result.sort((a, b) => {
                 try {
+                    // Helper for sorting numbers (nulls last)
+                    const sortNum = (valA, valB, ascending = true) => {
+                        const numA = valA ?? (ascending ? Infinity : -Infinity);
+                        const numB = valB ?? (ascending ? Infinity : -Infinity);
+                        return ascending ? numA - numB : numB - numA;
+                    };
+                    // Helper for sorting strings (nulls last)
+                    const sortStr = (valA, valB, ascending = true) => {
+                        const strA = valA ?? ''; const strB = valB ?? '';
+                        const compare = strA.localeCompare(strB);
+                        return ascending ? compare : -compare;
+                    };
+
                     switch (currentSort) {
-                        case 'name_desc': return b.name.localeCompare(a.name);
-                        case 'trend_inc':
-                            const trendA_inc = a.trend ?? Infinity; const trendB_inc = b.trend ?? Infinity;
-                            return trendA_inc - trendB_inc;
-                        case 'trend_dec':
-                            const trendA_dec = a.trend ?? -Infinity; const trendB_dec = b.trend ?? -Infinity;
-                            return trendB_dec - trendA_dec;
-                        case 'name_asc': default: return a.name.localeCompare(b.name);
+                        case 'name_desc': return sortStr(a.name, b.name, false);
+                        case 'category_asc': return sortStr(a.category, b.category, true);
+                        case 'buy_desc': return sortNum(a.buy, b.buy, false);
+                        case 'ask_asc': return sortNum(a.ask, b.ask, true);
+                        case 'vendor_desc': return sortNum(a.vendor, b.vendor, false);
+                        case 'trend_inc': return sortNum(a.trend, b.trend, true);
+                        case 'trend_dec': return sortNum(a.trend, b.trend, false);
+                        case 'name_asc': default: return sortStr(a.name, b.name, true);
                     }
                 } catch (e) { console.error("Sort comparison error:", e); return 0; }
             });
 
             filteredAndSortedSummary = result;
+            console.log(`Filtered/Sorted result size: ${filteredAndSortedSummary.length}`);
             currentPage = 1;
             renderCurrentPage();
         }
 
         // --- Rendering ---
         function renderCurrentPage() {
-            itemListEl.innerHTML = '';
-            selectedListItem = null; // Clear selection when page changes
+            console.log(`Rendering page ${currentPage}`);
+            tableBodyEl.innerHTML = ''; // Clear previous rows
+            selectedTableRow = null; // Clear selection when page changes
+
             const totalItems = filteredAndSortedSummary.length;
             const totalPages = Math.ceil(totalItems / itemsPerPage);
             currentPage = Math.max(1, Math.min(currentPage, totalPages || 1));
+
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
             const itemsToDisplay = filteredAndSortedSummary.slice(startIndex, endIndex);
+            console.log(`Displaying items ${startIndex} to ${endIndex-1}`);
 
             if (itemsToDisplay.length === 0) {
-                 if(currentSearch){ itemListEl.innerHTML = '<li>No items match your search.</li>'; }
-                 else { itemListEl.innerHTML = '<li>No market data available.</li>'; }
+                 const message = currentSearch || currentCategoryFilter !== 'All' ? 'No items match your filters.' : 'No market data available.';
+                 const tr = document.createElement('tr');
+                 const td = document.createElement('td');
+                 td.colSpan = 6; // Span all columns
+                 td.textContent = message;
+                 td.style.textAlign = 'center';
+                 td.style.padding = '20px';
+                 td.style.color = 'var(--muted-text-color)';
+                 tr.appendChild(td);
+                 tableBodyEl.appendChild(tr);
             } else {
                 itemsToDisplay.forEach(item => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <a href="#" data-product="${encodeURIComponent(item.name)}">${item.name}</a>
-                        <span class="item-details">
-                            <span>Trend: ${formatTrend(item.trend)}</span>
-                            <span>Vendor: <span class="vendor-price">${formatPrice(item.vendor)}</span></span>
-                            <span>Buy: ${formatPrice(item.buy)}</span>
-                            <span>Ask: ${formatPrice(item.ask)}</span>
-                        </span>
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td data-product="${encodeURIComponent(item.name)}"><a>${item.name}</a></td>
+                        <td>${item.category || 'N/A'}</td>
+                        <td>${formatPrice(item.buy)}</td>
+                        <td>${formatPrice(item.ask)}</td>
+                        <td><span class="vendor-price">${formatPrice(item.vendor)}</span></td>
+                        <td>${formatTrend(item.trend)}</td>
                     `;
-                    li.querySelector('a').addEventListener('click', handleProductClick);
-                    itemListEl.appendChild(li);
+                    // Add click listener to the first cell (product name)
+                    tr.querySelector('td:first-child').addEventListener('click', handleProductClick);
+                    tableBodyEl.appendChild(tr);
                 });
             }
             renderPagination(totalPages);
@@ -342,20 +406,20 @@
         }
 
         // --- Charting ---
-        function displayChart(productName, clickedLiElement) { // Accept the LI element
+        function displayChart(productName, clickedTrElement) { // Accept the TR element
+            console.log("Requesting chart for:", productName);
             chartPlaceholder.style.display = 'none';
             chartPlotContainer.style.display = 'block';
 
             // --- Highlight selected item ---
-            if (selectedListItem) {
-                selectedListItem.classList.remove('selected-item'); // Remove from previous
+            if (selectedTableRow) {
+                selectedTableRow.classList.remove('selected-item');
             }
-            if (clickedLiElement) {
-                clickedLiElement.classList.add('selected-item'); // Add to current
-                selectedListItem = clickedLiElement;
+            if (clickedTrElement) {
+                clickedTrElement.classList.add('selected-item');
+                selectedTableRow = clickedTrElement;
             }
             // --- End Highlight ---
-
 
             const productHistory = allMarketData.filter(d => d.product === productName);
 
@@ -397,7 +461,7 @@
                     data: chartData,
                     options: {
                         responsive: true,
-                        maintainAspectRatio: false, // Keep false
+                        maintainAspectRatio: false,
                         plugins: {
                             title: { display: true, text: `Market Trend for ${productName}`, font: { size: 16, weight: '600' }, padding: { bottom: 15 } },
                             legend: { position: 'top' },
@@ -419,11 +483,10 @@
 
         // --- Event Handlers ---
         function handleProductClick(event) {
-            event.preventDefault();
-            const clickedLink = event.target;
-            const clickedLi = clickedLink.closest('li'); // Find parent LI
-            const productName = decodeURIComponent(clickedLink.dataset.product);
-            displayChart(productName, clickedLi); // Pass the LI element
+            // Use currentTarget to get the TD, then parent TR
+            const clickedTr = event.currentTarget.closest('tr');
+            const productName = decodeURIComponent(event.currentTarget.dataset.product);
+            displayChart(productName, clickedTr); // Pass the TR element
         }
 
         let searchTimeout;
@@ -435,16 +498,21 @@
             }, 300);
         });
 
+        categoryFilterEl.addEventListener('change', (event) => {
+             currentCategoryFilter = event.target.value;
+             applyFiltersAndSort();
+        });
+
         sortOptionsEl.addEventListener('click', (event) => {
             if (event.target.tagName === 'BUTTON' && event.target.dataset.sort) {
                 const newSort = event.target.dataset.sort;
-                if (newSort !== currentSort) {
-                    currentSort = newSort;
-                    sortOptionsEl.querySelectorAll('button').forEach(btn => {
-                        btn.classList.toggle('current-sort', btn.dataset.sort === currentSort);
-                    });
-                    applyFiltersAndSort();
-                }
+                // Allow clicking same sort button to reverse (optional)
+                // if (newSort === currentSort) { ... handle reverse ... }
+                currentSort = newSort; // Simple set for now
+                sortOptionsEl.querySelectorAll('button').forEach(btn => {
+                    btn.classList.toggle('current-sort', btn.dataset.sort === currentSort);
+                });
+                applyFiltersAndSort();
             }
         });
 
