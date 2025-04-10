@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Market Tracker (Static)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@^4"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f0f4f8; color: #333; line-height: 1.6; }
+        .container { max-width: 1800px; margin: 20px auto; padding: 15px 25px; box-sizing: border-box; }
+        h1 { text-align: center; color: #102a43; margin-bottom: 15px; font-weight: 600; }
+        .status { text-align: center; margin-bottom: 20px; font-size: 0.95em; color: #555; }
+
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; background-color: #fff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 30px; gap: 15px; }
+        .search-form { display: flex; gap: 10px; align-items: center; }
+        .search-form input[type="text"] { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; min-width: 200px; }
+        /* Removed search button, will filter on input change */
+        /* .search-form button { padding: 8px 15px; background-color: #2a6f97; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.2s; } */
+        /* .search-form button:hover { background-color: #1a5f7a; } */
+        .sort-options { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .sort-options span { font-weight: 500; color: #333; }
+        /* Use buttons for sorting */
+        .sort-options button { padding: 6px 12px; background-color: #e2e8f0; color: #102a43; border-radius: 4px; text-decoration: none; font-size: 0.9em; transition: background-color 0.2s; border: 1px solid transparent; cursor: pointer; }
+        .sort-options button:hover { background-color: #cad5e3; }
+        .sort-options button.current-sort { background-color: #a7bbc7; font-weight: bold; border: 1px solid #8a9faa; }
+
+        /* Layout for List and Chart */
+        .main-layout { display: flex; flex-wrap: wrap; gap: 30px; }
+        .item-list-container { flex: 1; min-width: 350px; max-width: 600px; }
+        .chart-display-container { flex: 2; min-width: 450px; }
+
+        /* Item List Styling */
+        #item-list { list-style: none; padding: 0; margin: 0; max-height: 70vh; overflow-y: auto; background-color: #fff; border: 1px solid #dce4f0; border-radius: 8px; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+        #item-list li { padding: 10px 15px; border-bottom: 1px solid #eef1f5; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        #item-list li:last-child { border-bottom: none; }
+        #item-list li a { color: #1a5f7a; text-decoration: none; font-weight: 500; cursor: pointer; flex-grow: 1; }
+        #item-list li a:hover { text-decoration: underline; }
+        .item-details span { font-size: 0.85em; color: #444; white-space: nowrap; }
+        .trend-positive { color: #28a745; font-weight: bold; }
+        .trend-negative { color: #dc3545; font-weight: bold; }
+        .vendor-price { color: #007bff; }
+
+        /* Chart Area Styling */
+        .chart-display { background-color: #ffffff; border: 1px solid #dce4f0; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07); padding: 20px; min-height: 450px; position: relative; }
+        .chart-placeholder { text-align: center; color: #888; padding: 50px; }
+        .chart-plot canvas { max-width: 100%; max-height: 450px; } /* Constrain chart height */
+
+        /* Pagination styling */
+        .pagination { text-align: center; margin-top: 20px; padding-bottom: 20px; }
+        .pagination button { margin: 0 3px; padding: 8px 15px; background-color: #fff; border: 1px solid #dce4f0; color: #2a6f97; border-radius: 4px; transition: background-color 0.2s, color 0.2s; cursor: pointer; }
+        .pagination button:hover:not(:disabled) { background-color: #e2e8f0; }
+        .pagination button.current { background-color: #2a6f97; color: white; border-color: #2a6f97; font-weight: bold; cursor: default; }
+        .pagination button:disabled { color: #aaa; background-color: #f8f9fa; cursor: not-allowed; }
+
+        .loading-message, .error-message { text-align: center; padding: 30px; font-size: 1.1em; color: #555; }
+        .error-message { color: #dc3545; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Game Market Tracker (Static)</h1>
+        <div class="status"> Data Generated: <span id="last-update">{{ last_update }}</span> </div>
+
+        <div class="controls">
+            <div class="search-form">
+                <input type="text" id="search-input" placeholder="Search Product Name...">
+            </div>
+            <div class="sort-options" id="sort-options">
+                <span>Sort By:</span>
+                <button data-sort="name_asc" class="current-sort">Name A-Z</button>
+                <button data-sort="name_desc">Name Z-A</button>
+                <button data-sort="trend_dec">Largest Change % &#9660;</button>
+                <button data-sort="trend_inc">Largest Change % &#9650;</button>
+            </div>
+        </div>
+
+        <div class="main-layout">
+            <div class="item-list-container">
+                <div id="loading-message" class="loading-message">Loading market data...</div>
+                <div id="error-message" class="error-message" style="display: none;"></div>
+                <ul id="item-list" style="display: none;">
+                    </ul>
+                <div class="pagination" id="pagination" style="display: none;">
+                    <button id="prev-page" disabled>&laquo; Previous</button>
+                    <span id="page-info">Page 1 of 1</span>
+                    <button id="next-page" disabled>Next &raquo;</button>
+                </div>
+            </div>
+
+            <div class="chart-display-container">
+                <div class="chart-display" id="chart-display">
+                    <div class="chart-placeholder" id="chart-placeholder">Select an item from the list to view its chart.</div>
+                    <div class="chart-plot" style="display: none;">
+                        <canvas id="single-chart-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div> <script>
+        // --- Global State ---
+        let allMarketData = []; // Holds raw history {product, timestamp, buy, ask}
+        let marketSummary = []; // Holds summary {name, buy, ask, vendor, trend}
+        let filteredAndSortedSummary = []; // Holds summary after filtering/sorting
+        let currentChart = null; // Holds the Chart.js instance
+        let currentPage = 1;
+        const itemsPerPage = 20; // Should match Python ITEMS_PER_PAGE if pagination logic relies on it
+        let currentSort = 'name_asc';
+        let currentSearch = '';
+
+        // --- DOM Elements ---
+        const itemListEl = document.getElementById('item-list');
+        const paginationEl = document.getElementById('pagination');
+        const pageInfoEl = document.getElementById('page-info');
+        const prevButton = document.getElementById('prev-page');
+        const nextButton = document.getElementById('next-page');
+        const searchInput = document.getElementById('search-input');
+        const sortOptionsEl = document.getElementById('sort-options');
+        const chartCanvas = document.getElementById('single-chart-canvas');
+        const chartPlotContainer = document.querySelector('.chart-plot');
+        const chartPlaceholder = document.getElementById('chart-placeholder');
+        const loadingMessageEl = document.getElementById('loading-message');
+        const errorMessageEl = document.getElementById('error-message');
+
+        // --- Utility Functions ---
+        function formatPrice(price) {
+            if (price === null || price === undefined || isNaN(price)) return 'N/A';
+            return price.toLocaleString(); // Basic formatting
+        }
+
+        function formatTrend(trend) {
+            if (trend === null || trend === undefined || isNaN(trend)) return 'N/A';
+            const trendClass = trend > 0 ? 'trend-positive' : 'trend-negative';
+            return `<span class="${trendClass}">${trend.toFixed(2)}%</span>`;
+        }
+
+        // --- Data Fetching ---
+        async function loadData() {
+            try {
+                loadingMessageEl.style.display = 'block';
+                errorMessageEl.style.display = 'none';
+                itemListEl.style.display = 'none';
+                paginationEl.style.display = 'none';
+
+                // Fetch all necessary data files generated by build_site.py
+                // Adjust paths if data files are not in root/data/
+                const [historyRes, summaryRes] = await Promise.all([
+                    fetch('./data/market_history.json'), // Contains [{product, timestamp, buy, ask}, ...]
+                    fetch('./data/market_summary.json') // Contains [{name, buy, ask, vendor, trend}, ...]
+                ]);
+
+                if (!historyRes.ok || !summaryRes.ok) {
+                    throw new Error(`Failed to fetch data files (History: ${historyRes.status}, Summary: ${summaryRes.status})`);
+                }
+
+                allMarketData = await historyRes.json();
+                marketSummary = await summaryRes.json();
+
+                // Convert timestamp strings back to Date objects for potential charting needs later
+                // This might be slow for large datasets, consider doing it on demand
+                // allMarketData.forEach(d => { d.timestamp = new Date(d.timestamp); });
+
+                console.log(`Loaded ${allMarketData.length} history points and ${marketSummary.length} summary items.`);
+                loadingMessageEl.style.display = 'none';
+                itemListEl.style.display = 'block'; // Show list now
+                paginationEl.style.display = 'block'; // Show pagination
+                applyFiltersAndSort(); // Initial display
+
+            } catch (error) {
+                console.error("Error loading data:", error);
+                loadingMessageEl.style.display = 'none';
+                errorMessageEl.textContent = `Error loading market data: ${error.message}. Please try refreshing.`;
+                errorMessageEl.style.display = 'block';
+            }
+        }
+
+        // --- Filtering and Sorting ---
+        function applyFiltersAndSort() {
+            let result = [...marketSummary]; // Start with full summary
+
+            // Apply search filter
+            const searchTerm = currentSearch.toLowerCase();
+            if (searchTerm) {
+                result = result.filter(item => item.name.toLowerCase().includes(searchTerm));
+            }
+
+            // Apply sorting
+            result.sort((a, b) => {
+                switch (currentSort) {
+                    case 'name_desc':
+                        return b.name.localeCompare(a.name);
+                    case 'trend_inc':
+                        // Handle null/undefined trends, put them at the end
+                        const trendA_inc = a.trend ?? Infinity;
+                        const trendB_inc = b.trend ?? Infinity;
+                        return trendA_inc - trendB_inc;
+                    case 'trend_dec':
+                        // Handle null/undefined trends, put them at the end (use -Infinity)
+                        const trendA_dec = a.trend ?? -Infinity;
+                        const trendB_dec = b.trend ?? -Infinity;
+                        return trendB_dec - trendA_dec;
+                    case 'name_asc':
+                    default:
+                        return a.name.localeCompare(b.name);
+                }
+            });
+
+            filteredAndSortedSummary = result;
+            currentPage = 1; // Reset to first page after filter/sort
+            renderCurrentPage();
+        }
+
+        // --- Rendering ---
+        function renderCurrentPage() {
+            itemListEl.innerHTML = ''; // Clear previous items
+
+            const totalItems = filteredAndSortedSummary.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            currentPage = Math.max(1, Math.min(currentPage, totalPages || 1)); // Ensure page is valid
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const itemsToDisplay = filteredAndSortedSummary.slice(startIndex, endIndex);
+
+            if (itemsToDisplay.length === 0) {
+                 if(currentSearch){
+                     itemListEl.innerHTML = '<li>No items match your search.</li>';
+                 } else {
+                     itemListEl.innerHTML = '<li>No market data available.</li>';
+                 }
+            } else {
+                itemsToDisplay.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <a href="#" data-product="${encodeURIComponent(item.name)}">${item.name}</a>
+                        <span class="item-details">
+                            <span>Trend: ${formatTrend(item.trend)}</span>
+                            <span>Vendor: ${formatPrice(item.vendor)}</span>
+                            <span>Buy: ${formatPrice(item.buy)}</span>
+                            <span>Ask: ${formatPrice(item.ask)}</span>
+                        </span>
+                    `;
+                    // Add click listener to the link
+                    li.querySelector('a').addEventListener('click', handleProductClick);
+                    itemListEl.appendChild(li);
+                });
+            }
+
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            pageInfoEl.textContent = `Page ${currentPage} of ${totalPages || 1}`;
+            prevButton.disabled = currentPage <= 1;
+            nextButton.disabled = currentPage >= totalPages;
+        }
+
+        // --- Charting ---
+        function displayChart(productName) {
+            console.log("Requesting chart for:", productName);
+            chartPlaceholder.style.display = 'none';
+            chartPlotContainer.style.display = 'block';
+
+            // Filter the *full* historical data for this product
+            const productHistory = allMarketData.filter(d => d.product === productName);
+
+            if (!productHistory || productHistory.length < 1) {
+                console.warn("No historical data found for chart:", productName);
+                 if (currentChart) { currentChart.destroy(); currentChart = null; } // Clear old chart
+                 chartPlotContainer.innerHTML = '<p style="text-align:center; color: orange;">No historical data available for this item.</p>'; // Show message inside plot area
+                 // Re-add canvas for next time
+                 const canvas = document.createElement('canvas');
+                 canvas.id = 'single-chart-canvas';
+                 chartPlotContainer.appendChild(canvas);
+                return;
+            }
+
+            // Prepare data for Chart.js
+            productHistory.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)); // Ensure sorted by time
+            const labels = productHistory.map(d => d.timestamp); // Use ISO strings directly
+            const buyData = productHistory.map(d => d.buy); // Already null where missing
+            const askData = productHistory.map(d => d.ask); // Already null where missing
+
+            const chartData = {
+                labels: labels,
+                datasets: [
+                    { label: 'Buy', data: buyData, borderColor: 'rgb(54, 162, 235)', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: true },
+                    { label: 'Ask', data: askData, borderColor: 'rgb(255, 99, 132)', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: true }
+                ]
+            };
+
+            // Destroy previous chart instance if it exists
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            // Ensure canvas exists if it was removed by error message
+            let canvasEl = document.getElementById('single-chart-canvas');
+             if (!canvasEl) {
+                 chartPlotContainer.innerHTML = ''; // Clear any error message
+                 canvasEl = document.createElement('canvas');
+                 canvasEl.id = 'single-chart-canvas';
+                 chartPlotContainer.appendChild(canvasEl);
+             }
+
+
+            // Create new chart
+            try {
+                currentChart = new Chart(canvasEl, {
+                    type: 'line',
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: { display: true, text: `Market Trend for ${productName}` },
+                            legend: { position: 'top' },
+                            tooltip: { mode: 'index', intersect: false }
+                        },
+                        scales: {
+                            x: {
+                                // If using date adapter, configure time scale:
+                                // type: 'time',
+                                // time: { tooltipFormat: 'PPpp', unit: 'day' }, // Example using date-fns formats
+                                title: { display: true, text: 'Time' }
+                            },
+                            y: {
+                                beginAtZero: false,
+                                title: { display: true, text: 'Price' }
+                            }
+                        },
+                        // Performance: Consider smaller point radius, fewer points if needed
+                        // elements: { point: { radius: 0 } } // Disable points entirely
+                        // Consider downsampling data if very large:
+                        // parsing: false, // If data is pre-parsed
+                        // animation: false // Disable animation
+                    }
+                });
+            } catch(e) {
+                 console.error("Error creating Chart.js instance:", e);
+                 chartPlotContainer.innerHTML = '<p style="text-align:center; color: red;">Error rendering chart.</p>';
+            }
+        }
+
+
+        // --- Event Handlers ---
+        function handleProductClick(event) {
+            event.preventDefault();
+            const productName = decodeURIComponent(event.target.dataset.product);
+            displayChart(productName);
+        }
+
+        searchInput.addEventListener('input', (event) => {
+            currentSearch = event.target.value;
+            // Add debounce here if needed for performance on large lists
+            applyFiltersAndSort();
+        });
+
+        sortOptionsEl.addEventListener('click', (event) => {
+            if (event.target.tagName === 'BUTTON' && event.target.dataset.sort) {
+                const newSort = event.target.dataset.sort;
+                if (newSort !== currentSort) {
+                    currentSort = newSort;
+                    // Update button styles
+                    sortOptionsEl.querySelectorAll('button').forEach(btn => {
+                        btn.classList.toggle('current-sort', btn.dataset.sort === currentSort);
+                    });
+                    applyFiltersAndSort();
+                }
+            }
+        });
+
+        prevButton.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderCurrentPage();
+            }
+        });
+
+        nextButton.addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredAndSortedSummary.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderCurrentPage();
+            }
+        });
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', loadData);
+
+    </script>
+
+</body>
+</html>

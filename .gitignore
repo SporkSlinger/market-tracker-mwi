@@ -1,0 +1,18 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment (if used locally)
+venv/
+*.venv/
+
+# Downloaded source data
+market.db
+milkyapi.json
+
+# Generated output (handled by deployment)
+output/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
