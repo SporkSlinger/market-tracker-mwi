@@ -1,0 +1,2571 @@
+Loots
+
+ 
+Bag Of 10 Cowbells
+ • 
+
+ 
+Purple's Gift
+ • 
+
+ 
+Small Artisan's Crate
+ • 
+
+ 
+Small Meteorite Cache
+ • 
+
+ 
+Small Treasure Chest
+ • 
+
+ 
+Medium Artisan's Crate
+ • 
+
+ 
+Medium Meteorite Cache
+ • 
+
+ 
+Medium Treasure Chest
+ • 
+
+ 
+Large Artisan's Crate
+ • 
+
+ 
+Large Meteorite Cache
+ • 
+
+ 
+Large Treasure Chest
+ • 
+
+ 
+Chimerical Chest
+ • 
+
+ 
+Sinister Chest
+ • 
+
+ 
+Enchanted Chest
+
+Resources
+
+ 
+Milk
+ • 
+
+ 
+Verdant Milk
+ • 
+
+ 
+Azure Milk
+ • 
+
+ 
+Burble Milk
+ • 
+
+ 
+Crimson Milk
+ • 
+
+ 
+Rainbow Milk
+ • 
+
+ 
+Holy Milk
+ • 
+
+ 
+Cheese
+ • 
+
+ 
+Verdant Cheese
+ • 
+
+ 
+Azure Cheese
+ • 
+
+ 
+Burble Cheese
+ • 
+
+ 
+Crimson Cheese
+ • 
+
+ 
+Rainbow Cheese
+ • 
+
+ 
+Holy Cheese
+ • 
+
+ 
+Log
+ • 
+
+ 
+Birch Log
+ • 
+
+ 
+Cedar Log
+ • 
+
+ 
+Purpleheart Log
+ • 
+
+ 
+Ginkgo Log
+ • 
+
+ 
+Redwood Log
+ • 
+
+ 
+Arcane Log
+ • 
+
+ 
+Lumber
+ • 
+
+ 
+Birch Lumber
+ • 
+
+ 
+Cedar Lumber
+ • 
+
+ 
+Purpleheart Lumber
+ • 
+
+ 
+Ginkgo Lumber
+ • 
+
+ 
+Redwood Lumber
+ • 
+
+ 
+Arcane Lumber
+ • 
+
+ 
+Rough Hide
+ • 
+
+ 
+Reptile Hide
+ • 
+
+ 
+Gobo Hide
+ • 
+
+ 
+Beast Hide
+ • 
+
+ 
+Umbral Hide
+ • 
+
+ 
+Rough Leather
+ • 
+
+ 
+Reptile Leather
+ • 
+
+ 
+Gobo Leather
+ • 
+
+ 
+Beast Leather
+ • 
+
+ 
+Umbral Leather
+ • 
+
+ 
+Cotton
+ • 
+
+ 
+Flax
+ • 
+
+ 
+Bamboo Branch
+ • 
+
+ 
+Cocoon
+ • 
+
+ 
+Radiant Fiber
+ • 
+
+ 
+Cotton Fabric
+ • 
+
+ 
+Linen Fabric
+ • 
+
+ 
+Bamboo Fabric
+ • 
+
+ 
+Silk Fabric
+ • 
+
+ 
+Radiant Fabric
+ • 
+
+ 
+Egg
+ • 
+
+ 
+Wheat
+ • 
+
+ 
+Sugar
+ • 
+
+ 
+Blueberry
+ • 
+
+ 
+Blackberry
+ • 
+
+ 
+Strawberry
+ • 
+
+ 
+Mooberry
+ • 
+
+ 
+Marsberry
+ • 
+
+ 
+Spaceberry
+ • 
+
+ 
+Apple
+ • 
+
+ 
+Orange
+ • 
+
+ 
+Plum
+ • 
+
+ 
+Peach
+ • 
+
+ 
+Dragon Fruit
+ • 
+
+ 
+Star Fruit
+ • 
+
+ 
+Arabica Coffee Bean
+ • 
+
+ 
+Robusta Coffee Bean
+ • 
+
+ 
+Liberica Coffee Bean
+ • 
+
+ 
+Excelsa Coffee Bean
+ • 
+
+ 
+Fieriosa Coffee Bean
+ • 
+
+ 
+Spacia Coffee Bean
+ • 
+
+ 
+Green Tea Leaf
+ • 
+
+ 
+Black Tea Leaf
+ • 
+
+ 
+Burble Tea Leaf
+ • 
+
+ 
+Moolong Tea Leaf
+ • 
+
+ 
+Red Tea Leaf
+ • 
+
+ 
+Emp Tea Leaf
+ • 
+
+ 
+Catalyst Of Coinification
+ • 
+
+ 
+Catalyst Of Decomposition
+ • 
+
+ 
+Catalyst Of Transmutation
+ • 
+
+ 
+Prime Catalyst
+ • 
+
+ 
+Snake Fang
+ • 
+
+ 
+Shoebill Feather
+ • 
+
+ 
+Snail Shell
+ • 
+
+ 
+Crab Pincer
+ • 
+
+ 
+Turtle Shell
+ • 
+
+ 
+Marine Scale
+ • 
+
+ 
+Treant Bark
+ • 
+
+ 
+Centaur Hoof
+ • 
+
+ 
+Luna Wing
+ • 
+
+ 
+Gobo Rag
+ • 
+
+ 
+Goggles
+ • 
+
+ 
+Magnifying Glass
+ • 
+
+ 
+Eye Of The Watcher
+ • 
+
+ 
+Icy Cloth
+ • 
+
+ 
+Flaming Cloth
+ • 
+
+ 
+Sorcerer's Sole
+ • 
+
+ 
+Chrono Sphere
+ • 
+
+ 
+Frost Sphere
+ • 
+
+ 
+Panda Fluff
+ • 
+
+ 
+Black Bear Fluff
+ • 
+
+ 
+Grizzly Bear Fluff
+ • 
+
+ 
+Polar Bear Fluff
+ • 
+
+ 
+Red Panda Fluff
+ • 
+
+ 
+Magnet
+ • 
+
+ 
+Stalactite Shard
+ • 
+
+ 
+Living Granite
+ • 
+
+ 
+Colossus Core
+ • 
+
+ 
+Vampire Fang
+ • 
+
+ 
+Werewolf Claw
+ • 
+
+ 
+Revenant Anima
+ • 
+
+ 
+Soul Fragment
+ • 
+
+ 
+Infernal Ember
+ • 
+
+ 
+Demonic Core
+ • 
+
+ 
+Griffin Leather
+ • 
+
+ 
+Manticore Sting
+ • 
+
+ 
+Jackalope Antler
+ • 
+
+ 
+Dodocamel Plume
+ • 
+
+ 
+Griffin Talon
+ • 
+
+ 
+Acrobat's Ribbon
+ • 
+
+ 
+Magician's Cloth
+ • 
+
+ 
+Chaotic Chain
+ • 
+
+ 
+Cursed Ball
+ • 
+
+ 
+Royal Cloth
+ • 
+
+ 
+Knight's Ingot
+ • 
+
+ 
+Bishop's Scroll
+ • 
+
+ 
+Regal Jewel
+ • 
+
+ 
+Sundering Jewel
+ • 
+
+ 
+Butter Of Proficiency
+ • 
+
+ 
+Thread Of Expertise
+ • 
+
+ 
+Branch Of Insight
+ • 
+
+ 
+Gluttonous Energy
+ • 
+
+ 
+Guzzling Energy
+ • 
+
+ 
+Milking Essence
+ • 
+
+ 
+Foraging Essence
+ • 
+
+ 
+Woodcutting Essence
+ • 
+
+ 
+Cheesesmithing Essence
+ • 
+
+ 
+Crafting Essence
+ • 
+
+ 
+Tailoring Essence
+ • 
+
+ 
+Cooking Essence
+ • 
+
+ 
+Brewing Essence
+ • 
+
+ 
+Alchemy Essence
+ • 
+
+ 
+Enhancing Essence
+ • 
+
+ 
+Swamp Essence
+ • 
+
+ 
+Aqua Essence
+ • 
+
+ 
+Jungle Essence
+ • 
+
+ 
+Gobo Essence
+ • 
+
+ 
+Eyessence
+ • 
+
+ 
+Sorcerer Essence
+ • 
+
+ 
+Bear Essence
+ • 
+
+ 
+Golem Essence
+ • 
+
+ 
+Twilight Essence
+ • 
+
+ 
+Abyssal Essence
+ • 
+
+ 
+Chimerical Essence
+ • 
+
+ 
+Sinister Essence
+ • 
+
+ 
+Enchanted Essence
+ • 
+
+ 
+Star Fragment
+ • 
+
+ 
+Pearl
+ • 
+
+ 
+Amber
+ • 
+
+ 
+Garnet
+ • 
+
+ 
+Jade
+ • 
+
+ 
+Amethyst
+ • 
+
+ 
+Moonstone
+ • 
+
+ 
+Sunstone
+ • 
+
+ 
+Philosopher's Stone
+ • 
+
+ 
+Crushed Pearl
+ • 
+
+ 
+Crushed Amber
+ • 
+
+ 
+Crushed Garnet
+ • 
+
+ 
+Crushed Jade
+ • 
+
+ 
+Crushed Amethyst
+ • 
+
+ 
+Crushed Moonstone
+ • 
+
+ 
+Crushed Sunstone
+ • 
+
+ 
+Crushed Philosopher's Stone
+ • 
+
+ 
+Shard Of Protection
+ • 
+
+ 
+Mirror Of Protection
+ • 
+
+ 
+Task Crystal
+
+Consumables
+
+ 
+Donut
+ • 
+
+ 
+Blueberry Donut
+ • 
+
+ 
+Blackberry Donut
+ • 
+
+ 
+Strawberry Donut
+ • 
+
+ 
+Mooberry Donut
+ • 
+
+ 
+Marsberry Donut
+ • 
+
+ 
+Spaceberry Donut
+ • 
+
+ 
+Cupcake
+ • 
+
+ 
+Blueberry Cake
+ • 
+
+ 
+Blackberry Cake
+ • 
+
+ 
+Strawberry Cake
+ • 
+
+ 
+Mooberry Cake
+ • 
+
+ 
+Marsberry Cake
+ • 
+
+ 
+Spaceberry Cake
+ • 
+
+ 
+Gummy
+ • 
+
+ 
+Apple Gummy
+ • 
+
+ 
+Orange Gummy
+ • 
+
+ 
+Plum Gummy
+ • 
+
+ 
+Peach Gummy
+ • 
+
+ 
+Dragon Fruit Gummy
+ • 
+
+ 
+Star Fruit Gummy
+ • 
+
+ 
+Yogurt
+ • 
+
+ 
+Apple Yogurt
+ • 
+
+ 
+Orange Yogurt
+ • 
+
+ 
+Plum Yogurt
+ • 
+
+ 
+Peach Yogurt
+ • 
+
+ 
+Dragon Fruit Yogurt
+ • 
+
+ 
+Star Fruit Yogurt
+ • 
+
+ 
+Milking Tea
+ • 
+
+ 
+Foraging Tea
+ • 
+
+ 
+Woodcutting Tea
+ • 
+
+ 
+Cooking Tea
+ • 
+
+ 
+Brewing Tea
+ • 
+
+ 
+Alchemy Tea
+ • 
+
+ 
+Enhancing Tea
+ • 
+
+ 
+Cheesesmithing Tea
+ • 
+
+ 
+Crafting Tea
+ • 
+
+ 
+Tailoring Tea
+ • 
+
+ 
+Super Milking Tea
+ • 
+
+ 
+Super Foraging Tea
+ • 
+
+ 
+Super Woodcutting Tea
+ • 
+
+ 
+Super Cooking Tea
+ • 
+
+ 
+Super Brewing Tea
+ • 
+
+ 
+Super Alchemy Tea
+ • 
+
+ 
+Super Enhancing Tea
+ • 
+
+ 
+Super Cheesesmithing Tea
+ • 
+
+ 
+Super Crafting Tea
+ • 
+
+ 
+Super Tailoring Tea
+ • 
+
+ 
+Ultra Milking Tea
+ • 
+
+ 
+Ultra Foraging Tea
+ • 
+
+ 
+Ultra Woodcutting Tea
+ • 
+
+ 
+Ultra Cooking Tea
+ • 
+
+ 
+Ultra Brewing Tea
+ • 
+
+ 
+Ultra Alchemy Tea
+ • 
+
+ 
+Ultra Enhancing Tea
+ • 
+
+ 
+Ultra Cheesesmithing Tea
+ • 
+
+ 
+Ultra Crafting Tea
+ • 
+
+ 
+Ultra Tailoring Tea
+ • 
+
+ 
+Gathering Tea
+ • 
+
+ 
+Gourmet Tea
+ • 
+
+ 
+Wisdom Tea
+ • 
+
+ 
+Processing Tea
+ • 
+
+ 
+Efficiency Tea
+ • 
+
+ 
+Artisan Tea
+ • 
+
+ 
+Catalytic Tea
+ • 
+
+ 
+Blessed Tea
+ • 
+
+ 
+Stamina Coffee
+ • 
+
+ 
+Intelligence Coffee
+ • 
+
+ 
+Defense Coffee
+ • 
+
+ 
+Attack Coffee
+ • 
+
+ 
+Power Coffee
+ • 
+
+ 
+Ranged Coffee
+ • 
+
+ 
+Magic Coffee
+ • 
+
+ 
+Super Stamina Coffee
+ • 
+
+ 
+Super Intelligence Coffee
+ • 
+
+ 
+Super Defense Coffee
+ • 
+
+ 
+Super Attack Coffee
+ • 
+
+ 
+Super Power Coffee
+ • 
+
+ 
+Super Ranged Coffee
+ • 
+
+ 
+Super Magic Coffee
+ • 
+
+ 
+Ultra Stamina Coffee
+ • 
+
+ 
+Ultra Intelligence Coffee
+ • 
+
+ 
+Ultra Defense Coffee
+ • 
+
+ 
+Ultra Attack Coffee
+ • 
+
+ 
+Ultra Power Coffee
+ • 
+
+ 
+Ultra Ranged Coffee
+ • 
+
+ 
+Ultra Magic Coffee
+ • 
+
+ 
+Wisdom Coffee
+ • 
+
+ 
+Lucky Coffee
+ • 
+
+ 
+Swiftness Coffee
+ • 
+
+ 
+Channeling Coffee
+ • 
+
+ 
+Critical Coffee
+
+Books
+
+ 
+Poke
+ • 
+
+ 
+Impale
+ • 
+
+ 
+Puncture
+ • 
+
+ 
+Penetrating Strike
+ • 
+
+ 
+Scratch
+ • 
+
+ 
+Cleave
+ • 
+
+ 
+Maim
+ • 
+
+ 
+Crippling Slash
+ • 
+
+ 
+Smack
+ • 
+
+ 
+Sweep
+ • 
+
+ 
+Stunning Blow
+ • 
+
+ 
+Quick Shot
+ • 
+
+ 
+Aqua Arrow
+ • 
+
+ 
+Flame Arrow
+ • 
+
+ 
+Rain Of Arrows
+ • 
+
+ 
+Silencing Shot
+ • 
+
+ 
+Steady Shot
+ • 
+
+ 
+Pestilent Shot
+ • 
+
+ 
+Penetrating Shot
+ • 
+
+ 
+Water Strike
+ • 
+
+ 
+Ice Spear
+ • 
+
+ 
+Frost Surge
+ • 
+
+ 
+Mana Spring
+ • 
+
+ 
+Entangle
+ • 
+
+ 
+Toxic Pollen
+ • 
+
+ 
+Nature's Veil
+ • 
+
+ 
+Fireball
+ • 
+
+ 
+Flame Blast
+ • 
+
+ 
+Firestorm
+ • 
+
+ 
+Smoke Burst
+ • 
+
+ 
+Minor Heal
+ • 
+
+ 
+Heal
+ • 
+
+ 
+Quick Aid
+ • 
+
+ 
+Rejuvenate
+ • 
+
+ 
+Taunt
+ • 
+
+ 
+Provoke
+ • 
+
+ 
+Toughness
+ • 
+
+ 
+Elusiveness
+ • 
+
+ 
+Precision
+ • 
+
+ 
+Berserk
+ • 
+
+ 
+Elemental Affinity
+ • 
+
+ 
+Frenzy
+ • 
+
+ 
+Spike Shell
+ • 
+
+ 
+Arcane Reflection
+ • 
+
+ 
+Vampirism
+ • 
+
+ 
+Revive
+ • 
+
+ 
+Insanity
+ • 
+
+ 
+Invincible
+ • 
+
+ 
+Fierce Aura
+ • 
+
+ 
+Aqua Aura
+ • 
+
+ 
+Sylvan Aura
+ • 
+
+ 
+Flame Aura
+ • 
+
+ 
+Speed Aura
+ • 
+
+ 
+Critical Aura
+
+Keys
+
+ 
+Blue Key Fragment
+ • 
+
+ 
+Green Key Fragment
+ • 
+
+ 
+Purple Key Fragment
+ • 
+
+ 
+White Key Fragment
+ • 
+
+ 
+Orange Key Fragment
+ • 
+
+ 
+Brown Key Fragment
+ • 
+
+ 
+Stone Key Fragment
+ • 
+
+ 
+Dark Key Fragment
+ • 
+
+ 
+Burning Key Fragment
+ • 
+
+ 
+Chimerical Entry Key
+ • 
+
+ 
+Chimerical Chest Key
+ • 
+
+ 
+Sinister Entry Key
+ • 
+
+ 
+Sinister Chest Key
+ • 
+
+ 
+Enchanted Entry Key
+ • 
+
+ 
+Enchanted Chest Key
+
+Equipment
+Main Hand
+
+ 
+Gobo Stabber
+ • 
+
+ 
+Gobo Slasher
+ • 
+
+ 
+Gobo Smasher
+ • 
+
+ 
+Spiked Bulwark
+ • 
+
+ 
+Werewolf Slasher
+ • 
+
+ 
+Griffin Bulwark
+ • 
+
+ 
+Gobo Shooter
+ • 
+
+ 
+Vampiric Bow
+ • 
+
+ 
+Cursed Bow
+ • 
+
+ 
+Gobo Boomstick
+ • 
+
+ 
+Cheese Bulwark
+ • 
+
+ 
+Verdant Bulwark
+ • 
+
+ 
+Azure Bulwark
+ • 
+
+ 
+Burble Bulwark
+ • 
+
+ 
+Crimson Bulwark
+ • 
+
+ 
+Rainbow Bulwark
+ • 
+
+ 
+Holy Bulwark
+ • 
+
+ 
+Wooden Bow
+ • 
+
+ 
+Birch Bow
+ • 
+
+ 
+Cedar Bow
+ • 
+
+ 
+Purpleheart Bow
+ • 
+
+ 
+Ginkgo Bow
+ • 
+
+ 
+Redwood Bow
+ • 
+
+ 
+Arcane Bow
+ • 
+
+ 
+Stalactite Spear
+ • 
+
+ 
+Granite Bludgeon
+ • 
+
+ 
+Regal Sword
+ • 
+
+ 
+Chaotic Flail
+ • 
+
+ 
+Soul Hunter Crossbow
+ • 
+
+ 
+Sundering Crossbow
+ • 
+
+ 
+Frost Staff
+ • 
+
+ 
+Infernal Battlestaff
+ • 
+
+ 
+Jackalope Staff
+ • 
+
+ 
+Cheese Sword
+ • 
+
+ 
+Verdant Sword
+ • 
+
+ 
+Azure Sword
+ • 
+
+ 
+Burble Sword
+ • 
+
+ 
+Crimson Sword
+ • 
+
+ 
+Rainbow Sword
+ • 
+
+ 
+Holy Sword
+ • 
+
+ 
+Cheese Spear
+ • 
+
+ 
+Verdant Spear
+ • 
+
+ 
+Azure Spear
+ • 
+
+ 
+Burble Spear
+ • 
+
+ 
+Crimson Spear
+ • 
+
+ 
+Rainbow Spear
+ • 
+
+ 
+Holy Spear
+ • 
+
+ 
+Cheese Mace
+ • 
+
+ 
+Verdant Mace
+ • 
+
+ 
+Azure Mace
+ • 
+
+ 
+Burble Mace
+ • 
+
+ 
+Crimson Mace
+ • 
+
+ 
+Rainbow Mace
+ • 
+
+ 
+Holy Mace
+ • 
+
+ 
+Wooden Crossbow
+ • 
+
+ 
+Birch Crossbow
+ • 
+
+ 
+Cedar Crossbow
+ • 
+
+ 
+Purpleheart Crossbow
+ • 
+
+ 
+Ginkgo Crossbow
+ • 
+
+ 
+Redwood Crossbow
+ • 
+
+ 
+Arcane Crossbow
+ • 
+
+ 
+Wooden Water Staff
+ • 
+
+ 
+Birch Water Staff
+ • 
+
+ 
+Cedar Water Staff
+ • 
+
+ 
+Purpleheart Water Staff
+ • 
+
+ 
+Ginkgo Water Staff
+ • 
+
+ 
+Redwood Water Staff
+ • 
+
+ 
+Arcane Water Staff
+ • 
+
+ 
+Wooden Nature Staff
+ • 
+
+ 
+Birch Nature Staff
+ • 
+
+ 
+Cedar Nature Staff
+ • 
+
+ 
+Purpleheart Nature Staff
+ • 
+
+ 
+Ginkgo Nature Staff
+ • 
+
+ 
+Redwood Nature Staff
+ • 
+
+ 
+Arcane Nature Staff
+ • 
+
+ 
+Wooden Fire Staff
+ • 
+
+ 
+Birch Fire Staff
+ • 
+
+ 
+Cedar Fire Staff
+ • 
+
+ 
+Purpleheart Fire Staff
+ • 
+
+ 
+Ginkgo Fire Staff
+ • 
+
+ 
+Redwood Fire Staff
+ • 
+
+ 
+Arcane Fire Staff
+
+Off Hand
+
+ 
+Eye Watch
+ • 
+
+ 
+Snake Fang Dirk
+ • 
+
+ 
+Vision Shield
+ • 
+
+ 
+Gobo Defender
+ • 
+
+ 
+Vampire Fang Dirk
+ • 
+
+ 
+Knight's Aegis
+ • 
+
+ 
+Treant Shield
+ • 
+
+ 
+Manticore Shield
+ • 
+
+ 
+Tome Of Healing
+ • 
+
+ 
+Tome Of The Elements
+ • 
+
+ 
+Watchful Relic
+ • 
+
+ 
+Bishop's Codex
+ • 
+
+ 
+Cheese Buckler
+ • 
+
+ 
+Verdant Buckler
+ • 
+
+ 
+Azure Buckler
+ • 
+
+ 
+Burble Buckler
+ • 
+
+ 
+Crimson Buckler
+ • 
+
+ 
+Rainbow Buckler
+ • 
+
+ 
+Holy Buckler
+ • 
+
+ 
+Wooden Shield
+ • 
+
+ 
+Birch Shield
+ • 
+
+ 
+Cedar Shield
+ • 
+
+ 
+Purpleheart Shield
+ • 
+
+ 
+Ginkgo Shield
+ • 
+
+ 
+Redwood Shield
+ • 
+
+ 
+Arcane Shield
+
+Head
+
+ 
+Red Culinary Hat
+ • 
+
+ 
+Snail Shell Helmet
+ • 
+
+ 
+Vision Helmet
+ • 
+
+ 
+Fluffy Red Hat
+ • 
+
+ 
+Acrobatic Hood
+ • 
+
+ 
+Magician's Hat
+ • 
+
+ 
+Cheese Helmet
+ • 
+
+ 
+Verdant Helmet
+ • 
+
+ 
+Azure Helmet
+ • 
+
+ 
+Burble Helmet
+ • 
+
+ 
+Crimson Helmet
+ • 
+
+ 
+Rainbow Helmet
+ • 
+
+ 
+Holy Helmet
+ • 
+
+ 
+Rough Hood
+ • 
+
+ 
+Reptile Hood
+ • 
+
+ 
+Gobo Hood
+ • 
+
+ 
+Beast Hood
+ • 
+
+ 
+Umbral Hood
+ • 
+
+ 
+Cotton Hat
+ • 
+
+ 
+Linen Hat
+ • 
+
+ 
+Bamboo Hat
+ • 
+
+ 
+Silk Hat
+ • 
+
+ 
+Radiant Hat
+
+Body
+
+ 
+Dairyhand's Top
+ • 
+
+ 
+Forager's Top
+ • 
+
+ 
+Lumberjack's Top
+ • 
+
+ 
+Cheesemaker's Top
+ • 
+
+ 
+Crafter's Top
+ • 
+
+ 
+Tailor's Top
+ • 
+
+ 
+Chef's Top
+ • 
+
+ 
+Brewer's Top
+ • 
+
+ 
+Alchemist's Top
+ • 
+
+ 
+Enhancer's Top
+ • 
+
+ 
+Gator Vest
+ • 
+
+ 
+Turtle Shell Body
+ • 
+
+ 
+Colossus Plate Body
+ • 
+
+ 
+Demonic Plate Body
+ • 
+
+ 
+Marine Tunic
+ • 
+
+ 
+Revenant Tunic
+ • 
+
+ 
+Griffin Tunic
+ • 
+
+ 
+Icy Robe Top
+ • 
+
+ 
+Flaming Robe Top
+ • 
+
+ 
+Luna Robe Top
+ • 
+
+ 
+Royal Water Robe Top
+ • 
+
+ 
+Royal Nature Robe Top
+ • 
+
+ 
+Royal Fire Robe Top
+ • 
+
+ 
+Cheese Plate Body
+ • 
+
+ 
+Verdant Plate Body
+ • 
+
+ 
+Azure Plate Body
+ • 
+
+ 
+Burble Plate Body
+ • 
+
+ 
+Crimson Plate Body
+ • 
+
+ 
+Rainbow Plate Body
+ • 
+
+ 
+Holy Plate Body
+ • 
+
+ 
+Rough Tunic
+ • 
+
+ 
+Reptile Tunic
+ • 
+
+ 
+Gobo Tunic
+ • 
+
+ 
+Beast Tunic
+ • 
+
+ 
+Umbral Tunic
+ • 
+
+ 
+Cotton Robe Top
+ • 
+
+ 
+Linen Robe Top
+ • 
+
+ 
+Bamboo Robe Top
+ • 
+
+ 
+Silk Robe Top
+ • 
+
+ 
+Radiant Robe Top
+
+Legs
+
+ 
+Dairyhand's Bottoms
+ • 
+
+ 
+Forager's Bottoms
+ • 
+
+ 
+Lumberjack's Bottoms
+ • 
+
+ 
+Cheesemaker's Bottoms
+ • 
+
+ 
+Crafter's Bottoms
+ • 
+
+ 
+Tailor's Bottoms
+ • 
+
+ 
+Chef's Bottoms
+ • 
+
+ 
+Brewer's Bottoms
+ • 
+
+ 
+Alchemist's Bottoms
+ • 
+
+ 
+Enhancer's Bottoms
+ • 
+
+ 
+Turtle Shell Legs
+ • 
+
+ 
+Colossus Plate Legs
+ • 
+
+ 
+Demonic Plate Legs
+ • 
+
+ 
+Marine Chaps
+ • 
+
+ 
+Revenant Chaps
+ • 
+
+ 
+Griffin Chaps
+ • 
+
+ 
+Icy Robe Bottoms
+ • 
+
+ 
+Flaming Robe Bottoms
+ • 
+
+ 
+Luna Robe Bottoms
+ • 
+
+ 
+Royal Water Robe Bottoms
+ • 
+
+ 
+Royal Nature Robe Bottoms
+ • 
+
+ 
+Royal Fire Robe Bottoms
+ • 
+
+ 
+Cheese Plate Legs
+ • 
+
+ 
+Verdant Plate Legs
+ • 
+
+ 
+Azure Plate Legs
+ • 
+
+ 
+Burble Plate Legs
+ • 
+
+ 
+Crimson Plate Legs
+ • 
+
+ 
+Rainbow Plate Legs
+ • 
+
+ 
+Holy Plate Legs
+ • 
+
+ 
+Rough Chaps
+ • 
+
+ 
+Reptile Chaps
+ • 
+
+ 
+Gobo Chaps
+ • 
+
+ 
+Beast Chaps
+ • 
+
+ 
+Umbral Chaps
+ • 
+
+ 
+Cotton Robe Bottoms
+ • 
+
+ 
+Linen Robe Bottoms
+ • 
+
+ 
+Bamboo Robe Bottoms
+ • 
+
+ 
+Silk Robe Bottoms
+ • 
+
+ 
+Radiant Robe Bottoms
+
+Hands
+
+ 
+Enchanted Gloves
+ • 
+
+ 
+Pincer Gloves
+ • 
+
+ 
+Panda Gloves
+ • 
+
+ 
+Magnetic Gloves
+ • 
+
+ 
+Dodocamel Gauntlets
+ • 
+
+ 
+Sighted Bracers
+ • 
+
+ 
+Chrono Gloves
+ • 
+
+ 
+Cheese Gauntlets
+ • 
+
+ 
+Verdant Gauntlets
+ • 
+
+ 
+Azure Gauntlets
+ • 
+
+ 
+Burble Gauntlets
+ • 
+
+ 
+Crimson Gauntlets
+ • 
+
+ 
+Rainbow Gauntlets
+ • 
+
+ 
+Holy Gauntlets
+ • 
+
+ 
+Rough Bracers
+ • 
+
+ 
+Reptile Bracers
+ • 
+
+ 
+Gobo Bracers
+ • 
+
+ 
+Beast Bracers
+ • 
+
+ 
+Umbral Bracers
+ • 
+
+ 
+Cotton Gloves
+ • 
+
+ 
+Linen Gloves
+ • 
+
+ 
+Bamboo Gloves
+ • 
+
+ 
+Silk Gloves
+ • 
+
+ 
+Radiant Gloves
+
+Feet
+
+ 
+Collector's Boots
+ • 
+
+ 
+Shoebill Shoes
+ • 
+
+ 
+Black Bear Shoes
+ • 
+
+ 
+Grizzly Bear Shoes
+ • 
+
+ 
+Polar Bear Shoes
+ • 
+
+ 
+Centaur Boots
+ • 
+
+ 
+Sorcerer Boots
+ • 
+
+ 
+Cheese Boots
+ • 
+
+ 
+Verdant Boots
+ • 
+
+ 
+Azure Boots
+ • 
+
+ 
+Burble Boots
+ • 
+
+ 
+Crimson Boots
+ • 
+
+ 
+Rainbow Boots
+ • 
+
+ 
+Holy Boots
+ • 
+
+ 
+Rough Boots
+ • 
+
+ 
+Reptile Boots
+ • 
+
+ 
+Gobo Boots
+ • 
+
+ 
+Beast Boots
+ • 
+
+ 
+Umbral Boots
+ • 
+
+ 
+Cotton Boots
+ • 
+
+ 
+Linen Boots
+ • 
+
+ 
+Bamboo Boots
+ • 
+
+ 
+Silk Boots
+ • 
+
+ 
+Radiant Boots
+
+Back
+
+ 
+Chimerical Quiver
+ • 
+
+ 
+Sinister Cape
+ • 
+
+ 
+Enchanted Cloak
+
+Pouch
+
+ 
+Small Pouch
+ • 
+
+ 
+Medium Pouch
+ • 
+
+ 
+Large Pouch
+ • 
+
+ 
+Giant Pouch
+ • 
+
+ 
+Gluttonous Pouch
+ • 
+
+ 
+Guzzling Pouch
+
+Jewelry
+
+ 
+Necklace Of Efficiency
+ • 
+
+ 
+Fighter Necklace
+ • 
+
+ 
+Ranger Necklace
+ • 
+
+ 
+Wizard Necklace
+ • 
+
+ 
+Necklace Of Wisdom
+ • 
+
+ 
+Necklace Of Speed
+ • 
+
+ 
+Philosopher's Necklace
+ • 
+
+ 
+Earrings Of Gathering
+ • 
+
+ 
+Earrings Of Essence Find
+ • 
+
+ 
+Earrings Of Armor
+ • 
+
+ 
+Earrings Of Regeneration
+ • 
+
+ 
+Earrings Of Resistance
+ • 
+
+ 
+Earrings Of Rare Find
+ • 
+
+ 
+Earrings Of Critical Strike
+ • 
+
+ 
+Philosopher's Earrings
+ • 
+
+ 
+Ring Of Gathering
+ • 
+
+ 
+Ring Of Essence Find
+ • 
+
+ 
+Ring Of Armor
+ • 
+
+ 
+Ring Of Regeneration
+ • 
+
+ 
+Ring Of Resistance
+ • 
+
+ 
+Ring Of Rare Find
+ • 
+
+ 
+Ring Of Critical Strike
+ • 
+
+ 
+Philosopher's Ring
