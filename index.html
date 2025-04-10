@@ -5,158 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MWI Market Trends</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@^4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- Professional Styling Overhaul --- */
+        /* --- Styling (mostly unchanged from previous version) --- */
         :root {
-            --bg-color: #f6f8fa; /* Lighter, neutral background */
-            --card-bg-color: #ffffff;
-            --text-color-primary: #24292f; /* Darker primary text */
-            --text-color-secondary: #57606a; /* Softer secondary text */
-            --border-color: #d0d7de; /* GitHub-like border */
-            --accent-color: #0969da; /* GitHub blue */
-            --accent-hover-color: #0550ae;
-            --positive-color: #1a7f37; /* GitHub green */
-            --negative-color: #cf222e; /* GitHub red */
-            --button-bg-color: #f6f8fa;
-            --button-hover-bg-color: #f0f2f4;
-            --button-border-color: rgba(27, 31, 36, 0.15);
-            --button-hover-border-color: rgba(27, 31, 36, 0.35);
-            --button-active-bg-color: #e9ecef;
-            --shadow-color-light: rgba(140, 149, 159, 0.15);
-            --shadow-color-medium: rgba(140, 149, 159, 0.2);
-            --table-header-bg: #f6f8fa;
-            --table-row-hover-bg: #f6f8fa;
-            --table-row-selected-bg: #ddf4ff; /* Light blue selection */
-            --link-color: var(--accent-color);
-            --link-hover-color: var(--accent-hover-color);
+            --bg-color: #f6f8fa; --card-bg-color: #ffffff; --text-color-primary: #24292f;
+            --text-color-secondary: #57606a; --border-color: #d0d7de; --accent-color: #0969da;
+            --accent-hover-color: #0550ae; --positive-color: #1a7f37; --negative-color: #cf222e;
+            --button-bg-color: #f6f8fa; --button-hover-bg-color: #f0f2f4;
+            --button-border-color: rgba(27, 31, 36, 0.15); --button-hover-border-color: rgba(27, 31, 36, 0.35);
+            --shadow-color-light: rgba(140, 149, 159, 0.15); --shadow-color-medium: rgba(140, 149, 159, 0.2);
+            --table-header-bg: #f6f8fa; --table-row-hover-bg: #f6f8fa; --table-row-selected-bg: #ddf4ff;
+            --link-color: var(--accent-color); --link-hover-color: var(--accent-hover-color);
             --code-font: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
         }
-
         *, *::before, *::after { box-sizing: border-box; }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color-primary);
-            line-height: 1.5;
-            font-size: 14px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        .container {
-            max-width: 1600px; /* Limit max width */
-            margin: 25px auto;
-            padding: 0 25px;
-        }
-        h1 {
-            text-align: center;
-            color: var(--text-color-primary);
-            margin-top: 1rem;
-            margin-bottom: 0.5rem; /* Reduced margin below H1 */
-            font-weight: 600;
-            font-size: 1.8em;
-            letter-spacing: -0.5px;
-        }
-        /* Feedback Link Container */
-        .feedback-link-container {
-            text-align: center;
-            margin-bottom: 25px; /* Space below link, before controls */
-            font-size: 0.9em;
-        }
-        .feedback-link-container a {
-            color: var(--muted-text-color);
-            text-decoration: none;
-            border-bottom: 1px dashed var(--muted-text-color); /* Subtle underline */
-            transition: color 0.2s, border-color 0.2s;
-            padding-bottom: 1px;
-        }
-        .feedback-link-container a:hover {
-            color: var(--link-color);
-            border-color: var(--link-color);
-        }
-
-        /* Controls Area */
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
-            margin-bottom: 30px;
-            gap: 15px;
-            background-color: #fcfcfd; /* Slightly off-white */
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-        }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-color-primary); line-height: 1.5; font-size: 14px; }
+        .container { max-width: 1600px; margin: 25px auto; padding: 0 25px; }
+        h1 { text-align: center; color: var(--text-color-primary); margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.8em; letter-spacing: -0.5px; }
+        .feedback-link-container { text-align: center; margin-bottom: 25px; font-size: 0.9em; }
+        .feedback-link-container a { color: var(--muted-text-color); text-decoration: none; border-bottom: 1px dashed var(--muted-text-color); transition: color 0.2s, border-color 0.2s; padding-bottom: 1px; }
+        .feedback-link-container a:hover { color: var(--link-color); border-color: var(--link-color); }
+        .controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 16px 20px; margin-bottom: 30px; gap: 15px; background-color: #fcfcfd; border: 1px solid var(--border-color); border-radius: 6px; }
         .controls-left, .controls-right { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-        .search-form input[type="text"], .category-filter select {
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            min-width: 200px;
-            font-size: 0.95em;
-            background-color: var(--card-bg-color);
-            box-shadow: inset 0 1px 0 rgba(27,31,36,0.075);
-            transition: border-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
-        }
-        .search-form input[type="text"]:focus, .category-filter select:focus {
-            border-color: var(--accent-color);
-            box-shadow: inset 0 1px 0 rgba(27,31,36,0.075), 0 0 0 3px rgba(9, 105, 218, 0.3);
-            outline: none;
-        }
+        .search-form input[type="text"], .category-filter select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; min-width: 200px; font-size: 0.95em; background-color: var(--card-bg-color); box-shadow: inset 0 1px 0 rgba(27,31,36,0.075); transition: border-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out; }
+        .search-form input[type="text"]:focus, .category-filter select:focus { border-color: var(--accent-color); box-shadow: inset 0 1px 0 rgba(27,31,36,0.075), 0 0 0 3px rgba(9, 105, 218, 0.3); outline: none; }
         .sort-options span { font-weight: 600; color: var(--text-color-secondary); margin-right: 4px; font-size: 0.9em; }
-        .sort-options button {
-            padding: 5px 12px; /* Compact buttons */
-            background-color: var(--button-bg-color);
-            color: var(--text-color-primary);
-            border-radius: 6px;
-            font-size: 0.9em;
-            transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out;
-            border: 1px solid var(--button-border-color);
-            box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04);
-            cursor: pointer;
-            font-weight: 500;
-            line-height: 20px;
-        }
+        .sort-options button { padding: 5px 12px; background-color: var(--button-bg-color); color: var(--text-color-primary); border-radius: 6px; font-size: 0.9em; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); cursor: pointer; font-weight: 500; line-height: 20px; }
         .sort-options button:hover { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
-        .sort-options button.current-sort {
-            background-color: var(--accent-color);
-            color: white;
-            border-color: var(--accent-color);
-            font-weight: 600;
-        }
-
-        /* Layout for Table and Chart */
+        .sort-options button.current-sort { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: 600; }
         .main-layout { display: flex; flex-wrap: wrap; gap: 25px; }
         .item-table-container { flex: 3; min-width: 550px; }
         .chart-display-container { flex: 2; min-width: 400px; }
-
-        /* Item Table Styling */
         .table-wrapper { max-height: 78vh; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--card-bg-color); }
         #item-table { width: 100%; border-collapse: collapse; }
         #item-table th, #item-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; vertical-align: middle; font-size: 0.95em; }
         #item-table th { background-color: var(--table-header-bg); font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted-text-color); position: sticky; top: 0; z-index: 1; }
-        #item-table tbody tr:nth-child(even) { background-color: #fbfcfd; } /* Subtle zebra stripe */
+        #item-table tbody tr:nth-child(even) { background-color: #fbfcfd; }
         #item-table tbody tr:hover { background-color: var(--table-row-hover-bg); }
         #item-table tbody tr.selected-item { background-color: var(--table-row-selected-bg); font-weight: 500; }
-        #item-table td:nth-child(1) { font-weight: 500; cursor: pointer; color: var(--link-color); max-width: 220px; overflow: hidden; text-overflow: ellipsis; } /* Product Name */
+        #item-table td:nth-child(1) { font-weight: 500; cursor: pointer; color: var(--link-color); max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
         #item-table td:nth-child(1):hover { text-decoration: underline; color: var(--link-hover-color); }
-        #item-table td:nth-child(2) { font-size: 0.9em; color: var(--muted-text-color); max-width: 160px; overflow: hidden; text-overflow: ellipsis; } /* Category */
-        #item-table td:nth-child(n+3) { text-align: right; font-family: var(--code-font); font-size: 0.95em; } /* Numeric columns */
-        .trend-value-container { display: flex; align-items: center; justify-content: flex-end; gap: 3px; } /* Trend icon + text */
-        .trend-icon { width: 14px; height: 14px; vertical-align: text-bottom; } /* Slightly smaller icon */
+        #item-table td:nth-child(2) { font-size: 0.9em; color: var(--muted-text-color); max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+        #item-table td:nth-child(n+3) { text-align: right; font-family: var(--code-font); font-size: 0.95em; }
+        .trend-value-container { display: flex; align-items: center; justify-content: flex-end; gap: 3px; }
+        .trend-icon { width: 14px; height: 14px; vertical-align: text-bottom; }
         .trend-positive { color: var(--positive-color); }
         .trend-negative { color: var(--negative-color); }
-        .vendor-price { color: #57606a; } /* Muted vendor price */
-        .na-value { color: #cdd4de; font-style: normal; } /* Lighter N/A */
-
-        /* Chart Area Styling */
+        .vendor-price { color: #57606a; }
+        .na-value { color: #cdd4de; font-style: normal; }
         .chart-display { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 20px; min-height: 450px; position: relative; display: flex; flex-direction: column; }
         .chart-controls { text-align: center; margin-bottom: 15px; }
         .chart-controls button { margin: 0 4px; padding: 5px 10px; font-size: 0.85em; background-color: var(--button-bg-color); border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); border-radius: 6px; cursor: pointer; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; font-weight: 500;}
@@ -165,22 +66,16 @@
         .chart-placeholder { text-align: center; color: #b0b8c2; padding: 60px; font-size: 1.05em; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
         .chart-plot { flex-grow: 1; position: relative; min-height: 320px; }
         .chart-plot canvas { max-width: 100%; max-height: 380px; }
-
-        /* Pagination styling */
         .pagination { text-align: center; margin-top: 20px; padding-bottom: 20px; }
         .pagination button { margin: 0 3px; padding: 7px 14px; background-color: var(--button-bg-color); border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); color: var(--accent-color); border-radius: 6px; transition: background-color 0.1s, border-color 0.1s; cursor: pointer; font-weight: 500; font-size: 0.9em; }
-        .pagination button:hover:not(:disabled) { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
+        .pagination button:hover:not(:disabled) { background-color: #f1f3f5; border-color: #adb5bd; }
         .pagination button.current { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: bold; cursor: default; }
         .pagination button:disabled { color: #8c959f; background-color: var(--button-bg-color); cursor: not-allowed; border-color: transparent; }
-
         .loading-message, .error-message { text-align: center; padding: 40px; font-size: 1.1em; color: var(--muted-text-color); }
         .error-message { color: var(--negative-color); }
-
-        /* Footer */
         footer { text-align: center; margin-top: 60px; padding: 25px 0; font-size: 0.8em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); }
-        footer span, footer a { margin: 0 8px; color: var(--muted-text-color); text-decoration: none; } /* Ensure links also use muted color */
-        footer a:hover { text-decoration: underline; color: var(--link-hover-color); } /* Hover color for links */
-
+        footer span, footer a { margin: 0 8px; color: var(--muted-text-color); text-decoration: none; }
+        footer a:hover { text-decoration: underline; color: var(--link-hover-color); }
     </style>
 </head>
 <body>
@@ -316,9 +211,9 @@
 
     <footer>
         <span>Made by Sporky with AI</span> |
-        <span class="status">Data Generated: <span id="last-update">2025-04-10 20:29:42</span></span> |
+        <span class="status">Data Generated: <span id="last-update">2025-04-10 20:46:33</span></span> |
         <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
-        </footer>
+    </footer>
 
     <script>
         // --- Global State ---
@@ -358,12 +253,12 @@
 
         // --- Utility Functions ---
         function formatPrice(price) {
-            if (price === null || price === undefined || isNaN(price)) return '<span class="na-value">--</span>'; // Use '--' for N/A
+            if (price === null || price === undefined || isNaN(price)) return '<span class="na-value">--</span>';
             return price.toLocaleString();
         }
         function formatTrend(trend) {
             if (trend === null || trend === undefined || isNaN(trend)) return '<span class="na-value">--</span>';
-            const arrow = trend > 0 ? trendUpIcon : trend < 0 ? trendDownIcon : ''; // Use SVG icons
+            const arrow = trend > 0 ? trendUpIcon : trend < 0 ? trendDownIcon : '';
             const trendClass = trend > 0 ? 'trend-positive' : trend < 0 ? 'trend-negative' : '';
             return `<span class="trend-value-container ${trendClass}">${arrow}<span>${trend.toFixed(2)}%</span></span>`;
         }
@@ -375,23 +270,18 @@
                 errorMessageEl.style.display = 'none';
                 tableWrapperEl.style.display = 'none';
                 paginationEl.style.display = 'none';
-
                 const [historyRes, summaryRes] = await Promise.all([
                     fetch('./data/market_history.json'),
                     fetch('./data/market_summary.json')
                 ]);
-
                 if (!historyRes.ok) throw new Error(`Failed to fetch market_history.json (Status: ${historyRes.status})`);
                 if (!summaryRes.ok) throw new Error(`Failed to fetch market_summary.json (Status: ${summaryRes.status})`);
-
                 allMarketData = await historyRes.json();
                 marketSummary = await summaryRes.json();
-
                 loadingMessageEl.style.display = 'none';
                 tableWrapperEl.style.display = 'block';
                 paginationEl.style.display = 'block';
                 applyFiltersAndSort();
-
             } catch (error) {
                 console.error("Error loading data:", error);
                 loadingMessageEl.style.display = 'none';
@@ -498,7 +388,7 @@
             let filteredHistory = productHistory;
             const now = new Date();
             let startDate;
-            let timeUnit = 'day';
+            let timeUnit = 'day'; // Default unit for time scale
 
             if (currentChartTimeRange === '24h') {
                 startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000)); timeUnit = 'hour';
@@ -506,11 +396,14 @@
                 startDate = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000)); timeUnit = 'hour';
             } else if (currentChartTimeRange === '7d') {
                 startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)); timeUnit = 'day';
-            }
+            } // else '30d' uses all data
 
             if (startDate) {
+                // Convert timestamp strings to Date objects for reliable comparison
                 filteredHistory = productHistory.filter(d => new Date(d.timestamp) >= startDate);
             }
+            console.log(`Rendering chart for ${productName}, Range: ${currentChartTimeRange}, Filtered points: ${filteredHistory.length}`);
+
 
             if (!filteredHistory || filteredHistory.length < 1) {
                  if (currentChart) { currentChart.destroy(); currentChart = null; }
@@ -518,8 +411,9 @@
                 return;
             }
 
-            filteredHistory.sort((a, b) => (a.timestamp < b.timestamp ? -1 : 1));
-            const labels = filteredHistory.map(d => d.timestamp);
+            // No need to sort again if data is already sorted by timestamp
+            // filteredHistory.sort((a, b) => (a.timestamp < b.timestamp ? -1 : 1));
+            const labels = filteredHistory.map(d => d.timestamp); // Keep as ISO strings for adapter
             const buyData = filteredHistory.map(d => d.buy);
             const askData = filteredHistory.map(d => d.ask);
 
@@ -558,15 +452,25 @@
                         },
                         scales: {
                             x: {
-                                title: { display: false },
+                                // *** Use Time Scale ***
+                                type: 'time',
+                                time: {
+                                    unit: timeUnit, // Set unit based on range
+                                    tooltipFormat: 'PPp', // Example using date-fns format (requires adapter)
+                                    displayFormats: { // Control how labels look for different units
+                                        hour: 'h:mm a',
+                                        day: 'MMM d',
+                                        week: 'MMM d yyyy'
+                                    }
+                                },
+                                title: { display: false }, // Hide x-axis title
                                 grid: { display: false },
-                                type: 'category', // Keep as category for string labels
-                                ticks: { font: { size: 11 }, color: '#57606a', autoSkip: true, maxTicksLimit: 10 }
+                                ticks: { font: { size: 11 }, color: '#57606a', autoSkip: true, maxRotation: 0, minRotation: 0, maxTicksLimit: 8 } // Limit ticks, prevent rotation
                             },
                             y: {
                                 type: 'logarithmic',
                                 title: { display: true, text: 'Price (Log Scale)', font: { size: 12 }, color: '#57606a' },
-                                grid: { color: '#d0d7de' }, // Use border color for grid lines
+                                grid: { color: '#d0d7de' },
                                 ticks: { font: { size: 11 }, color: '#57606a' }
                             }
                         },
@@ -581,12 +485,12 @@
 
 
         // --- Event Handlers ---
+        // (Event handlers remain the same)
         function handleProductClick(event) {
             const clickedTr = event.currentTarget;
             const productName = decodeURIComponent(clickedTr.dataset.product);
             displayChart(productName, clickedTr);
         }
-
         let searchTimeout;
         searchInput.addEventListener('input', (event) => {
             clearTimeout(searchTimeout);
@@ -595,12 +499,10 @@
                 applyFiltersAndSort();
             }, 300);
         });
-
         categoryFilterEl.addEventListener('change', (event) => {
              currentCategoryFilter = event.target.value;
              applyFiltersAndSort();
         });
-
         sortOptionsEl.addEventListener('click', (event) => {
             if (event.target.tagName === 'BUTTON' && event.target.dataset.sort) {
                 const newSort = event.target.dataset.sort;
@@ -614,16 +516,13 @@
                 applyFiltersAndSort();
             }
         });
-
         prevButton.addEventListener('click', () => {
             if (currentPage > 1) { currentPage--; renderCurrentPage(); }
         });
-
         nextButton.addEventListener('click', () => {
             const totalPages = Math.ceil(filteredAndSortedSummary.length / itemsPerPage);
             if (currentPage < totalPages) { currentPage++; renderCurrentPage(); }
         });
-
         chartTimeControlsEl.addEventListener('click', (event) => {
             if (event.target.tagName === 'BUTTON' && event.target.dataset.range) {
                 const newRange = event.target.dataset.range;
