@@ -1,48 +1,67 @@
-# .github/workflows/build.yml
-name: Build and Deploy Static Site
+# Workflow name
+name: Build and Deploy Static Site to GitHub Pages
 
+# Controls when the workflow will run
 on:
+  # Runs on pushes targeting the main branch
   push:
     branches:
-      - main # Run on pushes to the main branch
+      - main
+
+  # Runs on a schedule (every 3 hours in this example)
+  # Use https://crontab.guru/ to customize
   schedule:
-    # Run every 3 hours (adjust cron schedule as needed)
-    # See: https://crontab.guru/
-    - cron: '0 */3 * * *'
-  workflow_dispatch: # Allows manual triggering from GitHub UI
+    - cron: '0 */3 * * *' # Runs at minutes 0 past every 3rd hour (00:00, 03:00, 06:00 UTC etc.)
 
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Permissions needed for the deployment step to push to gh-pages branch
 permissions:
-  contents: write # Allow action to write to gh-pages branch
+  contents: write
 
+# Define the job(s)
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest # Use a standard Linux runner
-    steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v4 # Checks out your repository code
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
 
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Step 1: Check out your repository code so the workflow can access it
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Python environment
       - name: Set up Python 🐍
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9' # Use the same Python version as needed by your script
-          cache: 'pip' # Cache dependencies
+          python-version: '3.9' # Use a version compatible with your script
+          cache: 'pip' # Cache dependencies to speed up future runs
 
+      # Step 3: Install Python dependencies from requirements.txt
       - name: Install dependencies 📦
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # Step 4: Run your build script to generate the static site
       - name: Build Static Site 🏗️
         run: |
-          # Run your build script (this generates the output/ folder)
+          # This command runs your python script
+          # It should generate files into the ./output directory
           python build_site.py
 
+      # Step 5: Deploy the generated site to GitHub Pages
       - name: Deploy to GitHub Pages 🚀
         uses: peaceiris/actions-gh-pages@v4
         with:
+          # Required: Token for authentication. GITHUB_TOKEN is automatically available.
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./output # Deploy the contents of the output directory
-          # publish_branch: gh-pages # Deploy to the gh-pages branch (default)
-          # user_name: 'github-actions[bot]' # Optional: Commit user name
-          # user_email: 'github-actions[bot]@users.noreply.github.com' # Optional: Commit user email
-          # commit_message: 'Deploy static site' # Optional: Commit message
+          # Required: Directory containing the generated static files (must match OUTPUT_DIR in build_site.py)
+          publish_dir: ./output
+          # Optional: Deploy to the default 'gh-pages' branch
+          # publish_branch: gh-pages
+          # Optional: Customize commit user
+          # user_name: 'github-actions[bot]'
+          # user_email: 'github-actions[bot]@users.noreply.github.com'
