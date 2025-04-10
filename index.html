@@ -297,7 +297,7 @@
 
     <footer>
         <span>Made by Sporky with AI</span> |
-        <span class="status">Data Generated: <span id="last-update">2025-04-10 19:10:45</span></span> |
+        <span class="status">Data Generated: <span id="last-update">2025-04-10 19:14:46</span></span> |
         <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
     </footer>
 
@@ -507,8 +507,8 @@
             const chartData = {
                 labels: labels,
                 datasets: [
-                    { label: 'Buy', data: buyData, borderColor: var(--accent-color), backgroundColor: 'rgba(0, 82, 204, 0.05)', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: true, borderWidth: 1.5 }, // Adjusted alpha
-                    { label: 'Ask', data: askData, borderColor: var(--negative-color), backgroundColor: 'rgba(207, 34, 46, 0.05)', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: true, borderWidth: 1.5 } // Adjusted alpha
+                    { label: 'Buy', data: buyData, borderColor: '#0969da', backgroundColor: 'rgba(9, 105, 218, 0.1)', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: true, borderWidth: 1.5 },
+                    { label: 'Ask', data: askData, borderColor: '#cf222e', backgroundColor: 'rgba(207, 34, 46, 0.1)', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: true, borderWidth: 1.5 }
                 ]
             };
 
@@ -526,12 +526,6 @@
              if(errorP) errorP.remove();
 
             try {
-                // Use hardcoded colors matching CSS variables for JS compatibility
-                chartData.datasets[0].borderColor = '#0969da'; // --accent-color
-                chartData.datasets[0].backgroundColor = 'rgba(9, 105, 218, 0.1)'; // Accent with low alpha
-                chartData.datasets[1].borderColor = '#cf222e'; // --negative-color
-                chartData.datasets[1].backgroundColor = 'rgba(207, 34, 46, 0.1)'; // Negative with low alpha
-
                 currentChart = new Chart(canvasEl, {
                     type: 'line',
                     data: chartData,
@@ -539,22 +533,26 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            title: { display: true, text: `${productName} (${currentChartTimeRange})`, font: { size: 15, weight: '600' }, padding: { bottom: 15 }, color: '#24292f' }, // Hardcoded color
-                            legend: { position: 'top', labels: { font: { size: 12 }, color: '#24292f' } }, // Hardcoded color
+                            title: { display: true, text: `${productName} (${currentChartTimeRange})`, font: { size: 15, weight: '600' }, padding: { bottom: 15 }, color: '#24292f' },
+                            legend: { position: 'top', labels: { font: { size: 12 }, color: '#24292f' } },
                             tooltip: { mode: 'index', intersect: false, bodySpacing: 5, titleSpacing: 6, padding: 10, boxPadding: 4 }
                         },
                         scales: {
                             x: {
                                 title: { display: false },
                                 grid: { display: false },
-                                type: 'category',
-                                ticks: { font: { size: 11 }, color: '#57606a', autoSkip: true, maxTicksLimit: 10 } // Hardcoded color
+                                type: 'category', // Keep as category for string labels
+                                ticks: { font: { size: 11 }, color: '#57606a', autoSkip: true, maxTicksLimit: 10 }
                             },
                             y: {
                                 type: 'logarithmic',
-                                title: { display: true, text: 'Price (Log Scale)', font: { size: 12 }, color: '#57606a' }, // Hardcoded color
-                                grid: { color: '#d0d7de' }, // Hardcoded color
-                                ticks: { font: { size: 11 }, color: '#57606a' } // Hardcoded color
+                                title: { display: true, text: 'Price (Log Scale)', font: { size: 12 }, color: '#57606a' },
+                                grid: { color: '#d0d7de' }, // Use border color for grid lines
+                                ticks: {
+                                    font: { size: 11 }, color: '#57606a',
+                                    // Optional: Customize log ticks if needed
+                                    // callback: function(value, index, values) { return Number(value.toString()); }
+                                }
                             }
                         },
                         interaction: { mode: 'index', axis: 'x', intersect: false },
