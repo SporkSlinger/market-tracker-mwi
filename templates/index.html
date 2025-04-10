@@ -30,84 +30,23 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.5;
-            font-size: 14px;
+            font-family: 'Inter', sans-serif; margin: 0; padding: 0;
+            background-color: var(--bg-color); color: var(--text-color);
+            line-height: 1.5; font-size: 14px;
         }
-        .container {
-            max-width: 95%;
-            margin: 20px auto;
-            padding: 0 20px;
-            box-sizing: border-box;
-        }
-        h1 {
-            text-align: center;
-            color: var(--text-color);
-            margin-bottom: 15px;
-            font-weight: 600;
-            font-size: 1.75em;
-        }
-        .status {
-            text-align: center;
-            margin-bottom: 25px;
-            font-size: 0.85em;
-            color: var(--muted-text-color);
-        }
+        .container { max-width: 95%; margin: 20px auto; padding: 0 20px; box-sizing: border-box; }
+        h1 { text-align: center; color: var(--text-color); margin-bottom: 15px; font-weight: 600; font-size: 1.75em; }
+        .status { text-align: center; margin-bottom: 25px; font-size: 0.85em; color: var(--muted-text-color); }
 
         /* Controls Area */
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            background-color: var(--card-bg-color);
-            padding: 12px 20px;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px var(--shadow-color);
-            margin-bottom: 30px;
-            gap: 15px;
-            border: 1px solid var(--border-color);
-        }
+        .controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; background-color: var(--card-bg-color); padding: 12px 20px; border-radius: 6px; box-shadow: 0 1px 3px var(--shadow-color); margin-bottom: 30px; gap: 15px; border: 1px solid var(--border-color); }
         .controls-left, .controls-right { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
-
-        .search-form input[type="text"], .category-filter select {
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            min-width: 200px;
-            font-size: 0.9em;
-            background-color: #fff;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .search-form input[type="text"]:focus, .category-filter select:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.25);
-            outline: none;
-        }
+        .search-form input[type="text"], .category-filter select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; min-width: 200px; font-size: 0.9em; background-color: #fff; transition: border-color 0.2s, box-shadow 0.2s; }
+        .search-form input[type="text"]:focus, .category-filter select:focus { border-color: var(--accent-color); box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.25); outline: none; }
         .sort-options span { font-weight: 600; color: var(--text-color); margin-right: 5px; font-size: 0.9em; }
-        .sort-options button {
-            padding: 6px 12px;
-            background-color: var(--button-bg-color);
-            color: var(--text-color);
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 0.85em;
-            transition: background-color 0.2s, border-color 0.2s;
-            border: 1px solid transparent;
-            cursor: pointer;
-            font-weight: 500;
-        }
+        .sort-options button { padding: 6px 12px; background-color: var(--button-bg-color); color: var(--text-color); border-radius: 4px; text-decoration: none; font-size: 0.85em; transition: background-color 0.2s, border-color 0.2s; border: 1px solid transparent; cursor: pointer; font-weight: 500; }
         .sort-options button:hover { background-color: var(--button-hover-bg-color); }
-        .sort-options button.current-sort {
-            background-color: var(--accent-color);
-            color: white;
-            border-color: var(--accent-color);
-            font-weight: 600;
-        }
+        .sort-options button.current-sort { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: 600; }
 
         /* Layout for Table and Chart */
         .main-layout { display: flex; flex-wrap: wrap; gap: 25px; }
@@ -125,16 +64,20 @@
         #item-table td:nth-child(1):hover { text-decoration: underline; color: var(--accent-hover-color); }
         #item-table td:nth-child(2) { font-size: 0.9em; color: var(--muted-text-color); } /* Category */
         #item-table td:nth-child(n+3) { text-align: right; font-family: monospace; font-size: 0.95em; } /* Numeric columns */
-
         .trend-positive { color: var(--positive-color); }
         .trend-negative { color: var(--negative-color); }
-        .vendor-price { color: #6f42c1; } /* Purple */
-        .na-value { color: #ccc; } /* Style for N/A */
+        .vendor-price { color: #6f42c1; }
+        .na-value { color: #ccc; }
 
         /* Chart Area Styling */
-        .chart-display { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 1px 3px var(--shadow-color); padding: 20px; min-height: 420px; position: relative; }
-        .chart-placeholder { text-align: center; color: #aaa; padding: 60px; font-size: 1.1em; }
-        .chart-plot canvas { max-width: 100%; max-height: 400px; }
+        .chart-display { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 1px 3px var(--shadow-color); padding: 20px; min-height: 450px; /* Adjusted height */ position: relative; display: flex; flex-direction: column; }
+        .chart-controls { text-align: center; margin-bottom: 15px; } /* Container for time buttons */
+        .chart-controls button { margin: 0 4px; padding: 5px 10px; font-size: 0.8em; background-color: var(--button-bg-color); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; }
+        .chart-controls button:hover { background-color: var(--button-hover-bg-color); }
+        .chart-controls button.active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: 500; }
+        .chart-placeholder { text-align: center; color: #aaa; padding: 60px; font-size: 1.1em; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
+        .chart-plot { flex-grow: 1; position: relative; /* Needed for canvas responsiveness */ } /* Let plot area grow */
+        .chart-plot canvas { max-width: 100%; max-height: 400px; /* Keep max height */ }
 
         /* Pagination styling */
         .pagination { text-align: center; margin-top: 20px; padding-bottom: 20px; }
@@ -145,8 +88,6 @@
 
         .loading-message, .error-message { text-align: center; padding: 30px; font-size: 1.1em; color: var(--muted-text-color); }
         .error-message { color: var(--negative-color); }
-
-        /* Footer */
         footer { text-align: center; margin-top: 40px; padding: 20px 0; font-size: 0.9em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); }
 
     </style>
@@ -200,8 +141,7 @@
                                 <th>Trend (24h)</th>
                             </tr>
                         </thead>
-                        <tbody id="item-table-body">
-                            </tbody>
+                        <tbody id="item-table-body"></tbody>
                     </table>
                 </div>
                 <div class="pagination" id="pagination" style="display: none;">
@@ -213,6 +153,12 @@
 
             <div class="chart-display-container">
                 <div class="chart-display" id="chart-display">
+                     <div class="chart-controls" id="chart-time-controls" style="display: none;">
+                         <button data-range="24h">24h</button>
+                         <button data-range="48h">48h</button>
+                         <button data-range="7d">7d</button>
+                         <button data-range="30d" class="active">30d</button>
+                     </div>
                     <div class="chart-placeholder" id="chart-placeholder">Select an item name from the table to view its chart.</div>
                     <div class="chart-plot" style="display: none;">
                         <canvas id="single-chart-canvas"></canvas>
@@ -237,6 +183,8 @@
         let currentSearch = '';
         let currentCategoryFilter = 'All';
         let selectedTableRow = null;
+        let currentChartProduct = null; // Keep track of the product displayed in the chart
+        let currentChartTimeRange = '30d'; // Default time range
 
         // --- DOM Elements ---
         const tableBodyEl = document.getElementById('item-table-body');
@@ -251,6 +199,7 @@
         const chartCanvas = document.getElementById('single-chart-canvas');
         const chartPlotContainer = document.querySelector('.chart-plot');
         const chartPlaceholder = document.getElementById('chart-placeholder');
+        const chartTimeControlsEl = document.getElementById('chart-time-controls'); // Time range buttons container
         const loadingMessageEl = document.getElementById('loading-message');
         const errorMessageEl = document.getElementById('error-message');
 
@@ -259,7 +208,6 @@
             if (price === null || price === undefined || isNaN(price)) return '<span class="na-value">N/A</span>';
             return price.toLocaleString();
         }
-
         function formatTrend(trend) {
             if (trend === null || trend === undefined || isNaN(trend)) return '<span class="na-value">N/A</span>';
             const arrow = trend > 0 ? '▲' : trend < 0 ? '▼' : '';
@@ -274,23 +222,22 @@
                 errorMessageEl.style.display = 'none';
                 tableWrapperEl.style.display = 'none';
                 paginationEl.style.display = 'none';
-
+                console.log("Fetching data files...");
                 const [historyRes, summaryRes] = await Promise.all([
                     fetch('./data/market_history.json'),
                     fetch('./data/market_summary.json')
                 ]);
-
+                console.log("Fetch responses received.");
                 if (!historyRes.ok) throw new Error(`Failed to fetch market_history.json (Status: ${historyRes.status})`);
                 if (!summaryRes.ok) throw new Error(`Failed to fetch market_summary.json (Status: ${summaryRes.status})`);
-
+                console.log("Parsing JSON data...");
                 allMarketData = await historyRes.json();
                 marketSummary = await summaryRes.json();
-
+                console.log(`Loaded ${allMarketData.length} history points and ${marketSummary.length} summary items.`);
                 loadingMessageEl.style.display = 'none';
                 tableWrapperEl.style.display = 'block';
                 paginationEl.style.display = 'block';
-                applyFiltersAndSort();
-
+                applyFiltersAndSort(); // Initial display
             } catch (error) {
                 console.error("Error loading data:", error);
                 loadingMessageEl.style.display = 'none';
@@ -309,7 +256,6 @@
             if (searchTerm) {
                 result = result.filter(item => item.name.toLowerCase().includes(searchTerm));
             }
-
             result.sort((a, b) => {
                 try {
                     const sortNum = (valA, valB, ascending = true) => {
@@ -322,7 +268,6 @@
                         const compare = strA.localeCompare(strB);
                         return ascending ? compare : -compare;
                     };
-
                     switch (currentSort) {
                         case 'name_desc': return sortStr(a.name, b.name, false);
                         case 'category_asc': return sortStr(a.category, b.category, true);
@@ -335,7 +280,6 @@
                     }
                 } catch (e) { console.error("Sort comparison error:", e); return 0; }
             });
-
             filteredAndSortedSummary = result;
             currentPage = 1;
             renderCurrentPage();
@@ -362,8 +306,8 @@
             } else {
                 itemsToDisplay.forEach(item => {
                     const tr = document.createElement('tr');
-                    tr.dataset.product = encodeURIComponent(item.name); // Add product name to TR
-                    tr.style.cursor = 'pointer'; // Indicate row is clickable
+                    tr.dataset.product = encodeURIComponent(item.name);
+                    tr.style.cursor = 'pointer';
                     tr.innerHTML = `
                         <td><a>${item.name}</a></td>
                         <td>${item.category || '<span class="na-value">N/A</span>'}</td>
@@ -372,7 +316,7 @@
                         <td><span class="vendor-price">${formatPrice(item.vendor)}</span></td>
                         <td>${formatTrend(item.trend)}</td>
                     `;
-                    tr.addEventListener('click', handleProductClick); // Add listener to TR
+                    tr.addEventListener('click', handleProductClick);
                     tableBodyEl.appendChild(tr);
                 });
             }
@@ -387,24 +331,54 @@
 
         // --- Charting ---
         function displayChart(productName, clickedTrElement) {
+            console.log(`Displaying chart for: ${productName}, Time range: ${currentChartTimeRange}`);
             chartPlaceholder.style.display = 'none';
             chartPlotContainer.style.display = 'block';
+            chartTimeControlsEl.style.display = ''; // Show time controls
 
+            // Update selected item in table
             if (selectedTableRow) { selectedTableRow.classList.remove('selected-item'); }
             if (clickedTrElement) { clickedTrElement.classList.add('selected-item'); selectedTableRow = clickedTrElement; }
+            currentChartProduct = productName; // Store currently charted product
 
             const productHistory = allMarketData.filter(d => d.product === productName);
 
-            if (!productHistory || productHistory.length < 1) {
+            // --- Filter history based on selected time range ---
+            let filteredHistory = productHistory;
+            const now = new Date();
+            let startDate;
+            let timeUnit = 'day'; // Default unit for x-axis ticks
+
+            if (currentChartTimeRange === '24h') {
+                startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+                timeUnit = 'hour';
+            } else if (currentChartTimeRange === '48h') {
+                startDate = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000));
+                timeUnit = 'hour';
+            } else if (currentChartTimeRange === '7d') {
+                startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+                timeUnit = 'day';
+            } // No filter needed for '30d' as allMarketData is already limited
+
+            if (startDate) {
+                // Convert timestamps to Date objects for comparison
+                filteredHistory = productHistory.filter(d => new Date(d.timestamp) >= startDate);
+                console.log(`Filtered chart data for ${currentChartTimeRange}. Start: ${startDate.toISOString()}. Points: ${filteredHistory.length}`);
+            }
+             // --- End Time Range Filter ---
+
+
+            if (!filteredHistory || filteredHistory.length < 1) {
                  if (currentChart) { currentChart.destroy(); currentChart = null; }
-                 chartPlotContainer.innerHTML = `<p style="text-align:center; color: orange;">No historical data available.</p><canvas id="single-chart-canvas" style="display:none;"></canvas>`;
+                 chartPlotContainer.innerHTML = `<p style="text-align:center; color: orange;">No historical data available for this item in the selected time range (${currentChartTimeRange}).</p><canvas id="single-chart-canvas" style="display:none;"></canvas>`;
                 return;
             }
 
-            productHistory.sort((a, b) => (a.timestamp < b.timestamp ? -1 : 1));
-            const labels = productHistory.map(d => d.timestamp);
-            const buyData = productHistory.map(d => d.buy);
-            const askData = productHistory.map(d => d.ask);
+            // Prepare data for Chart.js using filteredHistory
+            filteredHistory.sort((a, b) => (a.timestamp < b.timestamp ? -1 : 1));
+            const labels = filteredHistory.map(d => d.timestamp); // Use ISO strings
+            const buyData = filteredHistory.map(d => d.buy);
+            const askData = filteredHistory.map(d => d.ask);
 
             const chartData = {
                 labels: labels,
@@ -435,7 +409,7 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            title: { display: true, text: `Market Trend for ${productName}`, font: { size: 16, weight: '600' }, padding: { bottom: 15 } },
+                            title: { display: true, text: `Market Trend for ${productName} (${currentChartTimeRange})`, font: { size: 16, weight: '600' }, padding: { bottom: 15 } },
                             legend: { position: 'top' },
                             tooltip: { mode: 'index', intersect: false, bodySpacing: 4, titleSpacing: 6, padding: 10 }
                         },
@@ -443,18 +417,15 @@
                             x: {
                                 title: { display: true, text: 'Time' },
                                 grid: { display: false },
-                                // Basic type, assumes labels are sorted strings
-                                type: 'category',
-                                // OR use time scale if adapter is included and labels are Dates/ISO strings
+                                type: 'category', // Keep as category if using string labels
+                                // If using time adapter + Date objects:
                                 // type: 'time',
-                                // time: { tooltipFormat: 'PPpp', unit: 'hour' },
+                                // time: { unit: timeUnit, tooltipFormat: 'PPp' }, // Adjust unit based on range
                             },
                             y: {
-                                // *** USE LOGARITHMIC SCALE ***
-                                type: 'logarithmic',
-                                title: { display: true, text: 'Price (Log Scale)' }, // Update axis title
+                                type: 'logarithmic', // Keep logarithmic scale
+                                title: { display: true, text: 'Price (Log Scale)' },
                                 grid: { color: '#e9ecef' }
-                                // No need for beginAtZero with log scale
                             }
                         },
                         interaction: { mode: 'nearest', axis: 'x', intersect: false },
@@ -471,6 +442,7 @@
         function handleProductClick(event) {
             const clickedTr = event.currentTarget; // TR is the target now
             const productName = decodeURIComponent(clickedTr.dataset.product);
+            // Don't reset time range when clicking a new product
             displayChart(productName, clickedTr);
         }
 
@@ -506,6 +478,24 @@
         nextButton.addEventListener('click', () => {
             const totalPages = Math.ceil(filteredAndSortedSummary.length / itemsPerPage);
             if (currentPage < totalPages) { currentPage++; renderCurrentPage(); }
+        });
+
+        // Event listener for time range buttons
+        chartTimeControlsEl.addEventListener('click', (event) => {
+            if (event.target.tagName === 'BUTTON' && event.target.dataset.range) {
+                const newRange = event.target.dataset.range;
+                if (newRange !== currentChartTimeRange) {
+                    currentChartTimeRange = newRange;
+                    // Update active button style
+                    chartTimeControlsEl.querySelectorAll('button').forEach(btn => {
+                        btn.classList.toggle('active', btn.dataset.range === currentChartTimeRange);
+                    });
+                    // Re-render the current chart with the new time range
+                    if (currentChartProduct) {
+                        displayChart(currentChartProduct, selectedTableRow);
+                    }
+                }
+            }
         });
 
         // --- Initial Load ---
