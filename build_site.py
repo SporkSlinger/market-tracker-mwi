@@ -28,51 +28,53 @@ OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data") # Subdir for data files
 HISTORICAL_DAYS = 30 # How much history to process
 TREND_WINDOW_HOURS = 12 # +/- hours around 24h ago for trend calc
 
-# --- Category Parsing ---
+# --- Category Parsing (Revised) ---
 def parse_categories(filepath):
     """Parses the cata.txt file into a dictionary {item_name: category}."""
     categories = {}
-    current_category = "Unknown"
-    current_subcategory = None
+    current_main_category = "Unknown"
+    current_sub_category = None
+    # Define known main categories and equipment subcategories to help parsing
+    known_main_categories = ["Loots", "Resources", "Consumables", "Books", "Keys", "Equipment"]
+    equipment_subcategories = ["Main Hand", "Off Hand", "Head", "Body", "Legs", "Gloves", "Feet", "Back", "Pouch", "Necklace", "Ring", "Earrings"] # Add any others if needed
+
     logging.info(f"Attempting to parse category file: {filepath}")
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
+                # Skip empty lines and potential separators
                 if not line or line == '•':
                     continue
-                # Check if line is a main category (heuristic: short, maybe all caps or single word)
-                # This parsing is basic and might need adjustment based on exact file format nuances
-                words = line.split()
-                if len(words) < 3 and line.isupper(): # Simple check for main category header
-                    current_category = line.title()
-                    current_subcategory = None
-                    logging.debug(f"Found Main Category: {current_category}")
-                elif len(words) < 4 and line == line.title() and line not in categories: # Check for subcategory like "Main Hand"
-                    # More robust check might be needed if item names can be short/titled
-                    # Check if it looks like a header rather than an item name based on context
-                    # For now, assume title case lines that aren't already items are subheaders
-                     is_likely_item = any(char.isdigit() or char in "'’" for char in line) # Simple check if it might be an item name
-                     if not is_likely_item:
-                           current_subcategory = line
-                           logging.debug(f"Found Sub Category: {current_subcategory}")
-                     else: # Treat as item under current category
-                          category_key = f"{current_category} / {current_subcategory}" if current_subcategory else current_category
-                          categories[line] = category_key
-                          logging.debug(f"Found Item (under main): {line} -> {category_key}")
 
-                else: # Assume it's an item name
-                    # Handle lines with '•' if items are separated differently
-                    item_name = line.split('•')[0].strip()
-                    if item_name:
-                        category_key = f"{current_category} / {current_subcategory}" if current_subcategory else current_category
+                # Check if it's a known main category
+                if line in known_main_categories:
+                    current_main_category = line
+                    current_sub_category = None # Reset subcategory
+                    logging.debug(f"Found Main Category: {current_main_category}")
+                    continue # Move to next line
+
+                # Check if it's an equipment subcategory (only if current main is Equipment)
+                if current_main_category == "Equipment" and line in equipment_subcategories:
+                    current_sub_category = line
+                    logging.debug(f"Found Sub Category: {current_sub_category}")
+                    continue # Move to next line
+
+                # Otherwise, assume it's a line containing item(s)
+                # Split by comma, strip whitespace from each item
+                item_names = [name.strip() for name in line.split(',') if name.strip()]
+
+                for item_name in item_names:
+                    if item_name: # Ensure not empty after stripping
+                        # Construct category key
+                        if current_main_category == "Equipment" and current_sub_category:
+                            category_key = f"{current_main_category} / {current_sub_category}"
+                        else:
+                            category_key = current_main_category
                         categories[item_name] = category_key
-                        logging.debug(f"Found Item: {item_name} -> {category_key}")
+                        logging.debug(f"Found Item: '{item_name}' -> '{category_key}'")
 
         logging.info(f"Parsed {len(categories)} items from category file.")
-        # Manual correction if needed
-        if "Bag Of 10 Cowbells" in categories and categories["Bag Of 10 Cowbells"] == "Loots / Bag Of 10 Cowbells":
-             categories["Bag Of 10 Cowbells"] = "Loots" # Example correction
         return categories
     except FileNotFoundError:
         logging.error(f"Category file not found at {filepath}. Categories will be missing.")
@@ -244,7 +246,7 @@ def main():
     logging.info(f"Output directory '{OUTPUT_DIR}' ensured.")
 
     # --- Parse Categories ---
-    item_categories = parse_categories(CATEGORY_FILE_PATH)
+    item_categories = parse_categories(CATEGORY_FILE_PATH) # Call the parser
     if not item_categories:
         logging.warning("Category data is empty or failed to load. Categories will be missing in output.")
 
@@ -291,7 +293,7 @@ def main():
                 latest = latest_data_map.loc[product]
                 market_summary.append({
                     'name': product,
-                    'category': item_categories.get(product, 'Unknown'), # Add category
+                    'category': item_categories.get(product, 'Unknown'), # Add category using parsed data
                     'buy': latest['buy'] if pd.notna(latest['buy']) else None,
                     'ask': latest['ask'] if pd.notna(latest['ask']) else None,
                     'vendor': vendor_prices.get(product), # Already None if missing
@@ -335,14 +337,14 @@ def main():
     # --- Render HTML Template ---
     logging.info("Rendering HTML template...")
     try:
-        # Get unique categories for the filter dropdown
+        # Get unique categories for the filter dropdown FROM THE PARSED DATA
         unique_categories = sorted(list(set(item_categories.values()))) if item_categories else []
 
         env = Environment(loader=FileSystemLoader('templates'))
         template = env.get_template('index.html')
         html_context = {
             'last_update': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'categories': unique_categories # Pass categories to template
+            'categories': unique_categories # Pass parsed categories
             }
         html_content = template.render(html_context)
         html_path = os.path.join(OUTPUT_DIR, 'index.html')
