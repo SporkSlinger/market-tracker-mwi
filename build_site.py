@@ -28,53 +28,91 @@ OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data") # Subdir for data files
 HISTORICAL_DAYS = 30 # How much history to process
 TREND_WINDOW_HOURS = 12 # +/- hours around 24h ago for trend calc
 
-# --- Category Parsing (Revised) ---
+# --- Category Parsing (Revised v3 - Based on new cata.txt) ---
 def parse_categories(filepath):
     """Parses the cata.txt file into a dictionary {item_name: category}."""
     categories = {}
     current_main_category = "Unknown"
     current_sub_category = None
-    # Define known main categories and equipment subcategories to help parsing
-    known_main_categories = ["Loots", "Resources", "Consumables", "Books", "Keys", "Equipment"]
-    equipment_subcategories = ["Main Hand", "Off Hand", "Head", "Body", "Legs", "Gloves", "Feet", "Back", "Pouch", "Necklace", "Ring", "Earrings"] # Add any others if needed
+    current_display_category = "Unknown" # Category name to assign to items
+
+    # Define known main categories and subcategories from the new file structure
+    known_main_categories = [
+        "Currencies", "Loots", "Resources", "Consumables", "Books", "Keys",
+        "Equipment", "Jewelry", "Trinket", "Tools"
+    ]
+    equipment_subcategories = [
+        "Main Hand", "Off Hand", "Head", "Body", "Legs", "Hands", # Renamed from Gloves
+        "Feet", "Back", "Pouch"
+    ]
+    # Note: Jewelry is now a main category according to the file structure
+    tool_subcategories = [
+        "Milking", "Foraging", "Woodcutting", "Cheesesmithing", "Crafting",
+        "Tailoring", "Cooking", "Brewing", "Alchemy", "Enhancing"
+    ]
 
     logging.info(f"Attempting to parse category file: {filepath}")
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
-            for line in f:
+            for line_num, line in enumerate(f, 1):
                 line = line.strip()
                 # Skip empty lines and potential separators
                 if not line or line == '•':
                     continue
 
+                logging.debug(f"Processing Line {line_num}: '{line}'")
+
                 # Check if it's a known main category
                 if line in known_main_categories:
                     current_main_category = line
                     current_sub_category = None # Reset subcategory
-                    logging.debug(f"Found Main Category: {current_main_category}")
+                    current_display_category = current_main_category # Assign main category by default
+                    logging.debug(f"  -> Matched Main Category: {current_main_category}")
                     continue # Move to next line
 
-                # Check if it's an equipment subcategory (only if current main is Equipment)
+                # Check if it's an equipment subcategory
                 if current_main_category == "Equipment" and line in equipment_subcategories:
                     current_sub_category = line
-                    logging.debug(f"Found Sub Category: {current_sub_category}")
+                    current_display_category = f"Equipment / {current_sub_category}"
+                    logging.debug(f"  -> Matched Equipment Sub Category: {current_sub_category} -> Display: {current_display_category}")
+                    continue # Move to next line
+
+                # Check if it's a tool subcategory
+                if current_main_category == "Tools" and line in tool_subcategories:
+                    current_sub_category = line
+                    current_display_category = f"Tools / {current_sub_category}"
+                    logging.debug(f"  -> Matched Tool Sub Category: {current_sub_category} -> Display: {current_display_category}")
                     continue # Move to next line
 
                 # Otherwise, assume it's a line containing item(s)
                 # Split by comma, strip whitespace from each item
                 item_names = [name.strip() for name in line.split(',') if name.strip()]
 
+                if not item_names:
+                    logging.warning(f"  -> Line {line_num} parsed as empty item list: '{line}'")
+                    continue
+
                 for item_name in item_names:
                     if item_name: # Ensure not empty after stripping
-                        # Construct category key
-                        if current_main_category == "Equipment" and current_sub_category:
-                            category_key = f"{current_main_category} / {current_sub_category}"
-                        else:
-                            category_key = current_main_category
-                        categories[item_name] = category_key
-                        logging.debug(f"Found Item: '{item_name}' -> '{category_key}'")
+                        # Assign the current display category
+                        # Handle edge case where an item might appear before any category header
+                        if current_display_category == "Unknown" and current_main_category != "Unknown":
+                             current_display_category = current_main_category
+
+                        categories[item_name] = current_display_category
+                        logging.debug(f"  -> Found Item: '{item_name}' -> '{current_display_category}'")
+                    else:
+                         logging.warning(f"  -> Found empty item name after split/strip on line {line_num}: '{line}'")
+
 
         logging.info(f"Parsed {len(categories)} items from category file.")
+        # Log a sample for verification
+        sample_items = list(categories.items())[:5] + list(categories.items())[-5:]
+        logging.debug(f"Category parsing sample (first/last 5): {sample_items}")
+        # Log specific items if needed for debugging
+        logging.debug(f"Category for 'Necklace Of Efficiency': {categories.get('Necklace Of Efficiency')}")
+        logging.debug(f"Category for 'Cheese Brush': {categories.get('Cheese Brush')}")
+        logging.debug(f"Category for 'Rough Hide': {categories.get('Rough Hide')}")
         return categories
     except FileNotFoundError:
         logging.error(f"Category file not found at {filepath}. Categories will be missing.")
@@ -85,27 +123,21 @@ def parse_categories(filepath):
 
 
 # --- Data Fetching ---
+# (download_file function remains the same)
 def download_file(url, local_path):
-    # (download_file function remains the same)
     logging.info(f"Attempting to download {url} to {local_path}")
     try:
         response = requests.get(url, stream=True, timeout=60)
         response.raise_for_status()
         with open(local_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
+            for chunk in response.iter_content(chunk_size=8192): f.write(chunk)
         logging.info(f"Successfully downloaded {local_path}")
         return True
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Error downloading {url}: {e}")
-        return False
-    except Exception as e:
-        logging.error(f"An unexpected error occurred during download of {url}: {e}")
-        return False
+    except Exception as e: logging.error(f"Error downloading {url}: {e}"); return False
 
 # --- Data Loading and Processing ---
+# (load_historical_data function remains the same)
 def load_historical_data(days_to_load):
-    # (load_historical_data function remains the same)
     logging.info(f"Loading historical data for {days_to_load} days from {DB_PATH}")
     if not os.path.exists(DB_PATH): logging.warning(f"{DB_PATH} not found."); return pd.DataFrame()
     conn = None
@@ -165,8 +197,8 @@ def load_historical_data(days_to_load):
         if conn: conn.close()
         return pd.DataFrame()
 
+# (load_live_data function remains the same)
 def load_live_data():
-    # (load_live_data function remains the same)
     logging.info(f"Loading live data from {JSON_PATH}")
     vendor_prices = {}; live_records_df = pd.DataFrame()
     if not os.path.exists(JSON_PATH): logging.warning(f"{JSON_PATH} not found."); return live_records_df, vendor_prices
@@ -197,8 +229,8 @@ def load_live_data():
         return live_records_df, vendor_prices
     except Exception as e: logging.error(f"Error loading live data: {e}", exc_info=True); return pd.DataFrame(), {}
 
+# (calculate_trends function remains the same)
 def calculate_trends(df, products):
-    # (calculate_trends function remains the same)
     trends = {}; processed_count = 0
     if df.empty or not products: return trends
     now = datetime.now(); yesterday = now - timedelta(hours=24)
@@ -246,7 +278,7 @@ def main():
     logging.info(f"Output directory '{OUTPUT_DIR}' ensured.")
 
     # --- Parse Categories ---
-    item_categories = parse_categories(CATEGORY_FILE_PATH) # Call the parser
+    item_categories = parse_categories(CATEGORY_FILE_PATH) # Call the UPDATED parser
     if not item_categories:
         logging.warning("Category data is empty or failed to load. Categories will be missing in output.")
 
@@ -287,8 +319,9 @@ def main():
     # 1. Market Summary (Includes category now)
     market_summary = []
     if not combined_df.empty:
+        # Use groupby().last() after sorting by timestamp ensures latest data
         latest_data_map = combined_df.groupby('product').last()
-        for product in all_products:
+        for product in all_products: # Iterate in sorted order
             if product in latest_data_map.index:
                 latest = latest_data_map.loc[product]
                 market_summary.append({
@@ -299,6 +332,9 @@ def main():
                     'vendor': vendor_prices.get(product), # Already None if missing
                     'trend': product_trends.get(product) # Already None if missing/invalid
                 })
+            else:
+                 logging.warning(f"Product '{product}' not found in latest_data_map despite being in unique list.")
+
     summary_path = os.path.join(OUTPUT_DATA_DIR, 'market_summary.json')
     try:
         with open(summary_path, 'w') as f:
@@ -316,6 +352,7 @@ def main():
             chart_history_data[col] = chart_history_data[col].replace([np.inf, -np.inf], np.nan)
             chart_history_data[col] = chart_history_data[col].astype(object)
             chart_history_data.loc[chart_history_data[col].isna(), col] = None
+        # Ensure only necessary columns are included
         chart_history_list = chart_history_data[['product', 'timestamp', 'buy', 'ask']].to_dict(orient='records')
         history_path = os.path.join(OUTPUT_DATA_DIR, 'market_history.json')
         try:
