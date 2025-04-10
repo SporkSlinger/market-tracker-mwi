@@ -10,7 +10,7 @@ import math
 import shutil
 from jinja2 import Environment, FileSystemLoader # For rendering HTML template
 
-# --- Configuration ---
+# --- Configuration --
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [%(funcName)s] %(message)s')
 
 # Source Data URLs and Paths
