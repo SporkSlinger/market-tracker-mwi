@@ -35,26 +35,26 @@
             padding: 0;
             background-color: var(--bg-color);
             color: var(--text-color);
-            line-height: 1.5; /* Standard line height */
-            font-size: 14px; /* Base font size for density */
+            line-height: 1.5;
+            font-size: 14px;
         }
         .container {
-            max-width: 95%; /* Use more screen width */
+            max-width: 95%;
             margin: 20px auto;
-            padding: 0 20px; /* Adjust padding */
+            padding: 0 20px;
             box-sizing: border-box;
         }
         h1 {
             text-align: center;
             color: var(--text-color);
             margin-bottom: 15px;
-            font-weight: 600; /* Slightly less bold */
+            font-weight: 600;
             font-size: 1.75em;
         }
         .status {
             text-align: center;
             margin-bottom: 25px;
-            font-size: 0.85em; /* Smaller status */
+            font-size: 0.85em;
             color: var(--muted-text-color);
         }
 
@@ -65,8 +65,8 @@
             justify-content: space-between;
             align-items: center;
             background-color: var(--card-bg-color);
-            padding: 12px 20px; /* Reduced padding */
-            border-radius: 6px; /* Less rounded */
+            padding: 12px 20px;
+            border-radius: 6px;
             box-shadow: 0 1px 3px var(--shadow-color);
             margin-bottom: 30px;
             gap: 15px;
@@ -80,7 +80,7 @@
             border-radius: 4px;
             min-width: 200px;
             font-size: 0.9em;
-            background-color: #fff; /* Ensure background for select */
+            background-color: #fff;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         .search-form input[type="text"]:focus, .category-filter select:focus {
@@ -90,7 +90,7 @@
         }
         .sort-options span { font-weight: 600; color: var(--text-color); margin-right: 5px; font-size: 0.9em; }
         .sort-options button {
-            padding: 6px 12px; /* Smaller buttons */
+            padding: 6px 12px;
             background-color: var(--button-bg-color);
             color: var(--text-color);
             border-radius: 4px;
@@ -111,7 +111,7 @@
 
         /* Layout for Table and Chart */
         .main-layout { display: flex; flex-wrap: wrap; gap: 25px; }
-        .item-table-container { flex: 3; min-width: 500px; /* Table takes more space */ }
+        .item-table-container { flex: 3; min-width: 500px; }
         .chart-display-container { flex: 2; min-width: 400px; }
 
         /* Item Table Styling */
@@ -222,20 +222,20 @@
         </div>
 
     </div> <footer>
-        Created by Sporky with AI
+        Created by Sporky
     </footer>
 
     <script>
         // --- Global State ---
-        let allMarketData = []; // Holds raw history [{product, timestamp, buy, ask}, ...]
-        let marketSummary = []; // Holds summary [{name, category, buy, ask, vendor, trend}, ...]
+        let allMarketData = [];
+        let marketSummary = [];
         let filteredAndSortedSummary = [];
         let currentChart = null;
         let currentPage = 1;
-        const itemsPerPage = 20; // Keep consistent
-        let currentSort = 'name_asc'; // Default sort
+        const itemsPerPage = 20;
+        let currentSort = 'name_asc';
         let currentSearch = '';
-        let currentCategoryFilter = 'All'; // Default category filter
+        let currentCategoryFilter = 'All';
         let selectedTableRow = null;
 
         // --- DOM Elements ---
@@ -275,25 +275,21 @@
                 tableWrapperEl.style.display = 'none';
                 paginationEl.style.display = 'none';
 
-                console.log("Fetching data files...");
                 const [historyRes, summaryRes] = await Promise.all([
                     fetch('./data/market_history.json'),
-                    fetch('./data/market_summary.json') // Summary now includes category
+                    fetch('./data/market_summary.json')
                 ]);
-                console.log("Fetch responses received.");
 
                 if (!historyRes.ok) throw new Error(`Failed to fetch market_history.json (Status: ${historyRes.status})`);
                 if (!summaryRes.ok) throw new Error(`Failed to fetch market_summary.json (Status: ${summaryRes.status})`);
 
-                console.log("Parsing JSON data...");
                 allMarketData = await historyRes.json();
                 marketSummary = await summaryRes.json();
-                console.log(`Loaded ${allMarketData.length} history points and ${marketSummary.length} summary items.`);
 
                 loadingMessageEl.style.display = 'none';
                 tableWrapperEl.style.display = 'block';
                 paginationEl.style.display = 'block';
-                applyFiltersAndSort(); // Initial display
+                applyFiltersAndSort();
 
             } catch (error) {
                 console.error("Error loading data:", error);
@@ -305,21 +301,15 @@
 
         // --- Filtering and Sorting ---
         function applyFiltersAndSort() {
-            console.log(`Applying filter: "${currentSearch}", category: "${currentCategoryFilter}", sort: "${currentSort}"`);
             let result = [...marketSummary];
-
-            // Apply category filter
             if (currentCategoryFilter !== 'All') {
                 result = result.filter(item => item.category === currentCategoryFilter);
             }
-
-            // Apply search filter
             const searchTerm = currentSearch.toLowerCase();
             if (searchTerm) {
                 result = result.filter(item => item.name.toLowerCase().includes(searchTerm));
             }
 
-            // Apply sorting
             result.sort((a, b) => {
                 try {
                     const sortNum = (valA, valB, ascending = true) => {
@@ -328,15 +318,14 @@
                         return ascending ? numA - numB : numB - numA;
                     };
                     const sortStr = (valA, valB, ascending = true) => {
-                        const strA = (valA ?? '').toLowerCase(); // Case-insensitive string sort
-                        const strB = (valB ?? '').toLowerCase();
+                        const strA = (valA ?? '').toLowerCase(); const strB = (valB ?? '').toLowerCase();
                         const compare = strA.localeCompare(strB);
                         return ascending ? compare : -compare;
                     };
 
                     switch (currentSort) {
                         case 'name_desc': return sortStr(a.name, b.name, false);
-                        case 'category_asc': return sortStr(a.category, b.category, true); // Sort category asc
+                        case 'category_asc': return sortStr(a.category, b.category, true);
                         case 'buy_desc': return sortNum(a.buy, b.buy, false);
                         case 'ask_asc': return sortNum(a.ask, b.ask, true);
                         case 'vendor_desc': return sortNum(a.vendor, b.vendor, false);
@@ -348,42 +337,33 @@
             });
 
             filteredAndSortedSummary = result;
-            console.log(`Filtered/Sorted result size: ${filteredAndSortedSummary.length}`);
             currentPage = 1;
             renderCurrentPage();
         }
 
         // --- Rendering ---
         function renderCurrentPage() {
-            console.log(`Rendering page ${currentPage}`);
-            tableBodyEl.innerHTML = ''; // Clear previous rows
-            selectedTableRow = null; // Clear selection when page changes
-
+            tableBodyEl.innerHTML = '';
+            selectedTableRow = null;
             const totalItems = filteredAndSortedSummary.length;
             const totalPages = Math.ceil(totalItems / itemsPerPage);
             currentPage = Math.max(1, Math.min(currentPage, totalPages || 1));
-
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
             const itemsToDisplay = filteredAndSortedSummary.slice(startIndex, endIndex);
-            console.log(`Displaying items ${startIndex} to ${endIndex-1}`);
 
             if (itemsToDisplay.length === 0) {
                  const message = currentSearch || currentCategoryFilter !== 'All' ? 'No items match your filters.' : 'No market data available.';
                  const tr = document.createElement('tr');
                  const td = document.createElement('td');
-                 td.colSpan = 6; // Span all columns
-                 td.textContent = message;
-                 td.style.textAlign = 'center';
-                 td.style.padding = '20px';
-                 td.style.color = 'var(--muted-text-color)';
-                 tr.appendChild(td);
-                 tableBodyEl.appendChild(tr);
+                 td.colSpan = 6; td.textContent = message; td.style.textAlign = 'center';
+                 td.style.padding = '20px'; td.style.color = 'var(--muted-text-color)';
+                 tr.appendChild(td); tableBodyEl.appendChild(tr);
             } else {
                 itemsToDisplay.forEach(item => {
                     const tr = document.createElement('tr');
-                    // Add data-product to the TR element for easier selection later
-                    tr.dataset.product = encodeURIComponent(item.name);
+                    tr.dataset.product = encodeURIComponent(item.name); // Add product name to TR
+                    tr.style.cursor = 'pointer'; // Indicate row is clickable
                     tr.innerHTML = `
                         <td><a>${item.name}</a></td>
                         <td>${item.category || '<span class="na-value">N/A</span>'}</td>
@@ -392,8 +372,7 @@
                         <td><span class="vendor-price">${formatPrice(item.vendor)}</span></td>
                         <td>${formatTrend(item.trend)}</td>
                     `;
-                    // Add click listener to the whole row
-                    tr.addEventListener('click', handleProductClick);
+                    tr.addEventListener('click', handleProductClick); // Add listener to TR
                     tableBodyEl.appendChild(tr);
                 });
             }
@@ -408,7 +387,6 @@
 
         // --- Charting ---
         function displayChart(productName, clickedTrElement) {
-            console.log("Requesting chart for:", productName);
             chartPlaceholder.style.display = 'none';
             chartPlotContainer.style.display = 'block';
 
@@ -419,7 +397,7 @@
 
             if (!productHistory || productHistory.length < 1) {
                  if (currentChart) { currentChart.destroy(); currentChart = null; }
-                 chartPlotContainer.innerHTML = `<p style="text-align:center; color: orange;">No historical data available for this item.</p><canvas id="single-chart-canvas" style="display:none;"></canvas>`;
+                 chartPlotContainer.innerHTML = `<p style="text-align:center; color: orange;">No historical data available.</p><canvas id="single-chart-canvas" style="display:none;"></canvas>`;
                 return;
             }
 
@@ -462,8 +440,22 @@
                             tooltip: { mode: 'index', intersect: false, bodySpacing: 4, titleSpacing: 6, padding: 10 }
                         },
                         scales: {
-                            x: { title: { display: true, text: 'Time' }, grid: { display: false } },
-                            y: { beginAtZero: false, title: { display: true, text: 'Price' }, grid: { color: '#e9ecef' } }
+                            x: {
+                                title: { display: true, text: 'Time' },
+                                grid: { display: false },
+                                // Basic type, assumes labels are sorted strings
+                                type: 'category',
+                                // OR use time scale if adapter is included and labels are Dates/ISO strings
+                                // type: 'time',
+                                // time: { tooltipFormat: 'PPpp', unit: 'hour' },
+                            },
+                            y: {
+                                // *** USE LOGARITHMIC SCALE ***
+                                type: 'logarithmic',
+                                title: { display: true, text: 'Price (Log Scale)' }, // Update axis title
+                                grid: { color: '#e9ecef' }
+                                // No need for beginAtZero with log scale
+                            }
                         },
                         interaction: { mode: 'nearest', axis: 'x', intersect: false },
                     }
@@ -477,10 +469,9 @@
 
         // --- Event Handlers ---
         function handleProductClick(event) {
-            // Click listener is now on the TR element
-            const clickedTr = event.currentTarget;
+            const clickedTr = event.currentTarget; // TR is the target now
             const productName = decodeURIComponent(clickedTr.dataset.product);
-            displayChart(productName, clickedTr); // Pass the TR element
+            displayChart(productName, clickedTr);
         }
 
         let searchTimeout;
@@ -500,7 +491,6 @@
         sortOptionsEl.addEventListener('click', (event) => {
             if (event.target.tagName === 'BUTTON' && event.target.dataset.sort) {
                 const newSort = event.target.dataset.sort;
-                // Basic toggle for reversing sort might be needed here if desired
                 currentSort = newSort;
                 sortOptionsEl.querySelectorAll('button').forEach(btn => {
                     btn.classList.toggle('current-sort', btn.dataset.sort === currentSort);
