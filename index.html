@@ -10,21 +10,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- 3. Improved Styling --- */
         :root {
             --bg-color: #f8f9fa;
             --card-bg-color: #ffffff;
             --text-color: #212529;
             --muted-text-color: #6c757d;
             --border-color: #dee2e6;
-            --accent-color: #007bff; /* Blue accent */
+            --accent-color: #007bff;
             --accent-hover-color: #0056b3;
-            --positive-color: #28a745; /* Green */
-            --negative-color: #dc3545; /* Red */
+            --positive-color: #198754; /* Slightly darker green */
+            --negative-color: #dc3545;
             --button-bg-color: #e9ecef;
             --button-hover-bg-color: #ced4da;
             --button-active-bg-color: #adb5bd;
-            --shadow-color: rgba(0, 0, 0, 0.075);
+            --shadow-color: rgba(0, 0, 0, 0.06); /* Softer shadow */
+            --list-hover-bg: #f1f3f5;
+            --list-selected-bg: #e0e7ff; /* Highlight for selected item */
         }
 
         body {
@@ -33,23 +34,23 @@
             padding: 0;
             background-color: var(--bg-color);
             color: var(--text-color);
-            line-height: 1.6;
+            line-height: 1.65; /* Increased line height slightly */
         }
         .container {
-            max-width: 1600px; /* Slightly smaller max-width */
+            max-width: 1700px; /* Increased max-width slightly */
             margin: 25px auto;
-            padding: 15px 30px;
+            padding: 15px 35px; /* More horizontal padding */
             box-sizing: border-box;
         }
         h1 {
             text-align: center;
-            color: #343a40; /* Darker heading */
-            margin-bottom: 15px;
+            color: #343a40;
+            margin-bottom: 20px; /* More space below h1 */
             font-weight: 700;
         }
         .status {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 30px; /* More space below status */
             font-size: 0.9em;
             color: var(--muted-text-color);
         }
@@ -61,35 +62,35 @@
             justify-content: space-between;
             align-items: center;
             background-color: var(--card-bg-color);
-            padding: 15px 25px;
+            padding: 18px 25px; /* Increased padding */
             border-radius: 8px;
-            box-shadow: 0 2px 4px var(--shadow-color);
-            margin-bottom: 35px;
+            box-shadow: 0 2px 5px var(--shadow-color);
+            margin-bottom: 40px; /* More space below controls */
             gap: 20px;
         }
         .search-form { display: flex; gap: 10px; align-items: center; }
         .search-form input[type="text"] {
-            padding: 9px 14px;
+            padding: 10px 15px; /* Increased padding */
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            min-width: 250px;
-            font-size: 0.95em;
+            min-width: 280px; /* Wider search */
+            font-size: 1em; /* Slightly larger font */
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         .search-form input[type="text"]:focus {
             border-color: var(--accent-color);
-            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
             outline: none;
         }
-        .sort-options { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        .sort-options span { font-weight: 600; color: var(--text-color); margin-right: 5px; }
+        .sort-options { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .sort-options span { font-weight: 600; color: var(--text-color); margin-right: 8px; }
         .sort-options button {
-            padding: 7px 14px;
+            padding: 8px 15px; /* Increased padding */
             background-color: var(--button-bg-color);
             color: var(--text-color);
             border-radius: 6px;
             text-decoration: none;
-            font-size: 0.9em;
+            font-size: 0.95em; /* Slightly larger font */
             transition: background-color 0.2s, border-color 0.2s;
             border: 1px solid var(--button-bg-color);
             cursor: pointer;
@@ -104,31 +105,47 @@
         }
 
         /* Layout for List and Chart */
-        .main-layout { display: flex; flex-wrap: wrap; gap: 30px; }
-        .item-list-container { flex: 1; min-width: 350px; max-width: 550px; /* Adjusted max-width */ }
-        .chart-display-container { flex: 2; min-width: 450px; }
+        .main-layout { display: flex; flex-wrap: wrap; gap: 40px; /* Increased gap */ }
+        .item-list-container { flex: 1; min-width: 400px; max-width: 600px; }
+        .chart-display-container { flex: 2; min-width: 500px; }
 
         /* Item List Styling */
         #item-list { list-style: none; padding: 0; margin: 0; max-height: 75vh; overflow-y: auto; background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 3px 8px var(--shadow-color); }
-        #item-list li { padding: 12px 18px; border-bottom: 1px solid #f1f3f5; /* Lighter border inside list */ display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: nowrap; transition: background-color 0.15s ease-in-out; }
+        #item-list li {
+            padding: 15px 20px; /* Increased padding */
+            border-bottom: 1px solid #f1f3f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px; /* Increased gap */
+            flex-wrap: nowrap;
+            transition: background-color 0.15s ease-in-out;
+        }
         #item-list li:last-child { border-bottom: none; }
-        #item-list li:hover { background-color: #f8f9fa; } /* Hover effect */
-        #item-list li a { color: var(--accent-color); text-decoration: none; font-weight: 600; cursor: pointer; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #item-list li:hover { background-color: var(--list-hover-bg); }
+        /* Style for selected item */
+        #item-list li.selected-item {
+             background-color: var(--list-selected-bg);
+             border-left: 4px solid var(--accent-color); /* Add left border */
+             padding-left: 16px; /* Adjust padding */
+        }
+        #item-list li a { color: var(--accent-color); text-decoration: none; font-weight: 600; /* Bolder link */ cursor: pointer; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 1.05em; /* Slightly larger item name */ }
         #item-list li a:hover { color: var(--accent-hover-color); text-decoration: underline; }
-        .item-details { display: flex; gap: 12px; flex-shrink: 0; } /* Prevent details from shrinking too much */
-        .item-details span { font-size: 0.85em; color: var(--muted-text-color); white-space: nowrap; }
+        .item-details { display: flex; gap: 15px; /* Increased gap */ flex-shrink: 0; }
+        .item-details span { font-size: 0.9em; /* Larger detail text */ color: var(--muted-text-color); white-space: nowrap; }
         .trend-positive { color: var(--positive-color); font-weight: 600; }
         .trend-negative { color: var(--negative-color); font-weight: 600; }
-        .vendor-price { color: #6f42c1; } /* Purple for vendor */
+        .vendor-price { color: #6f42c1; }
 
         /* Chart Area Styling */
-        .chart-display { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 10px; box-shadow: 0 5px 15px var(--shadow-color); padding: 25px; min-height: 480px; position: relative; }
+        .chart-display { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 10px; box-shadow: 0 5px 15px var(--shadow-color); padding: 25px; min-height: 450px; /* Adjusted min-height */ position: relative; }
         .chart-placeholder { text-align: center; color: #aaa; padding: 60px; font-size: 1.1em; }
-        .chart-plot canvas { max-width: 100%; max-height: 480px; }
+        /* Reduce chart max height */
+        .chart-plot canvas { max-width: 100%; max-height: 400px; /* Reduced max height */ }
 
         /* Pagination styling */
-        .pagination { text-align: center; margin-top: 25px; padding-bottom: 20px; }
-        .pagination button { margin: 0 4px; padding: 8px 15px; background-color: var(--card-bg-color); border: 1px solid var(--border-color); color: var(--accent-color); border-radius: 6px; transition: background-color 0.2s, color 0.2s, border-color 0.2s; cursor: pointer; font-weight: 500; }
+        .pagination { text-align: center; margin-top: 30px; /* More space above pagination */ padding-bottom: 20px; }
+        .pagination button { margin: 0 4px; padding: 9px 16px; /* Increased padding */ background-color: var(--card-bg-color); border: 1px solid var(--border-color); color: var(--accent-color); border-radius: 6px; transition: background-color 0.2s, color 0.2s, border-color 0.2s; cursor: pointer; font-weight: 500; }
         .pagination button:hover:not(:disabled) { background-color: #f1f3f5; border-color: #adb5bd; }
         .pagination button.current { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: bold; cursor: default; }
         .pagination button:disabled { color: #adb5bd; background-color: #f8f9fa; cursor: not-allowed; border-color: #e9ecef; }
@@ -137,14 +154,15 @@
         .error-message { color: var(--negative-color); }
 
         /* Footer */
-        footer { text-align: center; margin-top: 40px; padding: 20px 0; font-size: 0.85em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); }
+        footer { text-align: center; margin-top: 50px; padding: 25px 0; font-size: 0.9em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); }
 
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>MWI Market Trends</h1> <div class="status"> Data Generated: <span id="last-update">2025-04-10 16:27:08</span> </div>
+        <h1>MWI Market Trends</h1>
+        <div class="status"> Data Generated: <span id="last-update">2025-04-10 16:32:04</span> </div>
 
         <div class="controls">
             <div class="search-form">
@@ -195,6 +213,7 @@
         const itemsPerPage = 20;
         let currentSort = 'name_asc';
         let currentSearch = '';
+        let selectedListItem = null; // Keep track of selected item LI element
 
         // --- DOM Elements ---
         const itemListEl = document.getElementById('item-list');
@@ -218,10 +237,8 @@
 
         function formatTrend(trend) {
             if (trend === null || trend === undefined || isNaN(trend)) return 'N/A';
-            // Add arrow based on sign
-            const arrow = trend > 0 ? '▲' : trend < 0 ? '▼' : '';
+            const arrow = trend > 0 ? '▲' : trend < 0 ? '▼' : ''; // Trend arrow
             const trendClass = trend > 0 ? 'trend-positive' : trend < 0 ? 'trend-negative' : '';
-            // Keep space between arrow and number
             return `<span class="${trendClass}">${arrow} ${trend.toFixed(2)}%</span>`;
         }
 
@@ -288,6 +305,7 @@
         // --- Rendering ---
         function renderCurrentPage() {
             itemListEl.innerHTML = '';
+            selectedListItem = null; // Clear selection when page changes
             const totalItems = filteredAndSortedSummary.length;
             const totalPages = Math.ceil(totalItems / itemsPerPage);
             currentPage = Math.max(1, Math.min(currentPage, totalPages || 1));
@@ -324,9 +342,21 @@
         }
 
         // --- Charting ---
-        function displayChart(productName) {
+        function displayChart(productName, clickedLiElement) { // Accept the LI element
             chartPlaceholder.style.display = 'none';
             chartPlotContainer.style.display = 'block';
+
+            // --- Highlight selected item ---
+            if (selectedListItem) {
+                selectedListItem.classList.remove('selected-item'); // Remove from previous
+            }
+            if (clickedLiElement) {
+                clickedLiElement.classList.add('selected-item'); // Add to current
+                selectedListItem = clickedLiElement;
+            }
+            // --- End Highlight ---
+
+
             const productHistory = allMarketData.filter(d => d.product === productName);
 
             if (!productHistory || productHistory.length < 1) {
@@ -367,7 +397,7 @@
                     data: chartData,
                     options: {
                         responsive: true,
-                        maintainAspectRatio: false,
+                        maintainAspectRatio: false, // Keep false
                         plugins: {
                             title: { display: true, text: `Market Trend for ${productName}`, font: { size: 16, weight: '600' }, padding: { bottom: 15 } },
                             legend: { position: 'top' },
@@ -378,7 +408,6 @@
                             y: { beginAtZero: false, title: { display: true, text: 'Price' }, grid: { color: '#e9ecef' } }
                         },
                         interaction: { mode: 'nearest', axis: 'x', intersect: false },
-                        // animation: false // Uncomment for potential performance gain
                     }
                 });
             } catch(e) {
@@ -387,21 +416,23 @@
             }
         }
 
+
         // --- Event Handlers ---
         function handleProductClick(event) {
             event.preventDefault();
-            const productName = decodeURIComponent(event.target.dataset.product);
-            displayChart(productName);
+            const clickedLink = event.target;
+            const clickedLi = clickedLink.closest('li'); // Find parent LI
+            const productName = decodeURIComponent(clickedLink.dataset.product);
+            displayChart(productName, clickedLi); // Pass the LI element
         }
 
-        // Debounce search input
         let searchTimeout;
         searchInput.addEventListener('input', (event) => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 currentSearch = event.target.value;
                 applyFiltersAndSort();
-            }, 300); // Add a 300ms delay
+            }, 300);
         });
 
         sortOptionsEl.addEventListener('click', (event) => {
