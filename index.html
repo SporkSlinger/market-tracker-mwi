@@ -58,10 +58,27 @@
             text-align: center;
             color: var(--text-color-primary);
             margin-top: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 0.5rem; /* Reduced margin below H1 */
             font-weight: 600;
-            font-size: 1.8em; /* Slightly smaller H1 */
+            font-size: 1.8em;
             letter-spacing: -0.5px;
+        }
+        /* Feedback Link Container */
+        .feedback-link-container {
+            text-align: center;
+            margin-bottom: 25px; /* Space below link, before controls */
+            font-size: 0.9em;
+        }
+        .feedback-link-container a {
+            color: var(--muted-text-color);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--muted-text-color); /* Subtle underline */
+            transition: color 0.2s, border-color 0.2s;
+            padding-bottom: 1px;
+        }
+        .feedback-link-container a:hover {
+            color: var(--link-color);
+            border-color: var(--link-color);
         }
 
         /* Controls Area */
@@ -161,9 +178,8 @@
 
         /* Footer */
         footer { text-align: center; margin-top: 60px; padding: 25px 0; font-size: 0.8em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); }
-        footer span { margin: 0 8px; }
-        footer a { color: var(--muted-text-color); text-decoration: none; }
-        footer a:hover { text-decoration: underline; }
+        footer span, footer a { margin: 0 8px; color: var(--muted-text-color); text-decoration: none; } /* Ensure links also use muted color */
+        footer a:hover { text-decoration: underline; color: var(--link-hover-color); } /* Hover color for links */
 
     </style>
 </head>
@@ -171,6 +187,9 @@
 
     <div class="container">
         <h1>MWI Market Trends</h1>
+        <div class="feedback-link-container">
+            <a href="https://github.com/SporkSlinger/market-tracker-mwi/issues" target="_blank" rel="noopener noreferrer">Report an Issue or Suggest a Feature</a>
+        </div>
 
         <div class="controls">
             <div class="controls-left">
@@ -297,9 +316,9 @@
 
     <footer>
         <span>Made by Sporky with AI</span> |
-        <span class="status">Data Generated: <span id="last-update">2025-04-10 19:14:46</span></span> |
+        <span class="status">Data Generated: <span id="last-update">2025-04-10 19:34:58</span></span> |
         <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
-    </footer>
+        </footer>
 
     <script>
         // --- Global State ---
@@ -339,12 +358,12 @@
 
         // --- Utility Functions ---
         function formatPrice(price) {
-            if (price === null || price === undefined || isNaN(price)) return '<span class="na-value">--</span>';
+            if (price === null || price === undefined || isNaN(price)) return '<span class="na-value">--</span>'; // Use '--' for N/A
             return price.toLocaleString();
         }
         function formatTrend(trend) {
             if (trend === null || trend === undefined || isNaN(trend)) return '<span class="na-value">--</span>';
-            const arrow = trend > 0 ? trendUpIcon : trend < 0 ? trendDownIcon : '';
+            const arrow = trend > 0 ? trendUpIcon : trend < 0 ? trendDownIcon : ''; // Use SVG icons
             const trendClass = trend > 0 ? 'trend-positive' : trend < 0 ? 'trend-negative' : '';
             return `<span class="trend-value-container ${trendClass}">${arrow}<span>${trend.toFixed(2)}%</span></span>`;
         }
@@ -548,11 +567,7 @@
                                 type: 'logarithmic',
                                 title: { display: true, text: 'Price (Log Scale)', font: { size: 12 }, color: '#57606a' },
                                 grid: { color: '#d0d7de' }, // Use border color for grid lines
-                                ticks: {
-                                    font: { size: 11 }, color: '#57606a',
-                                    // Optional: Customize log ticks if needed
-                                    // callback: function(value, index, values) { return Number(value.toString()); }
-                                }
+                                ticks: { font: { size: 11 }, color: '#57606a' }
                             }
                         },
                         interaction: { mode: 'index', axis: 'x', intersect: false },
