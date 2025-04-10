@@ -10,85 +10,153 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        /* --- Improved Styling --- */
         :root {
-            --bg-color: #f0f2f5; /* Slightly different background */
+            --bg-color: #f4f7f9; /* Lighter grey background */
             --card-bg-color: #ffffff;
             --text-color: #172b4d; /* Dark blue-grey text */
-            --muted-text-color: #6b778c;
+            --muted-text-color: #5e6c84; /* Softer muted text */
             --border-color: #dfe1e6;
-            --accent-color: #0052cc; /* Atlassian blue */
+            --accent-color: #0747a6; /* Deeper blue accent */
             --accent-hover-color: #003f99;
             --positive-color: #006644; /* Dark green */
             --negative-color: #bf2600; /* Dark red */
             --button-bg-color: #f4f5f7;
             --button-hover-bg-color: #e9ecef;
             --button-active-bg-color: #dfe1e6;
-            --shadow-color: rgba(9, 30, 66, 0.1); /* Subtle shadow based on text */
+            --shadow-color-light: rgba(9, 30, 66, 0.08);
+            --shadow-color-medium: rgba(9, 30, 66, 0.1);
             --table-header-bg: #fafbfc;
-            --table-row-hover-bg: #f8f9fa;
+            --table-row-hover-bg: #f4f7f9; /* Match body bg for subtle hover */
             --table-row-selected-bg: #e7f0ff;
+            --link-color: #0052cc;
+            --link-hover-color: #003f99;
+            --code-font: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
         }
+
+        *, *::before, *::after { box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', sans-serif; margin: 0; padding: 0;
-            background-color: var(--bg-color); color: var(--text-color);
-            line-height: 1.5; font-size: 14px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-        .container { max-width: 95%; margin: 20px auto; padding: 0 20px; box-sizing: border-box; }
-        h1 { text-align: center; color: var(--text-color); margin-bottom: 15px; font-weight: 600; font-size: 1.75em; }
-        .status { text-align: center; margin-bottom: 25px; font-size: 0.85em; color: var(--muted-text-color); }
+        .container {
+            max-width: 1800px; /* Wider container */
+            margin: 20px auto;
+            padding: 0 30px; /* More padding */
+        }
+        h1 {
+            text-align: center;
+            color: var(--text-color);
+            margin-top: 1.5rem;
+            margin-bottom: 2rem; /* More space */
+            font-weight: 600;
+            font-size: 2em; /* Larger title */
+        }
+        /* Status moved to footer */
 
         /* Controls Area */
-        .controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; background-color: var(--card-bg-color); padding: 12px 20px; border-radius: 6px; box-shadow: 0 1px 3px var(--shadow-color); margin-bottom: 30px; gap: 15px; border: 1px solid var(--border-color); }
-        .controls-left, .controls-right { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
-        .search-form input[type="text"], .category-filter select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; min-width: 200px; font-size: 0.9em; background-color: #fff; transition: border-color 0.2s, box-shadow 0.2s; }
-        .search-form input[type="text"]:focus, .category-filter select:focus { border-color: var(--accent-color); box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.25); outline: none; }
-        .sort-options span { font-weight: 600; color: var(--text-color); margin-right: 5px; font-size: 0.9em; }
-        .sort-options button { padding: 6px 12px; background-color: var(--button-bg-color); color: var(--text-color); border-radius: 4px; text-decoration: none; font-size: 0.85em; transition: background-color 0.2s, border-color 0.2s; border: 1px solid transparent; cursor: pointer; font-weight: 500; }
-        .sort-options button:hover { background-color: var(--button-hover-bg-color); }
-        .sort-options button.current-sort { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: 600; }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--card-bg-color);
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px var(--shadow-color-light);
+            margin-bottom: 35px;
+            gap: 20px;
+            border: 1px solid var(--border-color);
+        }
+        .controls-left, .controls-right { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .search-form input[type="text"], .category-filter select {
+            padding: 9px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            min-width: 220px;
+            font-size: 0.95em;
+            background-color: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-form input[type="text"]:focus, .category-filter select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.2);
+            outline: none;
+        }
+        .sort-options span { font-weight: 600; color: var(--text-color); margin-right: 6px; font-size: 0.9em; }
+        .sort-options button {
+            padding: 7px 14px;
+            background-color: var(--button-bg-color);
+            color: var(--text-color);
+            border-radius: 6px;
+            font-size: 0.9em;
+            transition: background-color 0.2s, border-color 0.2s;
+            border: 1px solid var(--border-color); /* Subtle border */
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .sort-options button:hover { background-color: var(--button-hover-bg-color); border-color: #c1c7d0; }
+        .sort-options button.current-sort {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+            font-weight: 600;
+        }
 
         /* Layout for Table and Chart */
-        .main-layout { display: flex; flex-wrap: wrap; gap: 25px; }
-        .item-table-container { flex: 3; min-width: 500px; }
-        .chart-display-container { flex: 2; min-width: 400px; }
+        .main-layout { display: flex; flex-wrap: wrap; gap: 30px; }
+        .item-table-container { flex: 5; min-width: 600px; /* Give table more initial space */ }
+        .chart-display-container { flex: 4; min-width: 450px; }
 
         /* Item Table Styling */
-        .table-wrapper { max-height: 75vh; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 1px 3px var(--shadow-color); background-color: var(--card-bg-color); }
+        .table-wrapper { max-height: 80vh; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 2px 8px var(--shadow-color-medium); background-color: var(--card-bg-color); }
         #item-table { width: 100%; border-collapse: collapse; }
-        #item-table th, #item-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
-        #item-table th { background-color: var(--table-header-bg); font-weight: 600; font-size: 0.85em; text-transform: uppercase; color: var(--muted-text-color); position: sticky; top: 0; z-index: 1; }
+        #item-table th, #item-table td { padding: 12px 15px; /* More padding */ text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; vertical-align: middle; }
+        #item-table th { background-color: var(--table-header-bg); font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted-text-color); position: sticky; top: 0; z-index: 1; }
         #item-table tbody tr:hover { background-color: var(--table-row-hover-bg); }
         #item-table tbody tr.selected-item { background-color: var(--table-row-selected-bg); font-weight: 500; }
-        #item-table td:nth-child(1) { font-weight: 500; cursor: pointer; color: var(--accent-color); } /* Product Name */
-        #item-table td:nth-child(1):hover { text-decoration: underline; color: var(--accent-hover-color); }
-        #item-table td:nth-child(2) { font-size: 0.9em; color: var(--muted-text-color); } /* Category */
-        #item-table td:nth-child(n+3) { text-align: right; font-family: monospace; font-size: 0.95em; } /* Numeric columns */
+        #item-table td:nth-child(1) { font-weight: 500; cursor: pointer; color: var(--link-color); max-width: 250px; overflow: hidden; text-overflow: ellipsis; } /* Product Name */
+        #item-table td:nth-child(1):hover { text-decoration: underline; color: var(--link-hover-color); }
+        #item-table td:nth-child(2) { font-size: 0.9em; color: var(--muted-text-color); max-width: 180px; overflow: hidden; text-overflow: ellipsis; } /* Category */
+        #item-table td:nth-child(n+3) { text-align: right; font-family: var(--code-font); font-size: 0.95em; } /* Numeric columns */
+        .trend-value-container { display: flex; align-items: center; justify-content: flex-end; gap: 4px; } /* For trend icon + text */
+        .trend-icon { width: 1em; height: 1em; vertical-align: middle; }
         .trend-positive { color: var(--positive-color); }
         .trend-negative { color: var(--negative-color); }
         .vendor-price { color: #6f42c1; }
-        .na-value { color: #ccc; }
+        .na-value { color: #bbb; font-style: italic; }
 
         /* Chart Area Styling */
-        .chart-display { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 1px 3px var(--shadow-color); padding: 20px; min-height: 450px; /* Adjusted height */ position: relative; display: flex; flex-direction: column; }
-        .chart-controls { text-align: center; margin-bottom: 15px; } /* Container for time buttons */
-        .chart-controls button { margin: 0 4px; padding: 5px 10px; font-size: 0.8em; background-color: var(--button-bg-color); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; }
-        .chart-controls button:hover { background-color: var(--button-hover-bg-color); }
-        .chart-controls button.active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: 500; }
+        .chart-display { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 2px 8px var(--shadow-color-medium); padding: 20px 25px; min-height: 480px; /* Increased min height */ position: relative; display: flex; flex-direction: column; }
+        .chart-controls { text-align: center; margin-bottom: 20px; }
+        .chart-controls button { margin: 0 5px; padding: 6px 12px; font-size: 0.85em; background-color: var(--button-bg-color); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; font-weight: 500;}
+        .chart-controls button:hover { background-color: var(--button-hover-bg-color); border-color: #c1c7d0;}
+        .chart-controls button.active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: 600; }
         .chart-placeholder { text-align: center; color: #aaa; padding: 60px; font-size: 1.1em; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
-        .chart-plot { flex-grow: 1; position: relative; /* Needed for canvas responsiveness */ } /* Let plot area grow */
-        .chart-plot canvas { max-width: 100%; max-height: 400px; /* Keep max height */ }
+        .chart-plot { flex-grow: 1; position: relative; min-height: 350px; /* Ensure plot area has min height */ }
+        .chart-plot canvas { max-width: 100%; max-height: 400px; /* Constrain height */ }
 
         /* Pagination styling */
-        .pagination { text-align: center; margin-top: 20px; padding-bottom: 20px; }
-        .pagination button { margin: 0 3px; padding: 7px 14px; background-color: var(--card-bg-color); border: 1px solid var(--border-color); color: var(--accent-color); border-radius: 4px; transition: background-color 0.2s, color 0.2s, border-color 0.2s; cursor: pointer; font-weight: 500; font-size: 0.9em; }
+        .pagination { text-align: center; margin-top: 25px; padding-bottom: 20px; }
+        .pagination button { margin: 0 4px; padding: 8px 15px; background-color: var(--card-bg-color); border: 1px solid var(--border-color); color: var(--accent-color); border-radius: 6px; transition: background-color 0.2s, color 0.2s, border-color 0.2s; cursor: pointer; font-weight: 500; font-size: 0.9em; }
         .pagination button:hover:not(:disabled) { background-color: #f1f3f5; border-color: #adb5bd; }
         .pagination button.current { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: bold; cursor: default; }
         .pagination button:disabled { color: #adb5bd; background-color: #f8f9fa; cursor: not-allowed; border-color: #e9ecef; }
 
-        .loading-message, .error-message { text-align: center; padding: 30px; font-size: 1.1em; color: var(--muted-text-color); }
+        .loading-message, .error-message { text-align: center; padding: 40px; font-size: 1.1em; color: var(--muted-text-color); }
         .error-message { color: var(--negative-color); }
-        footer { text-align: center; margin-top: 40px; padding: 20px 0; font-size: 0.9em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); }
+
+        /* Footer */
+        footer { text-align: center; margin-top: 50px; padding: 20px 0; font-size: 0.85em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); }
+        footer span { margin: 0 10px; }
 
     </style>
 </head>
@@ -96,8 +164,6 @@
 
     <div class="container">
         <h1>MWI Market Trends</h1>
-        <div class="status"> Data Generated: <span id="last-update">2025-04-10 18:16:45</span> </div>
-
         <div class="controls">
             <div class="controls-left">
                  <div class="search-form">
@@ -220,7 +286,7 @@
         </div>
 
     </div> <footer>
-        Created by Sporky
+        <span>Made by Sporky with AI</span> | <span class="status">Data Generated: <span id="last-update">2025-04-10 19:03:31</span></span>
     </footer>
 
     <script>
@@ -235,8 +301,8 @@
         let currentSearch = '';
         let currentCategoryFilter = 'All';
         let selectedTableRow = null;
-        let currentChartProduct = null; // Keep track of the product displayed in the chart
-        let currentChartTimeRange = '30d'; // Default time range
+        let currentChartProduct = null;
+        let currentChartTimeRange = '30d';
 
         // --- DOM Elements ---
         const tableBodyEl = document.getElementById('item-table-body');
@@ -251,20 +317,26 @@
         const chartCanvas = document.getElementById('single-chart-canvas');
         const chartPlotContainer = document.querySelector('.chart-plot');
         const chartPlaceholder = document.getElementById('chart-placeholder');
-        const chartTimeControlsEl = document.getElementById('chart-time-controls'); // Time range buttons container
+        const chartTimeControlsEl = document.getElementById('chart-time-controls');
         const loadingMessageEl = document.getElementById('loading-message');
         const errorMessageEl = document.getElementById('error-message');
+
+        // --- SVG Icons for Trends ---
+        const trendUpIcon = `<svg class="trend-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M8 14a.5.5 0 0 0 .5-.5V3.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 3.707V13.5a.5.5 0 0 0 .5.5z"/></svg>`;
+        const trendDownIcon = `<svg class="trend-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v9.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L7.5 12.293V2.5A.5.5 0 0 1 8 2z"/></svg>`;
 
         // --- Utility Functions ---
         function formatPrice(price) {
             if (price === null || price === undefined || isNaN(price)) return '<span class="na-value">N/A</span>';
             return price.toLocaleString();
         }
+
         function formatTrend(trend) {
             if (trend === null || trend === undefined || isNaN(trend)) return '<span class="na-value">N/A</span>';
-            const arrow = trend > 0 ? '▲' : trend < 0 ? '▼' : '';
+            const arrow = trend > 0 ? trendUpIcon : trend < 0 ? trendDownIcon : ''; // Use SVG icons
             const trendClass = trend > 0 ? 'trend-positive' : trend < 0 ? 'trend-negative' : '';
-            return `<span class="${trendClass}">${arrow} ${trend.toFixed(2)}%</span>`;
+            // Use flex container for icon + text alignment
+            return `<span class="trend-value-container ${trendClass}">${arrow}<span>${trend.toFixed(2)}%</span></span>`;
         }
 
         // --- Data Fetching ---
@@ -274,22 +346,23 @@
                 errorMessageEl.style.display = 'none';
                 tableWrapperEl.style.display = 'none';
                 paginationEl.style.display = 'none';
-                console.log("Fetching data files...");
+
                 const [historyRes, summaryRes] = await Promise.all([
                     fetch('./data/market_history.json'),
                     fetch('./data/market_summary.json')
                 ]);
-                console.log("Fetch responses received.");
+
                 if (!historyRes.ok) throw new Error(`Failed to fetch market_history.json (Status: ${historyRes.status})`);
                 if (!summaryRes.ok) throw new Error(`Failed to fetch market_summary.json (Status: ${summaryRes.status})`);
-                console.log("Parsing JSON data...");
+
                 allMarketData = await historyRes.json();
                 marketSummary = await summaryRes.json();
-                console.log(`Loaded ${allMarketData.length} history points and ${marketSummary.length} summary items.`);
+
                 loadingMessageEl.style.display = 'none';
                 tableWrapperEl.style.display = 'block';
                 paginationEl.style.display = 'block';
-                applyFiltersAndSort(); // Initial display
+                applyFiltersAndSort();
+
             } catch (error) {
                 console.error("Error loading data:", error);
                 loadingMessageEl.style.display = 'none';
@@ -383,52 +456,41 @@
 
         // --- Charting ---
         function displayChart(productName, clickedTrElement) {
-            console.log(`Displaying chart for: ${productName}, Time range: ${currentChartTimeRange}`);
             chartPlaceholder.style.display = 'none';
             chartPlotContainer.style.display = 'block';
-            chartTimeControlsEl.style.display = ''; // Show time controls
+            chartTimeControlsEl.style.display = '';
 
-            // Update selected item in table
             if (selectedTableRow) { selectedTableRow.classList.remove('selected-item'); }
             if (clickedTrElement) { clickedTrElement.classList.add('selected-item'); selectedTableRow = clickedTrElement; }
-            currentChartProduct = productName; // Store currently charted product
+            currentChartProduct = productName;
 
             const productHistory = allMarketData.filter(d => d.product === productName);
 
-            // --- Filter history based on selected time range ---
             let filteredHistory = productHistory;
             const now = new Date();
             let startDate;
-            let timeUnit = 'day'; // Default unit for x-axis ticks
+            let timeUnit = 'day';
 
             if (currentChartTimeRange === '24h') {
-                startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000));
-                timeUnit = 'hour';
+                startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000)); timeUnit = 'hour';
             } else if (currentChartTimeRange === '48h') {
-                startDate = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000));
-                timeUnit = 'hour';
+                startDate = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000)); timeUnit = 'hour';
             } else if (currentChartTimeRange === '7d') {
-                startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
-                timeUnit = 'day';
-            } // No filter needed for '30d' as allMarketData is already limited
+                startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)); timeUnit = 'day';
+            }
 
             if (startDate) {
-                // Convert timestamps to Date objects for comparison
                 filteredHistory = productHistory.filter(d => new Date(d.timestamp) >= startDate);
-                console.log(`Filtered chart data for ${currentChartTimeRange}. Start: ${startDate.toISOString()}. Points: ${filteredHistory.length}`);
             }
-             // --- End Time Range Filter ---
-
 
             if (!filteredHistory || filteredHistory.length < 1) {
                  if (currentChart) { currentChart.destroy(); currentChart = null; }
-                 chartPlotContainer.innerHTML = `<p style="text-align:center; color: orange;">No historical data available for this item in the selected time range (${currentChartTimeRange}).</p><canvas id="single-chart-canvas" style="display:none;"></canvas>`;
+                 chartPlotContainer.innerHTML = `<p style="text-align:center; color: orange;">No data available for this item in the selected time range (${currentChartTimeRange}).</p><canvas id="single-chart-canvas" style="display:none;"></canvas>`;
                 return;
             }
 
-            // Prepare data for Chart.js using filteredHistory
             filteredHistory.sort((a, b) => (a.timestamp < b.timestamp ? -1 : 1));
-            const labels = filteredHistory.map(d => d.timestamp); // Use ISO strings
+            const labels = filteredHistory.map(d => d.timestamp);
             const buyData = filteredHistory.map(d => d.buy);
             const askData = filteredHistory.map(d => d.ask);
 
@@ -466,19 +528,8 @@
                             tooltip: { mode: 'index', intersect: false, bodySpacing: 4, titleSpacing: 6, padding: 10 }
                         },
                         scales: {
-                            x: {
-                                title: { display: true, text: 'Time' },
-                                grid: { display: false },
-                                type: 'category', // Keep as category if using string labels
-                                // If using time adapter + Date objects:
-                                // type: 'time',
-                                // time: { unit: timeUnit, tooltipFormat: 'PPp' }, // Adjust unit based on range
-                            },
-                            y: {
-                                type: 'logarithmic', // Keep logarithmic scale
-                                title: { display: true, text: 'Price (Log Scale)' },
-                                grid: { color: '#e9ecef' }
-                            }
+                            x: { title: { display: true, text: 'Time' }, grid: { display: false }, type: 'category' },
+                            y: { type: 'logarithmic', title: { display: true, text: 'Price (Log Scale)' }, grid: { color: '#e9ecef' } }
                         },
                         interaction: { mode: 'nearest', axis: 'x', intersect: false },
                     }
@@ -492,9 +543,8 @@
 
         // --- Event Handlers ---
         function handleProductClick(event) {
-            const clickedTr = event.currentTarget; // TR is the target now
+            const clickedTr = event.currentTarget;
             const productName = decodeURIComponent(clickedTr.dataset.product);
-            // Don't reset time range when clicking a new product
             displayChart(productName, clickedTr);
         }
 
@@ -532,17 +582,14 @@
             if (currentPage < totalPages) { currentPage++; renderCurrentPage(); }
         });
 
-        // Event listener for time range buttons
         chartTimeControlsEl.addEventListener('click', (event) => {
             if (event.target.tagName === 'BUTTON' && event.target.dataset.range) {
                 const newRange = event.target.dataset.range;
                 if (newRange !== currentChartTimeRange) {
                     currentChartTimeRange = newRange;
-                    // Update active button style
                     chartTimeControlsEl.querySelectorAll('button').forEach(btn => {
                         btn.classList.toggle('active', btn.dataset.range === currentChartTimeRange);
                     });
-                    // Re-render the current chart with the new time range
                     if (currentChartProduct) {
                         displayChart(currentChartProduct, selectedTableRow);
                     }
