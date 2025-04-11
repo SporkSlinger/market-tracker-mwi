@@ -36,13 +36,13 @@
         }
         .container { max-width: 1600px; margin: 25px auto; padding: 0 25px; }
         h1 { text-align: center; color: #24292f; margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.8em; letter-spacing: -0.5px; }
-        /* Container for the new button */
-        .activate-dark-mode-container {
+        /* Container for the theme toggle button */
+        .theme-toggle-container {
             text-align: center; /* Center the button */
             margin-bottom: 25px; /* Space below button */
         }
-        /* Style for the new button */
-        #activate-dark-mode {
+        /* Style for the theme toggle button */
+        #theme-toggle-btn { /* Renamed ID */
             padding: 6px 16px;
             font-size: 0.9em;
             font-weight: 500;
@@ -53,16 +53,10 @@
             cursor: pointer;
             transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
         }
-        #activate-dark-mode:hover {
+        #theme-toggle-btn:hover { /* Renamed ID */
             background-color: #dfe3e6;
         }
-        #activate-dark-mode:disabled {
-            opacity: 0.7;
-            cursor: default;
-            background-color: #ced4da; /* Disabled bg */
-            color: #57606a; /* Disabled text */
-            border-color: #ced4da;
-        }
+        /* Removed disabled styles */
 
         .feedback-link-container { text-align: center; margin-bottom: 25px; font-size: 0.9em; }
         .feedback-link-container a { color: #57606a; text-decoration: none; border-bottom: 1px dashed #57606a; transition: color 0.2s, border-color 0.2s; padding-bottom: 1px; }
@@ -97,10 +91,22 @@
         .vendor-price { color: #57606a; }
         .na-value { color: #cdd4de; font-style: normal; }
         .chart-display { background-color: #ffffff; border: 1px solid #d0d7de; border-radius: 6px; padding: 20px; min-height: 450px; position: relative; display: flex; flex-direction: column; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
-        .chart-controls { text-align: center; margin-bottom: 15px; }
-        .chart-controls button { margin: 0 4px; padding: 5px 10px; font-size: 0.85em; background-color: #f6f8fa; border: 1px solid rgba(27, 31, 36, 0.15); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); border-radius: 6px; cursor: pointer; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; font-weight: 500; color: #24292f;}
-        .chart-controls button:hover { background-color: #f0f2f4; border-color: rgba(27, 31, 36, 0.35); }
-        .chart-controls button.active { background-color: var(--accent-color-light); color: white; border-color: var(--accent-color-light); font-weight: 600; }
+        .chart-controls-container { /* Container for all chart controls */
+             display: flex;
+             justify-content: center; /* Center inner divs */
+             align-items: center;
+             flex-wrap: wrap; /* Allow wrapping */
+             gap: 15px; /* Space between control groups */
+             margin-bottom: 15px;
+        }
+        .chart-controls { text-align: center; } /* Keep original class for time */
+        .scale-controls { text-align: center; } /* New class for scale toggle */
+
+        .chart-controls button, .scale-controls button { /* Style both control button types */
+            margin: 0 4px; padding: 5px 10px; font-size: 0.85em; background-color: #f6f8fa; border: 1px solid rgba(27, 31, 36, 0.15); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); border-radius: 6px; cursor: pointer; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; font-weight: 500; color: #24292f;
+        }
+        .chart-controls button:hover, .scale-controls button:hover { background-color: #f0f2f4; border-color: rgba(27, 31, 36, 0.35); }
+        .chart-controls button.active, .scale-controls button.active { background-color: var(--accent-color-light); color: white; border-color: var(--accent-color-light); font-weight: 600; }
         .chart-placeholder { text-align: center; color: #b0b8c2; padding: 60px; font-size: 1.05em; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
         .chart-plot { flex-grow: 1; position: relative; min-height: 320px; }
         .chart-plot canvas { max-width: 100%; max-height: 380px; }
@@ -123,15 +129,15 @@
             .item-table-container, .chart-display-container { min-width: unset; }
             .table-wrapper { max-height: 60vh; }
             h1 { font-size: 1.5em; }
-            /* Removed fixed button container styles */
+            .chart-controls-container { flex-direction: column; gap: 10px; } /* Stack chart controls */
         }
 
         /* --- Dark Mode Overrides (Added) --- */
         html[data-theme="dark"] body { background-color: #0d1117; color: #c9d1d9; }
         html[data-theme="dark"] h1 { color: #c9d1d9; }
-        html[data-theme="dark"] #activate-dark-mode { background-color: #21262d; color: #58a6ff; border-color: #30363d;}
-        html[data-theme="dark"] #activate-dark-mode:hover { background-color: #30363d; }
-        html[data-theme="dark"] #activate-dark-mode:disabled { background-color: #161b22; color: #484f58; border-color: #161b22; }
+        html[data-theme="dark"] #theme-toggle-btn { background-color: #21262d; color: #58a6ff; border-color: #30363d;} /* Renamed ID */
+        html[data-theme="dark"] #theme-toggle-btn:hover { background-color: #30363d; } /* Renamed ID */
+        /* Removed disabled styles */
         html[data-theme="dark"] .feedback-link-container a { color: #8b949e; border-color: #8b949e; }
         html[data-theme="dark"] .feedback-link-container a:hover { color: #58a6ff; border-color: #58a6ff; }
         html[data-theme="dark"] .controls { background-color: #161b22; border-color: #30363d; }
@@ -159,9 +165,9 @@
         html[data-theme="dark"] .vendor-price { color: #8b949e; }
         html[data-theme="dark"] .na-value { color: #484f58; }
         html[data-theme="dark"] .chart-display { background-color: #161b22; border-color: #30363d; }
-        html[data-theme="dark"] .chart-controls button { background-color: #21262d; color: #c9d1d9; border-color: #30363d; }
-        html[data-theme="dark"] .chart-controls button:hover { background-color: #30363d; border-color: #8b949e; }
-        html[data-theme="dark"] .chart-controls button.active { background-color: #58a6ff; color: #ffffff; border-color: #58a6ff; } /* Ensure white text */
+        html[data-theme="dark"] .chart-controls button, html[data-theme="dark"] .scale-controls button { background-color: #21262d; color: #c9d1d9; border-color: #30363d; }
+        html[data-theme="dark"] .chart-controls button:hover, html[data-theme="dark"] .scale-controls button:hover { background-color: #30363d; border-color: #8b949e; }
+        html[data-theme="dark"] .chart-controls button.active, html[data-theme="dark"] .scale-controls button.active { background-color: #58a6ff; color: #ffffff; border-color: #58a6ff; } /* Ensure white text */
         html[data-theme="dark"] .chart-placeholder { color: #6e7681; }
         html[data-theme="dark"] .pagination button { background-color: #21262d; border-color: #30363d; color: #58a6ff; }
         html[data-theme="dark"] .pagination button:hover:not(:disabled) { background-color: #30363d; border-color: #8b949e; }
@@ -176,7 +182,7 @@
         html[data-theme="dark"] footer a:hover { color: #79c0ff; }
 
         /* Remove styles for the old fixed toggle button */
-        /* .theme-toggle-container, #theme-toggle { ... } */
+        /* .theme-toggle-container { ... } */
 
     </style>
 </head>
@@ -184,9 +190,7 @@
 
     <div class="container">
         <h1>MWI Market Trends</h1>
-        <div class="activate-dark-mode-container">
-            <button id="activate-dark-mode">Now with dark mode</button>
-        </div>
+        <div class="theme-toggle-container"> <button id="theme-toggle-btn">Toggle Theme</button> </div>
         <div class="feedback-link-container">
             <a href="https://github.com/SporkSlinger/market-tracker-mwi/issues" target="_blank" rel="noopener noreferrer">Report an Issue or Suggest a Feature</a>
         </div>
@@ -246,11 +250,15 @@
 
             <div class="chart-display-container">
                 <div class="chart-display" id="chart-display">
-                     <div class="chart-controls" id="chart-time-controls" style="display: none;">
-                         <button data-range="24h">24h</button>
-                         <button data-range="48h">48h</button>
-                         <button data-range="7d">7d</button>
-                         <button data-range="30d" class="active">30d</button>
+                     <div class="chart-controls-container"> <div class="chart-controls" id="chart-time-controls" style="display: none;">
+                             <button data-range="24h">24h</button>
+                             <button data-range="48h">48h</button>
+                             <button data-range="7d">7d</button>
+                             <button data-range="30d" class="active">30d</button>
+                         </div>
+                         <div class="scale-controls" id="chart-scale-controls" style="display: none;">
+                              <button id="scale-toggle-btn">Switch to Linear Scale</button>
+                         </div>
                      </div>
                     <div class="chart-placeholder" id="chart-placeholder">Select an item name from the table to view its chart.</div>
                     <div class="chart-plot hidden">
@@ -269,7 +277,7 @@
     </footer>
 
      <script>
-        // --- Global State (Original) ---
+        // --- Global State (Original + Scale Type) ---
         let allMarketData = {}; // Expecting nested object: { "Product": { buy: [...], ask: [...] } }
         let marketSummary = []; // Array of { name, category, buy, ask, vendor, trend }
         let filteredAndSortedSummary = []; // Items currently displayed in table
@@ -282,8 +290,9 @@
         let selectedTableRow = null;
         let currentChartProduct = null;
         let currentChartTimeRange = '30d';
+        let currentYScaleType = 'logarithmic'; // Added state for scale type
 
-        // --- DOM Elements (Original + New Button) ---
+        // --- DOM Elements (Original + Theme Toggle + Scale Toggle) ---
         const tableBodyEl = document.getElementById('item-table-body');
         const tableWrapperEl = document.querySelector('.table-wrapper');
         const paginationEl = document.getElementById('pagination');
@@ -297,10 +306,11 @@
         const chartPlotContainer = document.querySelector('.chart-plot');
         const chartPlaceholder = document.getElementById('chart-placeholder');
         const chartTimeControlsEl = document.getElementById('chart-time-controls');
+        const chartScaleControlsEl = document.getElementById('chart-scale-controls'); // Added Scale Controls Div
+        const scaleToggleButton = document.getElementById('scale-toggle-btn'); // Added Scale Button
         const loadingMessageEl = document.getElementById('loading-message');
         const errorMessageEl = document.getElementById('error-message');
-        // const themeToggleButton = document.getElementById('theme-toggle'); // Old button reference removed
-        const activateDarkModeButton = document.getElementById('activate-dark-mode'); // New button reference
+        const themeToggleButton = document.getElementById('theme-toggle-btn'); // Renamed ID
 
         // --- SVG Icons for Trends (Original) ---
         const trendUpIcon = `<svg class="trend-icon" aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"><path fill="currentColor" d="M8.707 2.293a1 1 0 0 0-1.414 0l-4 4a1 1 0 1 0 1.414 1.414L8 4.414l3.293 3.293a1 1 0 0 0 1.414-1.414l-4-4Z"></path></svg>`;
@@ -318,46 +328,38 @@
             return `<span class="trend-value-container ${trendClass}">${arrow}<span>${trend.toFixed(2)}%</span></span>`;
         }
 
-        // --- Theme Switching Logic (Modified for new button) ---
+        // --- Theme Switching Logic (Restored Toggle) ---
         const THEME_KEY = 'mwi-market-theme';
         function applyTheme(theme) {
-            // Sets the attribute and saves to localStorage
-            if (theme === 'dark') {
+            const isDark = theme === 'dark';
+            if (isDark) {
                 document.documentElement.setAttribute('data-theme', 'dark');
             } else {
                 document.documentElement.removeAttribute('data-theme');
             }
             localStorage.setItem(THEME_KEY, theme);
-            // Does NOT interact with the chart JS
+            // Update button text
+            if (themeToggleButton) {
+                 themeToggleButton.textContent = isDark ? "Switch to Light Mode" : "Switch to Dark Mode";
+            }
+            // Does NOT interact with the chart JS directly for colors
         }
-
-        // Removed toggleTheme function
-
+        function toggleTheme() { // Restored toggle function
+            const currentTheme = document.documentElement.hasAttribute('data-theme') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+        }
         function initTheme() { // Kept to apply saved theme on load
             const savedTheme = localStorage.getItem(THEME_KEY);
             const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-            applyTheme(initialTheme);
-
-            // Also update the button state if dark mode is already active on load
-            if (initialTheme === 'dark' && activateDarkModeButton) {
-                 activateDarkModeButton.textContent = "Dark Mode Activated!";
-                 activateDarkModeButton.disabled = true;
-            }
+            applyTheme(initialTheme); // Apply theme and update button text
         }
-
-        // Add listener for the NEW activate dark mode button
-        if (activateDarkModeButton) {
-             activateDarkModeButton.addEventListener('click', () => {
-                 console.log("Activate dark mode button clicked");
-                 applyTheme('dark');
-                 // Update button state after click
-                 activateDarkModeButton.textContent = "Dark Mode Activated!";
-                 activateDarkModeButton.disabled = true;
-             }, { once: true }); // Use { once: true } if it should only activate once per page load
-                                 // Remove { once: true } if clicking it again should re-apply (though it's disabled now)
+        // Add listener for the theme toggle button
+        if (themeToggleButton) {
+             themeToggleButton.addEventListener('click', toggleTheme); // Use toggleTheme
         } else {
-             console.error("Activate dark mode button not found!");
+             console.error("Theme toggle button not found!");
         }
 
 
@@ -494,11 +496,12 @@
             paginationEl.style.display = totalPages > 1 ? 'flex' : 'none';
         }
 
-        // --- Charting (Original - Untouched Logic/Options) ---
+        // --- Charting (Modified for Appearance) ---
         function displayChart(productName, clickedTrElement) {
             chartPlaceholder.style.display = 'none';
             chartPlotContainer.classList.remove('hidden');
             chartTimeControlsEl.style.display = 'block';
+            chartScaleControlsEl.style.display = 'block'; // Show scale controls
 
             if (selectedTableRow) { selectedTableRow.classList.remove('selected-item'); }
             if (clickedTrElement) { clickedTrElement.classList.add('selected-item'); selectedTableRow = clickedTrElement; }
@@ -512,148 +515,6 @@
                 chartPlotContainer.classList.add('hidden');
                 chartPlaceholder.textContent = `No price history data available for ${productName}.`;
                 chartPlaceholder.style.display = 'flex';
+                chartScaleControlsEl.style.display = 'none'; // Hide scale controls if no data
                 return;
-            }
-
-            let filteredBuy = productHistoryData.buy || [];
-            let filteredAsk = productHistoryData.ask || [];
-            const now = new Date();
-            let startDate;
-            let timeUnit = 'day';
-
-            if (currentChartTimeRange === '24h') { startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000)); timeUnit = 'hour'; }
-            else if (currentChartTimeRange === '48h') { startDate = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000)); timeUnit = 'hour'; }
-            else if (currentChartTimeRange === '7d') { startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)); timeUnit = 'day'; }
-
-            if (startDate) {
-                const filterPoints = (points) => points.filter(p => (p.timestamp * 1000) >= startDate.getTime());
-                filteredBuy = filterPoints(filteredBuy);
-                filteredAsk = filterPoints(filteredAsk);
-            }
-
-            if (filteredBuy.length < 1 && filteredAsk.length < 1) {
-                 console.warn(`No chart data in range ${currentChartTimeRange} for ${productName}`);
-                 if (currentChart) { currentChart.destroy(); currentChart = null; }
-                 chartPlotContainer.classList.add('hidden');
-                 chartPlaceholder.textContent = `No data available for ${productName} in the selected time range (${currentChartTimeRange}).`;
-                 chartPlaceholder.style.display = 'flex';
-                 return;
-            }
-
-            const parsePoints = (points) => points.map(p => ({ x: new Date(p.timestamp * 1000), y: p.price }));
-            const buyData = parsePoints(filteredBuy);
-            const askData = parsePoints(filteredAsk);
-
-            const chartData = {
-                datasets: [
-                    // Original Hardcoded Colors
-                    { label: 'Buy', data: buyData, borderColor: '#0969da', backgroundColor: 'rgba(9, 105, 218, 0.1)', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: true, borderWidth: 1.5 },
-                    { label: 'Ask', data: askData, borderColor: '#cf222e', backgroundColor: 'rgba(207, 34, 46, 0.1)', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: true, borderWidth: 1.5 }
-                ]
-            };
-
-            if (currentChart) { currentChart.destroy(); }
-
-            try {
-                 // Original Chart Options (Uses hardcoded colors)
-                currentChart = new Chart(chartCanvas, {
-                    type: 'line',
-                    data: chartData,
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: {
-                            title: { display: true, text: `${productName} (${currentChartTimeRange})`, font: { size: 15, weight: '600' }, padding: { bottom: 15 }, color: '#24292f' }, // Hardcoded
-                            legend: { position: 'top', labels: { font: { size: 12 }, color: '#24292f' } }, // Hardcoded
-                            tooltip: { mode: 'index', intersect: false, bodySpacing: 5, titleSpacing: 6, padding: 10, boxPadding: 4 } // Default tooltip
-                        },
-                        scales: {
-                            x: {
-                                type: 'time',
-                                time: { unit: timeUnit, tooltipFormat: 'PPp', displayFormats: { hour: 'h:mm a', day: 'MMM d', week: 'MMM d yy' } },
-                                title: { display: false },
-                                grid: { display: false },
-                                ticks: { font: { size: 11 }, color: '#57606a', autoSkip: true, maxRotation: 0, minRotation: 0, maxTicksLimit: 8 } // Hardcoded
-                            },
-                            y: {
-                                type: 'logarithmic', min: 1,
-                                title: { display: true, text: 'Price (Log Scale)', font: { size: 12 }, color: '#57606a' }, // Hardcoded
-                                grid: { color: '#d0d7de' }, // Hardcoded
-                                ticks: { font: { size: 11 }, color: '#57606a', callback: function(value) { /* Log scale tick formatting */ if (value <= 0) return null; if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M'; if (value >= 1e3) return (value / 1e3).toFixed(1) + 'k'; const log10 = Math.log10(value); if (Math.abs(log10 - Math.round(log10)) < 0.01 || value < 10) { return value.toLocaleString(); } return null; } } // Hardcoded
-                            }
-                        },
-                        interaction: { mode: 'index', axis: 'x', intersect: false },
-                         animation: { duration: 0 }
-                    }
-                });
-            } catch(e) {
-                console.error("Error creating Chart.js instance:", e);
-                chartPlotContainer.classList.add('hidden');
-                chartPlaceholder.textContent = 'Error rendering chart.';
-                chartPlaceholder.style.display = 'flex';
-            }
-        }
-
-
-        // --- Event Handlers (Original) ---
-        function handleProductClick(event) {
-            const clickedTr = event.currentTarget;
-            const productName = decodeURIComponent(clickedTr.dataset.product);
-            displayChart(productName, clickedTr);
-        }
-        let searchTimeout;
-        searchInput.addEventListener('input', (event) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                currentSearch = event.target.value;
-                applyFiltersAndSort();
-            }, 300);
-        });
-        categoryFilterEl.addEventListener('change', (event) => {
-             currentCategoryFilter = event.target.value;
-             applyFiltersAndSort();
-        });
-        sortOptionsEl.addEventListener('click', (event) => {
-            if (event.target.tagName === 'BUTTON' && event.target.dataset.sort) {
-                const newSort = event.target.dataset.sort;
-                if (newSort === currentSort) {
-                    if (currentSort === 'name_asc') currentSort = 'name_desc';
-                    else if (currentSort === 'name_desc') currentSort = 'name_asc';
-                } else { currentSort = newSort; }
-                sortOptionsEl.querySelectorAll('button').forEach(btn => {
-                    btn.classList.toggle('current-sort', btn.dataset.sort === currentSort);
-                });
-                applyFiltersAndSort();
-            }
-        });
-        prevButton.addEventListener('click', () => {
-            if (currentPage > 1) { currentPage--; renderCurrentPage(); }
-        });
-        nextButton.addEventListener('click', () => {
-            const totalPages = Math.ceil(filteredAndSortedSummary.length / itemsPerPage);
-            if (currentPage < totalPages) { currentPage++; renderCurrentPage(); }
-        });
-        chartTimeControlsEl.addEventListener('click', (event) => {
-            if (event.target.tagName === 'BUTTON' && event.target.dataset.range) {
-                const newRange = event.target.dataset.range;
-                if (newRange !== currentChartTimeRange) {
-                    currentChartTimeRange = newRange;
-                    chartTimeControlsEl.querySelectorAll('button').forEach(btn => {
-                        btn.classList.toggle('active', btn.dataset.range === currentChartTimeRange);
-                    });
-                    if (currentChartProduct) {
-                        displayChart(currentChartProduct, selectedTableRow); // Re-render chart
-                    }
-                }
-            }
-        });
-
-        // --- Initial Load ---
-        document.addEventListener('DOMContentLoaded', () => {
-            initTheme(); // Initialize theme based on localStorage/preference
-            loadData(); // Load data
-        });
-
-    </script>
-
-</body>
-</html>
+          
