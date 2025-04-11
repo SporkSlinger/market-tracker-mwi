@@ -470,7 +470,7 @@
         // REMOVED updateChartTheme, getChartColors, getCssVariable
 
 
-        // --- Data Fetching (Original - Untouched) ---
+        // --- Data Fetching (Restored Live Fetching) ---
         async function loadData() {
             try {
                 loadingMessageEl.style.display = 'block';
@@ -486,15 +486,16 @@
                 if (!summaryRes.ok) throw new Error(`Failed to fetch market_summary.json (Status: ${summaryRes.status})`);
                 marketSummary = await summaryRes.json();
 
-                applyFiltersAndSort(); // This will now incorporate pinning
+                applyFiltersAndSort(); // Process summary data first
                 loadingMessageEl.style.display = 'none';
                 tableWrapperEl.classList.remove('hidden');
                 paginationEl.style.display = 'flex';
 
+                // Fetch history data
                 const historyRes = await fetch('./data/market_history.json?t=' + Date.now());
                 if (!historyRes.ok) {
                     console.warn(`Failed to fetch market_history.json (Status: ${historyRes.status}). Charts may not work.`);
-                    allMarketData = {};
+                    allMarketData = {}; // Set to empty object if fetch fails
                 } else {
                     allMarketData = await historyRes.json(); // Assumes nested structure
                     console.log("Market history data loaded.");
@@ -511,9 +512,10 @@
             }
         }
 
+
         // --- Filtering and Sorting (MODIFIED for Pinning) ---
         function applyFiltersAndSort() {
-            let result = [...marketSummary];
+            let result = [...marketSummary]; // Use live marketSummary
             // Apply category filter
             if (currentCategoryFilter !== 'All') {
                 result = result.filter(item => item.category === currentCategoryFilter);
@@ -648,7 +650,8 @@
             selectedTableRow = null; // Reset first
             currentTableRows.forEach(row => {
                 row.classList.remove('selected-item'); // Deselect all rows
-                if(decodeURIComponent(row.dataset.product) === productName) {
+                // Check if row has the dataset.product before decoding
+                if (row.dataset.product && decodeURIComponent(row.dataset.product) === productName) {
                     row.classList.add('selected-item'); // Select the matching row
                     selectedTableRow = row;
                 }
@@ -658,6 +661,7 @@
             currentChartProduct = productName;
 
             let productHistoryData;
+             // Use the globally stored (live or sample) data
             if (allMarketData && allMarketData[productName]) {
                  productHistoryData = allMarketData[productName];
             }
