@@ -113,15 +113,19 @@
         .container { max-width: 1600px; margin: 25px auto; padding: 0 25px; }
         h1 { text-align: center; color: var(--text-color-primary); margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.8em; letter-spacing: -0.5px; }
 
-        /* Container for the theme toggle button */
-        .theme-toggle-container {
-            text-align: center; /* Center the button */
-            margin-bottom: 25px; /* Space below button */
+        /* Container for the buttons under title */
+        .title-button-container {
+            text-align: center; /* Center the buttons */
+            margin-bottom: 25px; /* Space below buttons */
+            display: flex; /* Use flexbox */
+            justify-content: center; /* Center items horizontally */
+            gap: 10px; /* Add space between buttons */
+            flex-wrap: wrap; /* Allow wrapping on small screens */
         }
         /* Style for the theme toggle button */
-        #theme-toggle-btn { /* Renamed ID */
+        #theme-toggle-btn, #show-test-graph-btn { /* Apply to both buttons */
             padding: 6px 16px; font-size: 0.9em; font-weight: 500;
-            background-color: var(--button-bg-color); color: var(--text-color-primary); /* Use primary text color */
+            background-color: var(--button-bg-color); color: var(--text-color-primary);
             border: 1px solid var(--button-border-color); border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
@@ -129,7 +133,7 @@
             align-items: center;
             gap: 6px; /* Space between icon and text */
         }
-        #theme-toggle-btn:hover { background-color: var(--button-hover-bg-color); }
+        #theme-toggle-btn:hover, #show-test-graph-btn:hover { background-color: var(--button-hover-bg-color); }
         /* Icon visibility styles */
         #theme-toggle-btn .fa-sun { display: none; }
         #theme-toggle-btn .fa-moon { display: inline-block; }
@@ -169,7 +173,11 @@
         #item-table td:nth-child(2) { font-weight: 500; cursor: pointer; color: var(--link-color); max-width: 220px; overflow: hidden; text-overflow: ellipsis; } /* Adjust column index for name */
         #item-table td:nth-child(2):hover { text-decoration: underline; color: var(--link-hover-color); } /* Adjust column index */
         #item-table td:nth-child(3) { font-size: 0.9em; color: var(--muted-text-color); max-width: 160px; overflow: hidden; text-overflow: ellipsis; } /* Adjust column index */
-        #item-table td:nth-child(n+4) { text-align: right; font-family: var(--code-font); font-size: 0.95em; } /* Adjust column index */
+        /* Adjusted nth-child for swapped Ask/Buy */
+        #item-table td:nth-child(n+5) { text-align: right; font-family: var(--code-font); font-size: 0.95em; } /* Vendor/Trend */
+        #item-table td:nth-child(4) { text-align: right; font-family: var(--code-font); font-size: 0.95em; } /* Ask */
+        #item-table td:nth-child(5) { text-align: right; font-family: var(--code-font); font-size: 0.95em; } /* Buy */
+
 
         .trend-value-container { display: flex; align-items: center; justify-content: flex-end; gap: 3px; }
         .trend-icon { width: 14px; height: 14px; vertical-align: text-bottom; }
@@ -236,6 +244,7 @@
                  <i class="fas fa-sun"></i>
                  <span class="toggle-text" style="margin-left: 6px;">Toggle Theme</span>
              </button>
+             <button id="show-test-graph-btn" title="Show Test Graph">Show Test Graph</button>
         </div>
         <div class="feedback-link-container">
             <a href="https://github.com/SporkSlinger/market-tracker-mwi/issues" target="_blank" rel="noopener noreferrer">Report an Issue or Suggest a Feature</a>
@@ -260,8 +269,8 @@
                     <span>Sort By:</span>
                     <button data-sort="name_asc" class="current-sort">Name</button>
                     <button data-sort="category_asc">Category</button>
-                    <button data-sort="buy_desc">Buy</button>
                     <button data-sort="ask_asc">Ask</button>
+                    <button data-sort="buy_desc">Buy</button>
                     <button data-sort="vendor_desc">Vendor</button>
                     <button data-sort="trend_dec">Trend %</button>
                  </div>
@@ -278,8 +287,8 @@
                             <tr>
                                 <th class="pin-header"><i class="fas fa-thumbtack"></i></th> <th>Name</th>
                                 <th>Category</th>
-                                <th>Buy</th>
                                 <th>Ask</th>
+                                <th>Buy</th>
                                 <th>Vendor</th>
                                 <th>Trend (24h)</th>
                             </tr>
@@ -361,6 +370,7 @@
         const loadingMessageEl = document.getElementById('loading-message');
         const errorMessageEl = document.getElementById('error-message');
         const themeToggleButton = document.getElementById('theme-toggle-btn'); // Renamed reference for new toggle button
+        const showTestGraphBtn = document.getElementById('show-test-graph-btn'); // Added test graph button
 
 
         // --- SVG Icons for Trends (Original) ---
@@ -502,20 +512,21 @@
                 }
 
             } catch (error) {
-                console.error("Error loading data:", error); // Keep generic error log
+                 // ** MODIFIED Catch Block: Call displayTestGraph on ANY error **
+                console.error("Error loading data:", error);
                 loadingMessageEl.style.display = 'none';
-                // Show generic error message for ANY load failure
-                errorMessageEl.textContent = `Error loading market data: ${error.message}. Check console (F12) & data files.`;
+                errorMessageEl.textContent = `Error loading live data: ${error.message}. Displaying TEST data & graph.`;
                 errorMessageEl.classList.remove('hidden');
-                tableWrapperEl.classList.add('hidden'); // Ensure table is hidden on error
-                paginationEl.style.display = 'none'; // Ensure pagination is hidden on error
+                tableWrapperEl.classList.add('hidden'); // Hide table wrapper
+                paginationEl.style.display = 'none'; // Hide pagination
+                displayTestGraph(); // Call test graph function on any load error
             }
         }
 
 
         // --- Filtering and Sorting (MODIFIED for Pinning) ---
         function applyFiltersAndSort() {
-            let result = [...marketSummary]; // Use live marketSummary
+            let result = [...marketSummary]; // Use live or sample marketSummary
             // Apply category filter
             if (currentCategoryFilter !== 'All') {
                 result = result.filter(item => item.category === currentCategoryFilter);
@@ -589,7 +600,9 @@
             const itemsToDisplay = filteredAndSortedSummary.slice(startIndex, endIndex);
 
             if (itemsToDisplay.length === 0) {
-                 const message = currentSearch || currentCategoryFilter !== 'All' ? 'No items match your filters.' : 'No market data available.';
+                 // Adjust message slightly if marketSummary itself is empty (initial state or true empty)
+                 const message = marketSummary.length === 0 ? 'Loading data or no data available.' :
+                                 (currentSearch || currentCategoryFilter !== 'All' ? 'No items match your filters.' : 'No market data available.');
                  const tr = document.createElement('tr');
                  const td = document.createElement('td');
                  td.colSpan = 7; // Adjusted colspan for new pin column
@@ -606,12 +619,13 @@
                     const pinIconClass = isPinned ? 'fas fa-star pin-icon pinned' : 'far fa-star pin-icon';
 
                     // Create cells, including the new pin cell
+                    // ** Swapped Ask/Buy Order **
                     tr.innerHTML = `
                         <td class="pin-cell"><i class="${pinIconClass}" data-item-name="${item.name}" title="${isPinned ? 'Unpin' : 'Pin'} Item"></i></td>
                         <td><a class="item-name-link">${item.name}</a></td>
                         <td>${item.category || '<span class="na-value">N/A</span>'}</td>
-                        <td>${formatPrice(item.buy)}</td>
                         <td>${formatPrice(item.ask)}</td>
+                        <td>${formatPrice(item.buy)}</td>
                         <td><span class="vendor-price">${formatPrice(item.vendor)}</span></td>
                         <td>${formatTrend(item.trend)}</td>
                     `;
@@ -720,11 +734,12 @@
                 scaleToggleButton.textContent = currentYScaleType === 'logarithmic' ? 'Switch to Linear Scale' : 'Switch to Log Scale';
             }
 
-            // ** REVERTED to original hardcoded colors for datasets **
+            // ** CORRECTED Dataset Order **
             const chartData = {
                 datasets: [
-                    // ** Swapped Order for Tooltip **
+                     // Ask is first for tooltip order
                     { label: 'Ask', data: askData, borderColor: '#cf222e', backgroundColor: 'rgba(207, 34, 46, 0.1)', tension: 0, pointRadius: 2, pointHoverRadius: 5, spanGaps: false, borderWidth: 1.5 },
+                    // Buy is second
                     { label: 'Buy', data: buyData, borderColor: '#0969da', backgroundColor: 'rgba(9, 105, 218, 0.1)', tension: 0, pointRadius: 2, pointHoverRadius: 5, spanGaps: false, borderWidth: 1.5 }
                 ]
             };
@@ -788,7 +803,46 @@
             }
         }
 
-        // REMOVED updateChartTheme function
+        // ** ADDED: Function to display a test graph **
+        function displayTestGraph() {
+             console.log("Displaying Test Graph...");
+             // Define sample data in the nested format
+             const nowSec = Math.floor(Date.now() / 1000);
+             const sampleTimestamp1 = nowSec - 36 * 3600; // ~36h ago
+             const sampleTimestamp2 = nowSec - 12 * 3600; // ~12h ago
+             const sampleTimestamp3 = nowSec - 1 * 3600;  // ~1h ago
+             const testHistoryData = {
+                 "Test Item Alpha": {
+                     "buy": [
+                         { "timestamp": sampleTimestamp1, "price": 140 },
+                         { "timestamp": sampleTimestamp2, "price": 142 },
+                         { "timestamp": sampleTimestamp3, "price": 150 }
+                     ],
+                     "ask": [
+                         { "timestamp": sampleTimestamp1, "price": 155 },
+                         { "timestamp": sampleTimestamp2, "price": 162 },
+                         { "timestamp": sampleTimestamp3, "price": 160 }
+                     ]
+                 }
+             };
+             const testSummaryData = [
+                 { name: "Test Item Alpha", category: "Test Cat A", buy: 150, ask: 160, vendor: 10, trend: 5.5 },
+                 { name: "Test Item Beta", category: "Test Cat B", buy: 2000, ask: null, vendor: 500, trend: -2.1 }
+             ];
+
+             // Assign test data and render
+             marketSummary = testSummaryData;
+             allMarketData = testHistoryData;
+             pinnedItems = getPinnedItems(); // Load pins even in test mode
+
+             applyFiltersAndSort(); // Render table with test summary
+             loadingMessageEl.style.display = 'none';
+             tableWrapperEl.classList.remove('hidden');
+             paginationEl.style.display = 'flex';
+
+             // Display chart for the first test item
+             displayChart("Test Item Alpha", null);
+        }
 
 
         // --- Event Handlers (Original + Scale Toggle + Pinning) ---
@@ -863,6 +917,12 @@
             });
         } else {
             console.error("Scale toggle button not found!");
+        }
+        // Listener for the test graph button
+        if (showTestGraphBtn) {
+             showTestGraphBtn.addEventListener('click', displayTestGraph);
+        } else {
+             console.error("Show Test Graph button not found!");
         }
 
 
