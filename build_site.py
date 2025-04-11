@@ -4,7 +4,7 @@ import json
 import requests
 import pandas as pd
 import numpy as np # Import numpy for NaN/Inf checking/replacement
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone # Import timezone
 import logging
 import math
 import shutil
@@ -23,12 +23,14 @@ CATEGORY_FILE_PATH = "cata.txt" # Path to your category file
 # Output directory for static files
 OUTPUT_DIR = "output"
 OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data") # Subdir for data files
+TEMPLATE_DIR = "templates" # Directory for Jinja templates - Added for clarity
 
 # History and Trend Settings
 HISTORICAL_DAYS = 30 # How much history to process
 TREND_WINDOW_HOURS = 12 # +/- hours around 24h ago for trend calc
 
 # --- Category Parsing (Revised v3 - Based on new cata.txt) ---
+# (parse_categories function remains the same as provided by user)
 def parse_categories(filepath):
     """Parses the cata.txt file into a dictionary {item_name: category}."""
     categories = {}
@@ -123,7 +125,7 @@ def parse_categories(filepath):
 
 
 # --- Data Fetching ---
-# (download_file function remains the same)
+# (download_file function remains the same as provided by user)
 def download_file(url, local_path):
     logging.info(f"Attempting to download {url} to {local_path}")
     try:
@@ -136,7 +138,7 @@ def download_file(url, local_path):
     except Exception as e: logging.error(f"Error downloading {url}: {e}"); return False
 
 # --- Data Loading and Processing ---
-# (load_historical_data function remains the same)
+# (load_historical_data function remains the same as provided by user)
 def load_historical_data(days_to_load):
     logging.info(f"Loading historical data for {days_to_load} days from {DB_PATH}")
     if not os.path.exists(DB_PATH): logging.warning(f"{DB_PATH} not found."); return pd.DataFrame()
@@ -197,7 +199,7 @@ def load_historical_data(days_to_load):
         if conn: conn.close()
         return pd.DataFrame()
 
-# (load_live_data function remains the same)
+# (load_live_data function remains the same as provided by user)
 def load_live_data():
     logging.info(f"Loading live data from {JSON_PATH}")
     vendor_prices = {}; live_records_df = pd.DataFrame()
@@ -229,7 +231,7 @@ def load_live_data():
         return live_records_df, vendor_prices
     except Exception as e: logging.error(f"Error loading live data: {e}", exc_info=True); return pd.DataFrame(), {}
 
-# (calculate_trends function remains the same)
+# (calculate_trends function remains the same as provided by user)
 def calculate_trends(df, products):
     trends = {}; processed_count = 0
     if df.empty or not products: return trends
@@ -278,7 +280,7 @@ def main():
     logging.info(f"Output directory '{OUTPUT_DIR}' ensured.")
 
     # --- Parse Categories ---
-    item_categories = parse_categories(CATEGORY_FILE_PATH) # Call the UPDATED parser
+    item_categories = parse_categories(CATEGORY_FILE_PATH)
     if not item_categories:
         logging.warning("Category data is empty or failed to load. Categories will be missing in output.")
 
@@ -319,18 +321,17 @@ def main():
     # 1. Market Summary (Includes category now)
     market_summary = []
     if not combined_df.empty:
-        # Use groupby().last() after sorting by timestamp ensures latest data
         latest_data_map = combined_df.groupby('product').last()
-        for product in all_products: # Iterate in sorted order
+        for product in all_products:
             if product in latest_data_map.index:
                 latest = latest_data_map.loc[product]
                 market_summary.append({
                     'name': product,
-                    'category': item_categories.get(product, 'Unknown'), # Add category using parsed data
+                    'category': item_categories.get(product, 'Unknown'),
                     'buy': latest['buy'] if pd.notna(latest['buy']) else None,
                     'ask': latest['ask'] if pd.notna(latest['ask']) else None,
-                    'vendor': vendor_prices.get(product), # Already None if missing
-                    'trend': product_trends.get(product) # Already None if missing/invalid
+                    'vendor': vendor_prices.get(product),
+                    'trend': product_trends.get(product)
                 })
             else:
                  logging.warning(f"Product '{product}' not found in latest_data_map despite being in unique list.")
@@ -344,32 +345,64 @@ def main():
     except Exception as e: logging.error(f"Failed to save market summary JSON: {e}")
 
 
-    # 2. Full Historical Data
+    # 2. Full Historical Data - MODIFIED TO OUTPUT NESTED OBJECT
+    nested_history_dict = {}
     if not combined_df.empty:
-        chart_history_data = combined_df.copy()
-        chart_history_data['timestamp'] = chart_history_data['timestamp'].dt.strftime('%Y-%m-%dT%H:%M:%S')
-        for col in ['buy', 'ask']:
-            chart_history_data[col] = chart_history_data[col].replace([np.inf, -np.inf], np.nan)
-            chart_history_data[col] = chart_history_data[col].astype(object)
-            chart_history_data.loc[chart_history_data[col].isna(), col] = None
-        # Ensure only necessary columns are included
-        chart_history_list = chart_history_data[['product', 'timestamp', 'buy', 'ask']].to_dict(orient='records')
-        history_path = os.path.join(OUTPUT_DATA_DIR, 'market_history.json')
-        try:
-            logging.info(f"Attempting to save market history JSON ({len(chart_history_list)} records)...")
-            with open(history_path, 'w') as f:
-                json.dump(chart_history_list, f, allow_nan=False)
-            logging.info(f"Saved full market history to {history_path}")
-        except ValueError as ve:
-            logging.error(f"ValueError saving market history JSON: {ve}")
-            problematic_sample = []
-            for i, record in enumerate(chart_history_list):
-                try: json.dumps(record, allow_nan=False)
-                except ValueError: problematic_sample.append({'index': i, 'record': record});
-                if len(problematic_sample) >= 5: break
-            logging.error(f"Problematic records sample: {problematic_sample}")
-        except Exception as e: logging.error(f"Failed to save market history JSON: {e}")
-    else: logging.warning("Skipping market history JSON generation.")
+        logging.info("Grouping historical data by product for nested JSON...")
+        # Ensure timestamp is datetime for calculations
+        if not pd.api.types.is_datetime64_any_dtype(combined_df['timestamp']):
+             combined_df['timestamp'] = pd.to_datetime(combined_df['timestamp'], errors='coerce')
+             combined_df.dropna(subset=['timestamp'], inplace=True) # Drop rows where conversion failed
+
+        # Convert timestamp to UTC if it doesn't have timezone info
+        # This ensures consistent epoch seconds regardless of server timezone
+        if combined_df['timestamp'].dt.tz is None:
+            combined_df['timestamp'] = combined_df['timestamp'].dt.tz_localize('UTC')
+        else:
+            combined_df['timestamp'] = combined_df['timestamp'].dt.tz_convert('UTC')
+
+        # Group by product
+        grouped_history = combined_df.groupby('product')
+
+        for product_name, group_df in grouped_history:
+            buy_list = []
+            ask_list = []
+
+            # Process buy data for the product
+            buy_data = group_df[['timestamp', 'buy']].dropna(subset=['buy'])
+            if not buy_data.empty:
+                 buy_list = [
+                     {"timestamp": int(ts.timestamp()), "price": price}
+                     for ts, price in zip(buy_data['timestamp'], buy_data['buy'])
+                     if pd.notna(price) and np.isfinite(price) # Ensure price is valid number
+                 ]
+
+            # Process ask data for the product
+            ask_data = group_df[['timestamp', 'ask']].dropna(subset=['ask'])
+            if not ask_data.empty:
+                 ask_list = [
+                     {"timestamp": int(ts.timestamp()), "price": price}
+                     for ts, price in zip(ask_data['timestamp'], ask_data['ask'])
+                     if pd.notna(price) and np.isfinite(price) # Ensure price is valid number
+                 ]
+
+            # Only add product if it has at least one buy or ask point
+            if buy_list or ask_list:
+                 nested_history_dict[product_name] = {"buy": buy_list, "ask": ask_list}
+
+    # Save the nested dictionary
+    history_path = os.path.join(OUTPUT_DATA_DIR, 'market_history.json')
+    try:
+        logging.info(f"Attempting to save nested market history JSON ({len(nested_history_dict)} products)...")
+        with open(history_path, 'w') as f:
+            json.dump(nested_history_dict, f, allow_nan=False) # allow_nan=False handles residual issues
+        logging.info(f"Saved nested market history to {history_path}")
+    except ValueError as ve:
+        logging.error(f"ValueError saving market history JSON: {ve}")
+        # Add more detailed logging for complex structures if needed
+    except Exception as e:
+        logging.error(f"Failed to save market history JSON: {e}")
+
 
     # --- Render HTML Template ---
     logging.info("Rendering HTML template...")
@@ -377,7 +410,12 @@ def main():
         # Get unique categories for the filter dropdown FROM THE PARSED DATA
         unique_categories = sorted(list(set(item_categories.values()))) if item_categories else []
 
-        env = Environment(loader=FileSystemLoader('templates'))
+        # Ensure TEMPLATE_DIR is defined correctly
+        if not os.path.isdir(TEMPLATE_DIR):
+             logging.error(f"Template directory '{TEMPLATE_DIR}' not found!")
+             return # Stop if template dir is missing
+
+        env = Environment(loader=FileSystemLoader(TEMPLATE_DIR)) # Use TEMPLATE_DIR
         template = env.get_template('index.html')
         html_context = {
             'last_update': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
