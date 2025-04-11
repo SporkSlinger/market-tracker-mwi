@@ -11,193 +11,82 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <style>
-        /* --- CSS Variables for Theming --- */
+        /* --- Original Styling --- */
+        /* Base variables (can be used if desired, but not modifying original rules to use them extensively) */
         :root {
-            /* Light Theme (Based on Original) */
-            --bg-color: #f6f8fa;
-            --card-bg-color: #ffffff;
-            --text-color-primary: #24292f;
-            --text-color-secondary: #57606a;
-            --muted-text-color: #57606a;
-            --border-color: #d0d7de;
-            --accent-color: #0969da;
-            --accent-hover-color: #0550ae;
-            --positive-color: #1a7f37;
-            --negative-color: #cf222e;
-            --button-bg-color: #f6f8fa;
-            --button-hover-bg-color: #f0f2f4;
-            --button-border-color: rgba(27, 31, 36, 0.15);
-            --button-hover-border-color: rgba(27, 31, 36, 0.35);
-            --input-bg-color: var(--card-bg-color);
-            --input-border-color: var(--border-color);
-            --input-focus-border-color: var(--accent-color);
-            --input-focus-shadow-color: rgba(9, 105, 218, 0.3);
-            --table-header-bg: #f6f8fa;
-            --table-row-even-bg: #fbfcfd; /* Original even row color */
-            --table-row-hover-bg: #f6f8fa;
-            --table-row-selected-bg: #ddf4ff;
-            --link-color: var(--accent-color);
-            --link-hover-color: var(--accent-hover-color);
+            --accent-color-light: #0969da;
+            --accent-hover-color-light: #0550ae;
+            --positive-color-light: #1a7f37;
+            --negative-color-light: #cf222e;
+            --border-color-light: #d0d7de;
+            --link-color-light: var(--accent-color-light);
+            --link-hover-color-light: var(--accent-hover-color-light);
+            --muted-text-color-light: #57606a;
             --code-font: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
-            --na-value-color: #cdd4de; /* Original NA color */
-            --vendor-price-color: #57606a; /* Original vendor color */
-            --chart-placeholder-color: #b0b8c2; /* Original placeholder color */
-            /* Chart element colors use hardcoded values in JS */
         }
 
-        html[data-theme="dark"] {
-             /* Dark Theme Overrides */
-            --bg-color: #0d1117;
-            --card-bg-color: #161b22;
-            --text-color-primary: #c9d1d9;
-            --text-color-secondary: #8b949e;
-            --muted-text-color: #8b949e;
-            --border-color: #30363d;
-            --accent-color: #58a6ff;
-            --accent-hover-color: #79c0ff;
-            --positive-color: #3fb950;
-            --negative-color: #f85149;
-            --button-bg-color: #21262d;
-            --button-hover-bg-color: #30363d;
-            --button-border-color: #30363d;
-            --button-hover-border-color: #8b949e;
-            --input-bg-color: var(--card-bg-color);
-            --input-border-color: var(--border-color);
-            --input-focus-border-color: var(--accent-color);
-            --input-focus-shadow-color: rgba(88, 166, 255, 0.3);
-            --table-header-bg: #161b22;
-            --table-row-even-bg: #1a1f27; /* Darker even row */
-            --table-row-hover-bg: #21262d;
-            --table-row-selected-bg: #1f6feb;
-            --link-color: var(--accent-color);
-            --link-hover-color: var(--accent-hover-color);
-            --na-value-color: #484f58; /* Darker NA color */
-            --vendor-price-color: var(--text-color-secondary);
-            --chart-placeholder-color: #6e7681; /* Darker placeholder */
-        }
-
-        /* --- General Styles --- */
         *, *::before, *::after { box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif; margin: 0; padding: 0;
-            background-color: var(--bg-color); color: var(--text-color-primary);
+            background-color: #f6f8fa; /* Original hardcoded */
+            color: #24292f; /* Original hardcoded */
             line-height: 1.5; font-size: 14px;
             transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-            padding-bottom: 80px; /* Add padding to prevent content overlap with fixed button */
+            padding-bottom: 80px; /* Add padding for fixed button */
         }
         .container { max-width: 1600px; margin: 25px auto; padding: 0 25px; }
-        h1 { text-align: center; color: var(--text-color-primary); margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.8em; letter-spacing: -0.5px; }
+        h1 { text-align: center; color: #24292f; margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.8em; letter-spacing: -0.5px; }
         .feedback-link-container { text-align: center; margin-bottom: 25px; font-size: 0.9em; }
-        .feedback-link-container a { color: var(--muted-text-color); text-decoration: none; border-bottom: 1px dashed var(--muted-text-color); transition: color 0.2s, border-color 0.2s; padding-bottom: 1px; }
-        .feedback-link-container a:hover { color: var(--link-color); border-color: var(--link-color); }
-
-        /* --- Controls Area --- */
-        .controls {
-            display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
-            padding: 16px 20px; margin-bottom: 30px; gap: 15px;
-            background-color: var(--card-bg-color); /* Use var */
-            border: 1px solid var(--border-color); border-radius: 6px;
-            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
-        }
+        .feedback-link-container a { color: #57606a; text-decoration: none; border-bottom: 1px dashed #57606a; transition: color 0.2s, border-color 0.2s; padding-bottom: 1px; }
+        .feedback-link-container a:hover { color: var(--link-color-light); border-color: var(--link-color-light); } /* Use var for link hover */
+        .controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 16px 20px; margin-bottom: 30px; gap: 15px; background-color: #fcfcfd; border: 1px solid #d0d7de; border-radius: 6px; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
         .controls-left, .controls-right { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-        .search-form input[type="text"], .category-filter select {
-            padding: 8px 12px; border: 1px solid var(--input-border-color); border-radius: 6px;
-            min-width: 200px; font-size: 0.95em; background-color: var(--input-bg-color);
-            color: var(--text-color-primary);
-            box-shadow: inset 0 1px 0 rgba(27,31,36,0.075);
-            transition: border-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-        }
-        .search-form input[type="text"]:focus, .category-filter select:focus {
-            border-color: var(--input-focus-border-color);
-            box-shadow: inset 0 1px 0 rgba(27,31,36,0.075), 0 0 0 3px var(--input-focus-shadow-color);
-            outline: none;
-        }
-
-        /* --- Theme Toggle Button Styling (Fixed at bottom) --- */
-        .theme-toggle-container {
-            position: fixed; /* Fixed position */
-            bottom: 20px; /* Distance from bottom */
-            left: 50%; /* Center horizontally */
-            transform: translateX(-50%); /* Precise centering */
-            z-index: 1000; /* Ensure it's on top */
-        }
-        #theme-toggle {
-            padding: 8px 15px; background-color: var(--button-bg-color); color: var(--text-color-primary);
-            border-radius: 9999px; /* Make it pill-shaped */ font-size: 0.9em;
-            transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out, color 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
-            border: 1px solid var(--button-border-color);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Add shadow */
-            cursor: pointer; font-weight: 500; line-height: 20px;
-            display: inline-flex; align-items: center; justify-content: center; min-width: 40px;
-        }
-        #theme-toggle:hover {
-             background-color: var(--button-hover-bg-color);
-             border-color: var(--button-hover-border-color);
-             box-shadow: 0 3px 7px rgba(0,0,0,0.15); /* Enhance shadow on hover */
-        }
-        #theme-toggle .fa-sun { display: none; }
-        #theme-toggle .fa-moon { display: inline-block; }
-        html[data-theme="dark"] #theme-toggle .fa-sun { display: inline-block; }
-        html[data-theme="dark"] #theme-toggle .fa-moon { display: none; }
-
-
-        /* --- Sort Options --- */
-        .sort-options span { font-weight: 600; color: var(--text-color-secondary); margin-right: 4px; font-size: 0.9em; }
-        .sort-options button { padding: 5px 12px; background-color: var(--button-bg-color); color: var(--text-color-primary); border-radius: 6px; font-size: 0.9em; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); cursor: pointer; font-weight: 500; line-height: 20px; }
-        .sort-options button:hover { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
-        .sort-options button.current-sort { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: 600; }
-
-        /* --- Layout --- */
+        .search-form input[type="text"], .category-filter select { padding: 8px 12px; border: 1px solid #d0d7de; border-radius: 6px; min-width: 200px; font-size: 0.95em; background-color: #ffffff; box-shadow: inset 0 1px 0 rgba(27,31,36,0.075); transition: border-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out; color: #24292f;}
+        .search-form input[type="text"]:focus, .category-filter select:focus { border-color: var(--accent-color-light); box-shadow: inset 0 1px 0 rgba(27,31,36,0.075), 0 0 0 3px rgba(9, 105, 218, 0.3); outline: none; }
+        .sort-options span { font-weight: 600; color: #57606a; margin-right: 4px; font-size: 0.9em; }
+        .sort-options button { padding: 5px 12px; background-color: #f6f8fa; color: #24292f; border-radius: 6px; font-size: 0.9em; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; border: 1px solid rgba(27, 31, 36, 0.15); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); cursor: pointer; font-weight: 500; line-height: 20px; }
+        .sort-options button:hover { background-color: #f0f2f4; border-color: rgba(27, 31, 36, 0.35); }
+        .sort-options button.current-sort { background-color: var(--accent-color-light); color: white; border-color: var(--accent-color-light); font-weight: 600; }
         .main-layout { display: flex; flex-wrap: wrap; gap: 25px; }
         .item-table-container { flex: 3; min-width: 550px; }
         .chart-display-container { flex: 2; min-width: 400px; }
-
-        /* --- Table --- */
-        .table-wrapper { max-height: 78vh; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--card-bg-color); transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
+        .table-wrapper { max-height: 78vh; overflow-y: auto; border: 1px solid #d0d7de; border-radius: 6px; background-color: #ffffff; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
         #item-table { width: 100%; border-collapse: collapse; }
-        #item-table th, #item-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; vertical-align: middle; font-size: 0.95em; }
-        #item-table th { background-color: var(--table-header-bg); font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted-text-color); position: sticky; top: 0; z-index: 1; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;}
+        #item-table th, #item-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #d0d7de; white-space: nowrap; vertical-align: middle; font-size: 0.95em; }
+        #item-table th { background-color: #f6f8fa; font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; color: #57606a; position: sticky; top: 0; z-index: 1; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;}
         #item-table tbody tr { transition: background-color 0.15s ease; }
-        #item-table tbody tr:nth-child(even) { background-color: var(--table-row-even-bg); }
-        #item-table tbody tr:hover { background-color: var(--table-row-hover-bg); }
-        #item-table tbody tr.selected-item { background-color: var(--table-row-selected-bg); font-weight: 500; }
-        #item-table td:nth-child(1) { font-weight: 500; cursor: pointer; color: var(--link-color); max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
-        #item-table td:nth-child(1):hover { text-decoration: underline; color: var(--link-hover-color); }
-        #item-table td:nth-child(2) { font-size: 0.9em; color: var(--muted-text-color); max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+        #item-table tbody tr:nth-child(even) { background-color: #fbfcfd; }
+        #item-table tbody tr:hover { background-color: #f6f8fa; }
+        #item-table tbody tr.selected-item { background-color: #ddf4ff; font-weight: 500; }
+        #item-table td:nth-child(1) { font-weight: 500; cursor: pointer; color: var(--link-color-light); max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+        #item-table td:nth-child(1):hover { text-decoration: underline; color: var(--link-hover-color-light); }
+        #item-table td:nth-child(2) { font-size: 0.9em; color: #57606a; max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
         #item-table td:nth-child(n+3) { text-align: right; font-family: var(--code-font); font-size: 0.95em; }
         .trend-value-container { display: flex; align-items: center; justify-content: flex-end; gap: 3px; }
         .trend-icon { width: 14px; height: 14px; vertical-align: text-bottom; }
-        .trend-positive { color: var(--positive-color); }
-        .trend-negative { color: var(--negative-color); }
-        .vendor-price { color: var(--vendor-price-color); }
-        .na-value { color: var(--na-value-color); font-style: normal; }
-
-        /* --- Chart --- */
-        .chart-display { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 20px; min-height: 450px; position: relative; display: flex; flex-direction: column; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
+        .trend-positive { color: var(--positive-color-light); }
+        .trend-negative { color: var(--negative-color-light); }
+        .vendor-price { color: #57606a; }
+        .na-value { color: #cdd4de; font-style: normal; }
+        .chart-display { background-color: #ffffff; border: 1px solid #d0d7de; border-radius: 6px; padding: 20px; min-height: 450px; position: relative; display: flex; flex-direction: column; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
         .chart-controls { text-align: center; margin-bottom: 15px; }
-        .chart-controls button { margin: 0 4px; padding: 5px 10px; font-size: 0.85em; background-color: var(--button-bg-color); color: var(--text-color-primary); border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); border-radius: 6px; cursor: pointer; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; font-weight: 500;}
-        .chart-controls button:hover { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
-        .chart-controls button.active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: 600; }
-        .chart-placeholder { text-align: center; color: var(--chart-placeholder-color); padding: 60px; font-size: 1.05em; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
+        .chart-controls button { margin: 0 4px; padding: 5px 10px; font-size: 0.85em; background-color: #f6f8fa; border: 1px solid rgba(27, 31, 36, 0.15); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); border-radius: 6px; cursor: pointer; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; font-weight: 500; color: #24292f;}
+        .chart-controls button:hover { background-color: #f0f2f4; border-color: rgba(27, 31, 36, 0.35); }
+        .chart-controls button.active { background-color: var(--accent-color-light); color: white; border-color: var(--accent-color-light); font-weight: 600; }
+        .chart-placeholder { text-align: center; color: #b0b8c2; padding: 60px; font-size: 1.05em; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
         .chart-plot { flex-grow: 1; position: relative; min-height: 320px; }
         .chart-plot canvas { max-width: 100%; max-height: 380px; }
-
-        /* --- Pagination --- */
         .pagination { text-align: center; margin-top: 20px; padding-bottom: 20px; }
-        .pagination button { margin: 0 3px; padding: 7px 14px; background-color: var(--button-bg-color); border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); color: var(--accent-color); border-radius: 6px; transition: background-color 0.1s, border-color 0.1s; cursor: pointer; font-weight: 500; font-size: 0.9em; }
-        .pagination button:hover:not(:disabled) { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
-        .pagination button.current { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: bold; cursor: default; }
-        .pagination button:disabled { color: var(--muted-text-color); background-color: var(--button-bg-color); opacity: 0.6; cursor: not-allowed; border-color: transparent; }
-
-        /* --- Loading/Error/Footer --- */
-        .loading-message, .error-message { text-align: center; padding: 40px; font-size: 1.1em; color: var(--muted-text-color); }
-        .error-message { color: var(--negative-color); }
+        .pagination button { margin: 0 3px; padding: 7px 14px; background-color: #f6f8fa; border: 1px solid rgba(27, 31, 36, 0.15); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); color: var(--accent-color-light); border-radius: 6px; transition: background-color 0.1s, border-color 0.1s; cursor: pointer; font-weight: 500; font-size: 0.9em; }
+        .pagination button:hover:not(:disabled) { background-color: #f1f3f5; border-color: #adb5bd; }
+        .pagination button.current { background-color: var(--accent-color-light); color: white; border-color: var(--accent-color-light); font-weight: bold; cursor: default; }
+        .pagination button:disabled { color: #8c959f; background-color: #f6f8fa; cursor: not-allowed; border-color: transparent; }
+        .loading-message, .error-message { text-align: center; padding: 40px; font-size: 1.1em; color: #57606a; }
+        .error-message { color: var(--negative-color-light); }
         .hidden { display: none; }
-        footer { text-align: center; margin-top: 60px; padding: 25px 0; font-size: 0.8em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
-        footer span, footer a { margin: 0 8px; color: var(--muted-text-color); text-decoration: none; }
-        footer a:hover { text-decoration: underline; color: var(--link-hover-color); }
-
-        /* --- Responsive --- */
+        footer { text-align: center; margin-top: 60px; padding: 25px 0; font-size: 0.8em; color: #57606a; border-top: 1px solid #d0d7de; transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
+        footer span, footer a { margin: 0 8px; color: #57606a; text-decoration: none; }
+        footer a:hover { text-decoration: underline; color: var(--link-hover-color-light); }
          @media (max-width: 768px) {
             .controls { flex-direction: column; align-items: stretch; }
             .controls-left, .controls-right { width: 100%; justify-content: center; }
@@ -206,10 +95,86 @@
             .item-table-container, .chart-display-container { min-width: unset; }
             .table-wrapper { max-height: 60vh; }
             h1 { font-size: 1.5em; }
-            .theme-toggle-container { /* Adjust position slightly on mobile */
-                 bottom: 10px;
-            }
+            .theme-toggle-container { bottom: 10px; } /* Adjust position */
         }
+
+        /* --- Dark Mode Overrides (No Variables Used in Original Rules) --- */
+        html[data-theme="dark"] body { background-color: #0d1117; color: #c9d1d9; }
+        html[data-theme="dark"] h1 { color: #c9d1d9; }
+        html[data-theme="dark"] .feedback-link-container a { color: #8b949e; border-color: #8b949e; }
+        html[data-theme="dark"] .feedback-link-container a:hover { color: #58a6ff; border-color: #58a6ff; }
+        html[data-theme="dark"] .controls { background-color: #161b22; border-color: #30363d; }
+        html[data-theme="dark"] .search-form input[type="text"],
+        html[data-theme="dark"] .category-filter select { border-color: #30363d; background-color: #161b22; color: #c9d1d9; }
+        html[data-theme="dark"] .search-form input[type="text"]:focus,
+        html[data-theme="dark"] .category-filter select:focus { border-color: #58a6ff; box-shadow: inset 0 1px 0 rgba(27,31,36,0.075), 0 0 0 3px rgba(88, 166, 255, 0.3); }
+        html[data-theme="dark"] .sort-options span { color: #8b949e; }
+        html[data-theme="dark"] .sort-options button { background-color: #21262d; color: #c9d1d9; border-color: #30363d; }
+        html[data-theme="dark"] .sort-options button:hover { background-color: #30363d; border-color: #8b949e; }
+        html[data-theme="dark"] .sort-options button.current-sort { background-color: #58a6ff; color: white; border-color: #58a6ff; }
+        html[data-theme="dark"] .table-wrapper { border-color: #30363d; background-color: #161b22; }
+        html[data-theme="dark"] #item-table th,
+        html[data-theme="dark"] #item-table td { border-bottom-color: #30363d; }
+        html[data-theme="dark"] #item-table th { background-color: #161b22; color: #8b949e; }
+        html[data-theme="dark"] #item-table tbody tr:nth-child(even) { background-color: #1a1f27; }
+        html[data-theme="dark"] #item-table tbody tr:hover { background-color: #21262d; }
+        html[data-theme="dark"] #item-table tbody tr.selected-item { background-color: #1f6feb; }
+        html[data-theme="dark"] #item-table td { color: #c9d1d9; }
+        html[data-theme="dark"] #item-table td:nth-child(1) { color: #58a6ff; }
+        html[data-theme="dark"] #item-table td:nth-child(1):hover { color: #79c0ff; }
+        html[data-theme="dark"] #item-table td:nth-child(2) { color: #8b949e; }
+        html[data-theme="dark"] .trend-positive { color: #3fb950; }
+        html[data-theme="dark"] .trend-negative { color: #f85149; }
+        html[data-theme="dark"] .vendor-price { color: #8b949e; }
+        html[data-theme="dark"] .na-value { color: #484f58; }
+        html[data-theme="dark"] .chart-display { background-color: #161b22; border-color: #30363d; }
+        html[data-theme="dark"] .chart-controls button { background-color: #21262d; color: #c9d1d9; border-color: #30363d; }
+        html[data-theme="dark"] .chart-controls button:hover { background-color: #30363d; border-color: #8b949e; }
+        html[data-theme="dark"] .chart-controls button.active { background-color: #58a6ff; color: white; border-color: #58a6ff; }
+        html[data-theme="dark"] .chart-placeholder { color: #6e7681; }
+        html[data-theme="dark"] .pagination button { background-color: #21262d; border-color: #30363d; color: #58a6ff; }
+        html[data-theme="dark"] .pagination button:hover:not(:disabled) { background-color: #30363d; border-color: #8b949e; }
+        html[data-theme="dark"] .pagination button.current { background-color: #58a6ff; color: white; border-color: #58a6ff; }
+        html[data-theme="dark"] .pagination button:disabled { color: #484f58; background-color: #21262d; }
+        html[data-theme="dark"] .loading-message,
+        html[data-theme="dark"] .error-message { color: #8b949e; }
+        html[data-theme="dark"] .error-message { color: #f85149; }
+        html[data-theme="dark"] footer { color: #8b949e; border-top-color: #30363d; }
+        html[data-theme="dark"] footer span,
+        html[data-theme="dark"] footer a { color: #8b949e; }
+        html[data-theme="dark"] footer a:hover { color: #79c0ff; }
+
+        /* --- Theme Toggle Button Styling (Fixed at bottom) --- */
+        .theme-toggle-container {
+            position: fixed; bottom: 20px; left: 50%;
+            transform: translateX(-50%); z-index: 1000;
+        }
+        #theme-toggle {
+            padding: 8px 15px; background-color: #f6f8fa; color: #24292f; /* Light mode button colors */
+            border-radius: 9999px; font-size: 0.9em;
+            transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out, color 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+            border: 1px solid rgba(27, 31, 36, 0.15);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer; font-weight: 500; line-height: 20px;
+            display: inline-flex; align-items: center; justify-content: center; min-width: 40px;
+        }
+        #theme-toggle:hover {
+             background-color: #f0f2f4; border-color: rgba(27, 31, 36, 0.35);
+             box-shadow: 0 3px 7px rgba(0,0,0,0.15);
+        }
+        /* Dark mode button overrides */
+        html[data-theme="dark"] #theme-toggle {
+             background-color: #21262d; color: #c9d1d9; border-color: #30363d;
+        }
+         html[data-theme="dark"] #theme-toggle:hover {
+             background-color: #30363d; border-color: #8b949e;
+        }
+        /* Icon visibility */
+        #theme-toggle .fa-sun { display: none; }
+        #theme-toggle .fa-moon { display: inline-block; }
+        html[data-theme="dark"] #theme-toggle .fa-sun { display: inline-block; }
+        html[data-theme="dark"] #theme-toggle .fa-moon { display: none; }
+
     </style>
 </head>
 <body>
@@ -345,15 +310,16 @@
 
     <footer>
         <span>Made by Sporky with AI</span> |
-        <span class="status">Data Generated: <span id="last-update">2025-04-11 17:16:08</span></span> |
+        <span class="status">Data Generated: <span id="last-update">2025-04-11 17:26:40</span></span> |
         <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
     </footer>
 
-    <div class="theme-toggle-container">
+     <div class="theme-toggle-container">
          <button id="theme-toggle" title="Toggle Theme">
              <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
          </button>
     </div>
+
 
     <script>
         // --- Global State (Original) ---
@@ -535,7 +501,7 @@
                  const tr = document.createElement('tr');
                  const td = document.createElement('td');
                  td.colSpan = 6; td.textContent = message; td.style.textAlign = 'center';
-                 td.style.padding = '20px'; td.style.color = 'var(--muted-text-color)';
+                 td.style.padding = '20px'; td.style.color = 'var(--muted-text-color)'; // Use variable now
                  tr.appendChild(td); tableBodyEl.appendChild(tr);
             } else {
                 itemsToDisplay.forEach(item => {
@@ -630,6 +596,7 @@
 
             try {
                  // Original Chart Options (Uses hardcoded colors)
+                 // Note: Some colors like grid/ticks *might* inherit if not set, but relying on original hardcoded values mostly
                 currentChart = new Chart(chartCanvas, {
                     type: 'line',
                     data: chartData,
