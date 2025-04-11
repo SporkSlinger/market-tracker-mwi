@@ -45,7 +45,16 @@
             --na-value-color: #cdd4de;
             --vendor-price-color: var(--text-color-secondary);
             --chart-placeholder-color: #b0b8c2;
-            /* Chart element colors are hardcoded in JS options */
+            --chart-title-color: var(--text-color-primary);
+            --chart-legend-color: var(--text-color-primary);
+            --chart-tick-color: var(--text-color-secondary);
+            --chart-grid-color: var(--border-color);
+            --chart-buy-color: var(--accent-color); /* Use accent for buy */
+            --chart-ask-color: var(--negative-color); /* Use negative for ask */
+            --chart-tooltip-bg: rgba(0, 0, 0, 0.8);
+            --chart-tooltip-text-color: #ffffff;
+            --pin-color: #d0d7de; /* Color for unpinned star */
+            --pin-color-active: #ffab00; /* Color for pinned star (gold) */
         }
 
         html[data-theme="dark"] {
@@ -80,6 +89,16 @@
             --na-value-color: #484f58;
             --vendor-price-color: var(--text-color-secondary);
             --chart-placeholder-color: #6e7681;
+            --chart-title-color: var(--text-color-primary);
+            --chart-legend-color: var(--text-color-primary);
+            --chart-tick-color: var(--text-color-secondary);
+            --chart-grid-color: #21262d;
+            --chart-buy-color: var(--accent-color); /* Use accent for buy */
+            --chart-ask-color: var(--negative-color); /* Use negative for ask */
+            --chart-tooltip-bg: rgba(201, 209, 217, 0.9);
+            --chart-tooltip-text-color: #0d1117;
+            --pin-color: #484f58; /* Dark mode unpinned star */
+            --pin-color-active: #f1e05a; /* Dark mode pinned star (lighter gold) */
         }
 
         /* --- General Styles (Using Variables) --- */
@@ -136,15 +155,22 @@
         #item-table { width: 100%; border-collapse: collapse; }
         #item-table th, #item-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; vertical-align: middle; font-size: 0.95em; }
         #item-table th { background-color: var(--table-header-bg); font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted-text-color); position: sticky; top: 0; z-index: 1; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;}
+        #item-table th.pin-header { width: 40px; text-align: center; padding: 10px 5px;} /* Style for pin header */
+        #item-table td.pin-cell { text-align: center; padding: 10px 5px;} /* Style for pin cell */
+        .pin-icon { cursor: pointer; color: var(--pin-color); font-size: 1.1em; transition: color 0.15s ease-in-out; }
+        .pin-icon.pinned { color: var(--pin-color-active); }
+        .pin-icon:hover { opacity: 0.7; }
+
         #item-table tbody tr { transition: background-color 0.15s ease; }
         #item-table tbody tr:nth-child(even) { background-color: var(--table-row-even-bg); }
         #item-table tbody tr:hover { background-color: var(--table-row-hover-bg); }
         #item-table tbody tr.selected-item { background-color: var(--table-row-selected-bg); font-weight: 500; }
         #item-table td { color: var(--text-color-primary); } /* Added */
-        #item-table td:nth-child(1) { font-weight: 500; cursor: pointer; color: var(--link-color); max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
-        #item-table td:nth-child(1):hover { text-decoration: underline; color: var(--link-hover-color); }
-        #item-table td:nth-child(2) { font-size: 0.9em; color: var(--muted-text-color); max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
-        #item-table td:nth-child(n+3) { text-align: right; font-family: var(--code-font); font-size: 0.95em; }
+        #item-table td:nth-child(2) { font-weight: 500; cursor: pointer; color: var(--link-color); max-width: 220px; overflow: hidden; text-overflow: ellipsis; } /* Adjust column index for name */
+        #item-table td:nth-child(2):hover { text-decoration: underline; color: var(--link-hover-color); } /* Adjust column index */
+        #item-table td:nth-child(3) { font-size: 0.9em; color: var(--muted-text-color); max-width: 160px; overflow: hidden; text-overflow: ellipsis; } /* Adjust column index */
+        #item-table td:nth-child(n+4) { text-align: right; font-family: var(--code-font); font-size: 0.95em; } /* Adjust column index */
+
         .trend-value-container { display: flex; align-items: center; justify-content: flex-end; gap: 3px; }
         .trend-icon { width: 14px; height: 14px; vertical-align: text-bottom; }
         .trend-positive { color: var(--positive-color); }
@@ -250,7 +276,7 @@
                     <table id="item-table">
                         <thead>
                             <tr>
-                                <th>Name</th>
+                                <th class="pin-header"><i class="fas fa-thumbtack"></i></th> <th>Name</th>
                                 <th>Category</th>
                                 <th>Buy</th>
                                 <th>Ask</th>
@@ -298,7 +324,7 @@
     </footer>
 
      <script>
-        // --- Global State (Original + Scale Type) ---
+        // --- Global State (Original + Scale Type + Pinned Items) ---
         let allMarketData = {}; // Expecting nested object: { "Product": { buy: [...], ask: [...] } }
         let marketSummary = []; // Array of { name, category, buy, ask, vendor, trend }
         let filteredAndSortedSummary = []; // Items currently displayed in table
@@ -311,7 +337,10 @@
         let selectedTableRow = null;
         let currentChartProduct = null;
         let currentChartTimeRange = '30d';
-        let currentYScaleType = 'logarithmic'; // Added state for scale type
+        let currentYScaleType = 'logarithmic';
+        let pinnedItems = []; // Array to hold names of pinned items
+        const PINNED_ITEMS_KEY = 'mwiPinnedItems'; // localStorage key
+        const MAX_PINNED_ITEMS = 10; // Max number of items user can pin
 
         // --- DOM Elements (Original + New Buttons) ---
         const tableBodyEl = document.getElementById('item-table-body');
@@ -331,7 +360,6 @@
         const scaleToggleButton = document.getElementById('scale-toggle-btn'); // Scale toggle button
         const loadingMessageEl = document.getElementById('loading-message');
         const errorMessageEl = document.getElementById('error-message');
-        // const activateDarkModeButton = document.getElementById('activate-dark-mode'); // Removed old button reference
         const themeToggleButton = document.getElementById('theme-toggle-btn'); // Renamed reference for new toggle button
 
 
@@ -351,11 +379,62 @@
             return `<span class="trend-value-container ${trendClass}">${arrow}<span>${trend.toFixed(2)}%</span></span>`;
         }
 
+        // --- Pinning Logic ---
+        function getPinnedItems() {
+            const stored = localStorage.getItem(PINNED_ITEMS_KEY);
+            try {
+                const parsed = JSON.parse(stored);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function savePinnedItems(items) {
+            localStorage.setItem(PINNED_ITEMS_KEY, JSON.stringify(items));
+        }
+
+        function togglePin(itemName) {
+            let currentPins = getPinnedItems();
+            const index = currentPins.indexOf(itemName);
+
+            if (index > -1) {
+                // Item is currently pinned, unpin it
+                currentPins.splice(index, 1);
+                console.log(`Unpinned: ${itemName}`);
+            } else {
+                // Item is not pinned, pin it (if limit not reached)
+                if (currentPins.length >= MAX_PINNED_ITEMS) {
+                    alert(`You can only pin up to ${MAX_PINNED_ITEMS} items.`); // Simple alert for limit
+                    return; // Do nothing if limit reached
+                }
+                currentPins.push(itemName);
+                console.log(`Pinned: ${itemName}`);
+            }
+
+            savePinnedItems(currentPins);
+            pinnedItems = currentPins; // Update global state
+            applyFiltersAndSort(); // Re-sort and re-render the table
+        }
+
+         function handlePinClick(event) {
+             // Prevent click from triggering row selection/chart display if clicking the icon itself
+             event.stopPropagation();
+             const icon = event.currentTarget; // The icon element
+             const itemName = icon.dataset.itemName;
+             if (itemName) {
+                 togglePin(itemName);
+             } else {
+                 console.error("Could not find item name for pinning.");
+             }
+         }
+
+
         // --- Theme Switching Logic (Simplified - No Chart Update) ---
         const THEME_KEY = 'mwi-market-theme';
         function applyTheme(theme) {
             // ONLY sets the attribute and saves to localStorage
-            console.log(`Applying theme: ${theme}`);
+            console.log(`Applying theme: ${theme}`); // Keep log for basic check
             if (theme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
             } else {
@@ -366,22 +445,21 @@
         }
 
         function toggleTheme() { // Simple toggle logic
-            console.log("toggleTheme called");
+            console.log("toggleTheme called"); // Keep log
             const currentTheme = document.documentElement.hasAttribute('data-theme') ? 'dark' : 'light';
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            console.log(`Switching to theme: ${newTheme}`);
+            console.log(`Switching to theme: ${newTheme}`); // Keep log
             applyTheme(newTheme);
         }
 
         function initTheme() { // Applies theme on load
-            console.log("initTheme called");
+            console.log("initTheme called"); // Keep log
             const savedTheme = localStorage.getItem(THEME_KEY);
             const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-            console.log(`Initializing with theme: ${initialTheme}`);
+            console.log(`Initializing with theme: ${initialTheme}`); // Keep log
             applyTheme(initialTheme);
         }
-
         // Add listener for the theme toggle button
         if (themeToggleButton) {
              themeToggleButton.addEventListener('click', toggleTheme);
@@ -400,11 +478,15 @@
                 tableWrapperEl.classList.add('hidden');
                 paginationEl.style.display = 'none';
 
+                // Load pinned items initially
+                pinnedItems = getPinnedItems();
+                console.log("Loaded pinned items:", pinnedItems);
+
                 const summaryRes = await fetch('./data/market_summary.json?t=' + Date.now());
                 if (!summaryRes.ok) throw new Error(`Failed to fetch market_summary.json (Status: ${summaryRes.status})`);
                 marketSummary = await summaryRes.json();
 
-                applyFiltersAndSort();
+                applyFiltersAndSort(); // This will now incorporate pinning
                 loadingMessageEl.style.display = 'none';
                 tableWrapperEl.classList.remove('hidden');
                 paginationEl.style.display = 'flex';
@@ -429,17 +511,32 @@
             }
         }
 
-        // --- Filtering and Sorting (Original - Untouched) ---
+        // --- Filtering and Sorting (MODIFIED for Pinning) ---
         function applyFiltersAndSort() {
             let result = [...marketSummary];
+            // Apply category filter
             if (currentCategoryFilter !== 'All') {
                 result = result.filter(item => item.category === currentCategoryFilter);
             }
+            // Apply search term filter
             const searchTerm = currentSearch.toLowerCase();
             if (searchTerm) {
                 result = result.filter(item => item.name.toLowerCase().includes(searchTerm));
             }
+
+            // Get current pinned items for sorting
+            const currentPins = getPinnedItems();
+
+            // Apply sorting (pinning takes priority)
             result.sort((a, b) => {
+                const isAPinned = currentPins.includes(a.name);
+                const isBPinned = currentPins.includes(b.name);
+
+                // Rule 1: Pinned items come before unpinned items
+                if (isAPinned && !isBPinned) return -1;
+                if (!isAPinned && isBPinned) return 1;
+
+                // Rule 2: If both are pinned or both unpinned, use selected sort
                 try {
                     const sortNum = (valA, valB, ascending = true) => {
                         const numA = valA ?? (ascending ? Infinity : -Infinity);
@@ -465,23 +562,22 @@
                     }
                 } catch (e) { console.error("Sort comparison error:", e); return 0; }
             });
+
             filteredAndSortedSummary = result;
-            currentPage = 1;
-            renderCurrentPage();
+            currentPage = 1; // Reset to first page after filtering/sorting
+            renderCurrentPage(); // Render the table and update pagination
         }
 
-        // --- Rendering (Original - Untouched) ---
+        // --- Rendering (MODIFIED for Pinning) ---
         function renderCurrentPage() {
             tableBodyEl.innerHTML = '';
+            // Deselect previous row visually if any (keep this)
             if (selectedTableRow) {
                 selectedTableRow.classList.remove('selected-item');
                 selectedTableRow = null;
             }
-            if (currentChartProduct) {
-                 const stillVisible = filteredAndSortedSummary.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-                                     .some(item => item.name === currentChartProduct);
-                 if (!stillVisible) { /* Keep chart, deselect row handled below */ }
-            }
+
+            const currentPins = getPinnedItems(); // Get pinned items for styling icons
 
             const totalItems = filteredAndSortedSummary.length;
             const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -494,23 +590,35 @@
                  const message = currentSearch || currentCategoryFilter !== 'All' ? 'No items match your filters.' : 'No market data available.';
                  const tr = document.createElement('tr');
                  const td = document.createElement('td');
-                 td.colSpan = 6; td.textContent = message; td.style.textAlign = 'center';
-                 td.style.padding = '20px'; td.style.color = 'var(--muted-text-color)'; // Use variable now
+                 td.colSpan = 7; // Adjusted colspan for new pin column
+                 td.textContent = message; td.style.textAlign = 'center';
+                 td.style.padding = '20px'; td.style.color = 'var(--muted-text-color)';
                  tr.appendChild(td); tableBodyEl.appendChild(tr);
             } else {
                 itemsToDisplay.forEach(item => {
                     const tr = document.createElement('tr');
-                    tr.dataset.product = encodeURIComponent(item.name);
-                    tr.style.cursor = 'pointer';
+                    tr.dataset.product = encodeURIComponent(item.name); // Keep this for chart click
+                    // tr.style.cursor = 'pointer'; // Cursor applied to name cell now
+
+                    const isPinned = currentPins.includes(item.name);
+                    const pinIconClass = isPinned ? 'fas fa-star pin-icon pinned' : 'far fa-star pin-icon';
+
+                    // Create cells, including the new pin cell
                     tr.innerHTML = `
-                        <td><a>${item.name}</a></td>
+                        <td class="pin-cell"><i class="${pinIconClass}" data-item-name="${item.name}" title="${isPinned ? 'Unpin' : 'Pin'} Item"></i></td>
+                        <td><a class="item-name-link">${item.name}</a></td>
                         <td>${item.category || '<span class="na-value">N/A</span>'}</td>
                         <td>${formatPrice(item.buy)}</td>
                         <td>${formatPrice(item.ask)}</td>
                         <td><span class="vendor-price">${formatPrice(item.vendor)}</span></td>
                         <td>${formatTrend(item.trend)}</td>
                     `;
-                    tr.addEventListener('click', handleProductClick);
+                    // Add listener to the pin icon
+                    tr.querySelector('.pin-icon').addEventListener('click', handlePinClick);
+                    // Add listener to the item name for showing the chart
+                    tr.querySelector('.item-name-link').addEventListener('click', handleProductClick); // Use handleProductClick for name
+                    tr.querySelector('.item-name-link').style.cursor = 'pointer'; // Make name look clickable
+
                     tableBodyEl.appendChild(tr);
                     if (item.name === currentChartProduct) {
                          tr.classList.add('selected-item');
@@ -529,13 +637,24 @@
         }
 
         // --- Charting (Reverted to Original Colors, Kept Scale Toggle/Refinements) ---
-        function displayChart(productName, clickedTrElement) {
+        function displayChart(productName, clickedTrElement) { // clickedTrElement might be null if called manually
             chartPlaceholder.style.display = 'none';
             chartPlotContainer.classList.remove('hidden');
-            chartControlsArea.style.display = 'flex'; // Show the whole controls area
+            chartControlsArea.style.display = 'flex';
 
-            if (selectedTableRow) { selectedTableRow.classList.remove('selected-item'); }
-            if (clickedTrElement) { clickedTrElement.classList.add('selected-item'); selectedTableRow = clickedTrElement; }
+            // Update selection visuals only if triggered by a click
+            // Find the actual TR element in the current table view to select it
+            const currentTableRows = tableBodyEl.querySelectorAll('tr');
+            selectedTableRow = null; // Reset first
+            currentTableRows.forEach(row => {
+                row.classList.remove('selected-item'); // Deselect all rows
+                if(decodeURIComponent(row.dataset.product) === productName) {
+                    row.classList.add('selected-item'); // Select the matching row
+                    selectedTableRow = row;
+                }
+            });
+            // If triggered manually (no clickedTrElement), selectedTableRow might remain null if item not on current page
+
             currentChartProduct = productName;
 
             let productHistoryData;
@@ -547,7 +666,7 @@
                 console.warn(`No chart data found or provided for ${productName}.`);
                 if (currentChart) { currentChart.destroy(); currentChart = null; }
                 chartPlotContainer.classList.add('hidden');
-                chartControlsArea.style.display = 'none'; // Hide controls if no data
+                chartControlsArea.style.display = 'none';
                 chartPlaceholder.textContent = `No price history data available for ${productName}.`;
                 chartPlaceholder.style.display = 'flex';
                 return;
@@ -573,7 +692,7 @@
                  console.warn(`No chart data in range ${currentChartTimeRange} for ${productName}`);
                  if (currentChart) { currentChart.destroy(); currentChart = null; }
                  chartPlotContainer.classList.add('hidden');
-                 chartControlsArea.style.display = 'none'; // Hide controls if no data in range
+                 chartControlsArea.style.display = 'none';
                  chartPlaceholder.textContent = `No data available for ${productName} in the selected time range (${currentChartTimeRange}).`;
                  chartPlaceholder.style.display = 'flex';
                  return;
@@ -664,12 +783,19 @@
             }
         }
 
-         // REMOVED updateChartTheme function
+        // REMOVED updateChartTheme function
 
 
-        // --- Event Handlers (Original + Scale Toggle) ---
+        // --- Event Handlers (Original + Scale Toggle + Pinning) ---
         function handleProductClick(event) {
-            const clickedTr = event.currentTarget;
+            // If the click target is the pin icon, let handlePinClick manage it
+             if (event.target.classList.contains('pin-icon')) {
+                 return;
+             }
+            // Otherwise, proceed with showing the chart
+            const clickedLink = event.currentTarget; // This should be the link now
+            const clickedTr = clickedLink.closest('tr'); // Get the parent TR
+            if (!clickedTr) return; // Should not happen
             const productName = decodeURIComponent(clickedTr.dataset.product);
             displayChart(productName, clickedTr);
         }
@@ -691,6 +817,7 @@
                 if (newSort === currentSort) {
                     if (currentSort === 'name_asc') currentSort = 'name_desc';
                     else if (currentSort === 'name_desc') currentSort = 'name_asc';
+                    // Add toggles for other columns if desired, e.g., buy_desc -> buy_asc
                 } else { currentSort = newSort; }
                 sortOptionsEl.querySelectorAll('button').forEach(btn => {
                     btn.classList.toggle('current-sort', btn.dataset.sort === currentSort);
