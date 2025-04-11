@@ -220,7 +220,7 @@
             </div>
 
         <footer>
-            Data generated: <span id="last-update">2025-04-11 15:22:41</span> |
+            Data generated: <span id="last-update">2025-04-11 16:25:36</span> |
             Created by Sporky with AI |
             Data source: <a href="https://github.com/holychikenz/MWIApi" target="_blank" rel="noopener noreferrer">holychikenz/MWIApi</a>
         </footer>
@@ -257,14 +257,8 @@
         const chartPlaceholder = document.getElementById('chart-placeholder');
         const themeToggleButton = document.getElementById('theme-toggle');
 
-        // --- Theme Switching Logic (Unchanged) ---
+        // --- Theme Switching Logic ---
         const THEME_KEY = 'mwi-market-theme';
-        function applyTheme(theme) { /* ... */ }
-        function toggleTheme() { /* ... */ }
-        function initTheme() { /* ... */ }
-        themeToggleButton.addEventListener('click', toggleTheme);
-        document.addEventListener('DOMContentLoaded', initTheme);
-        // --- (Paste the applyTheme, toggleTheme, initTheme functions here from previous version) ---
         function applyTheme(theme) {
             if (theme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
@@ -287,7 +281,8 @@
             const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
             applyTheme(initialTheme); // Apply theme immediately
         }
-
+        themeToggleButton.addEventListener('click', toggleTheme);
+        // No need for DOMContentLoaded listener here, call initTheme directly before loadData
 
         // --- Data Fetching ---
         async function loadData() {
@@ -555,8 +550,7 @@
             }
 
             const filteredRangeHistory = itemHistory.filter(record => {
-                // IMPORTANT: Parse the ISO string timestamp from JSON into a Date object
-                const recordDate = new Date(record.timestamp);
+                const recordDate = new Date(record.timestamp); // Parse ISO string
                 return recordDate >= minTime;
             });
 
@@ -571,12 +565,21 @@
             }
 
             // 3. Prepare data for Chart.js
-            // Ensure data is sorted by timestamp (important for line charts)
-             filteredRangeHistory.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+             filteredRangeHistory.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)); // Sort by date
 
-            const chartLabels = filteredRangeHistory.map(p => new Date(p.timestamp)); // Use Date objects directly
-            const chartBuyData = filteredRangeHistory.map(p => p.buy); // Keep nulls as is
-            const chartAskData = filteredRangeHistory.map(p => p.ask); // Keep nulls as is
+            const chartLabels = filteredRangeHistory.map(p => new Date(p.timestamp)); // Use Date objects
+
+            // **FIX**: Map non-positive values to NaN for logarithmic scale
+            const mapPriceToLogSafe = (price) => {
+                const numPrice = parseFloat(price); // Ensure it's a number
+                // Allow null/undefined to pass through (Chart.js handles them as gaps)
+                if (price === null || price === undefined) return null;
+                // Convert 0 or negative numbers to NaN
+                return (numPrice > 0) ? numPrice : NaN;
+            };
+
+            const chartBuyData = filteredRangeHistory.map(p => mapPriceToLogSafe(p.buy));
+            const chartAskData = filteredRangeHistory.map(p => mapPriceToLogSafe(p.ask));
 
             // 4. Create or Update Chart
             chartTitle.textContent = `Price History: ${itemName}`;
@@ -587,8 +590,8 @@
                 data: {
                     labels: chartLabels, // Use the Date objects
                     datasets: [
-                        { label: 'Buy Price', data: chartBuyData, borderColor: colors.buyColor, backgroundColor: colors.buyColor, tension: 0.1, pointRadius: 1, pointHoverRadius: 4, borderWidth: 1.5, spanGaps: false /* Don't connect gaps */ },
-                        { label: 'Ask Price', data: chartAskData, borderColor: colors.askColor, backgroundColor: colors.askColor, tension: 0.1, pointRadius: 1, pointHoverRadius: 4, borderWidth: 1.5, spanGaps: false /* Don't connect gaps */ }
+                        { label: 'Buy Price', data: chartBuyData, borderColor: colors.buyColor, backgroundColor: colors.buyColor, tension: 0.1, pointRadius: 1, pointHoverRadius: 4, borderWidth: 1.5, spanGaps: false /* Let Chart.js handle gaps for NaN */ },
+                        { label: 'Ask Price', data: chartAskData, borderColor: colors.askColor, backgroundColor: colors.askColor, tension: 0.1, pointRadius: 1, pointHoverRadius: 4, borderWidth: 1.5, spanGaps: false /* Let Chart.js handle gaps for NaN */ }
                     ]
                 },
                 options: {
@@ -596,13 +599,28 @@
                     scales: {
                         x: {
                             type: 'time',
-                            time: { unit: timeUnit, tooltipFormat: 'MMM d, yyyy HH:mm', displayFormats: { hour: 'HH:mm', day: 'MMM d', } },
+                            time: { unit: timeUnit, tooltipFormat: 'MMM d, yyyy HH:mm', displayFormats: { hour: 'HH:mm', day: 'MMM d', } }, // Corrected format
                             grid: { color: colors.gridColor }, ticks: { color: colors.tickColor, maxRotation: 0, autoSkip: true, maxTicksLimit: 10 },
-                            title: { display: false } // No need for x-axis title
+                            title: { display: false }
                         },
                         y: {
                             type: 'logarithmic', grid: { color: colors.gridColor },
-                            ticks: { color: colors.tickColor, callback: (val) => val > 0 ? (val >= 1e6 ? val / 1e6 + 'M' : val >= 1e3 ? val / 1e3 + 'k' : val.toLocaleString()) : '' }, // Format ticks, handle zero/neg on log
+                            ticks: {
+                                color: colors.tickColor,
+                                // Improved callback for log scale ticks
+                                callback: function(value, index, ticks) {
+                                     // Ensure value is positive before formatting
+                                     if (value <= 0) return null; // Don't display non-positive ticks
+                                     // Check if it's a major tick (power of 10) or close to one for cleaner labels
+                                     const log10 = Math.log10(value);
+                                     if (Math.abs(log10 - Math.round(log10)) < 0.01 || value < 1000) { // Show powers of 10 and small numbers
+                                        if (value >= 1e6) return (value / 1e6) + 'M';
+                                        if (value >= 1e3) return (value / 1e3) + 'k';
+                                        return value.toLocaleString();
+                                     }
+                                     return null; // Hide intermediate minor ticks if desired
+                                }
+                            },
                             title: { display: true, text: 'Price (Log Scale)', color: colors.titleColor }
                         }
                     },
@@ -611,17 +629,29 @@
                         legend: { labels: { color: colors.titleColor } }
                     },
                     interaction: { mode: 'nearest', axis: 'x', intersect: false },
-                    animation: { duration: 300 },
+                    animation: { duration: 0 }, // Disable animation for faster updates potentially
                 }
             };
 
             if (priceChart) {
                 priceChart.destroy(); // Destroy old chart before creating new one
+                priceChart = null; // Ensure it's nullified
             }
-            priceChart = new Chart(chartCtx, chartConfig);
-            chartLoading.classList.add('hidden'); // Hide loading indicator
-            hideErrorState(chartError); // Hide any previous errors
 
+            // **FIX**: Wrap chart creation in try-catch
+            try {
+                 console.log("Creating new Chart instance...");
+                 priceChart = new Chart(chartCtx, chartConfig);
+                 console.log("Chart instance created successfully.");
+                 chartLoading.classList.add('hidden'); // Hide loading indicator
+                 hideErrorState(chartError); // Hide any previous errors
+            } catch (error) {
+                 console.error("Error creating Chart.js instance:", error);
+                 showErrorState(chartError, `Failed to render chart: ${error.message}`);
+                 chartCanvas.classList.add('hidden'); // Hide canvas on error
+                 chartLoading.classList.add('hidden'); // Hide loading
+                 if (priceChart) { priceChart.destroy(); priceChart = null; } // Clean up if partially created
+            }
         }
 
         // Helper to update chart colors on theme change
@@ -660,7 +690,7 @@
             document.querySelectorAll('#market-body tr.selected-row').forEach(r => r.classList.remove('selected-row'));
             row.classList.add('selected-row');
 
-            // **MODIFIED**: Call displayChart directly
+            // Call displayChart directly
             displayChart(itemName);
         }
 
@@ -698,9 +728,11 @@
         chartControls.addEventListener('click', handleChartRangeChange);
 
         // --- Initialization ---
+        // Moved theme init here to ensure theme is set before first chart render attempt
+        initTheme();
+        // Use DOMContentLoaded to ensure elements are ready before attaching listeners and loading data
         document.addEventListener('DOMContentLoaded', () => {
             loadData(); // Fetch summary and ALL history data
-            initTheme(); // Initialize theme
             updateSortIcons(); // Set initial sort icons
         });
 
