@@ -11,92 +11,147 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <style>
-        /* --- Original Styling --- */
-        /* Base variables (can be used if desired, but not modifying original rules to use them extensively) */
+        /* --- CSS Variables for Theming --- */
         :root {
-            --accent-color-light: #0969da;
-            --accent-hover-color-light: #0550ae;
-            --positive-color-light: #1a7f37;
-            --negative-color-light: #cf222e;
-            --border-color-light: #d0d7de;
-            --link-color-light: var(--accent-color-light);
-            --link-hover-color-light: var(--accent-hover-color-light);
-            --muted-text-color-light: #57606a;
+            /* Light Theme Definitions */
+            --bg-color: #f6f8fa;
+            --card-bg-color: #ffffff;
+            --text-color-primary: #24292f;
+            --text-color-secondary: #57606a;
+            --muted-text-color: #57606a;
+            --border-color: #d0d7de;
+            --accent-color: #0969da;
+            --accent-hover-color: #0550ae;
+            --positive-color: #1a7f37;
+            --negative-color: #cf222e;
+            --button-bg-color: #f6f8fa;
+            --button-hover-bg-color: #f0f2f4;
+            --button-border-color: rgba(27, 31, 36, 0.15);
+            --button-hover-border-color: rgba(27, 31, 36, 0.35);
+            --button-active-bg-color: var(--accent-color);
+            --button-active-text-color: #ffffff;
+            --button-active-border-color: var(--accent-color);
+            --input-bg-color: var(--card-bg-color);
+            --input-border-color: var(--border-color);
+            --input-focus-border-color: var(--accent-color);
+            --input-focus-shadow-color: rgba(9, 105, 218, 0.3);
+            --table-header-bg: #f6f8fa;
+            --table-row-even-bg: #fbfcfd;
+            --table-row-hover-bg: #f6f8fa;
+            --table-row-selected-bg: #ddf4ff;
+            --link-color: var(--accent-color);
+            --link-hover-color: var(--accent-hover-color);
             --code-font: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            --na-value-color: #cdd4de;
+            --vendor-price-color: var(--text-color-secondary);
+            --chart-placeholder-color: #b0b8c2;
+            /* Chart element colors are hardcoded in JS options */
         }
 
+        html[data-theme="dark"] {
+             /* Dark Theme Overrides */
+            --bg-color: #0d1117;
+            --card-bg-color: #161b22;
+            --text-color-primary: #c9d1d9;
+            --text-color-secondary: #8b949e;
+            --muted-text-color: #8b949e;
+            --border-color: #30363d;
+            --accent-color: #58a6ff;
+            --accent-hover-color: #79c0ff;
+            --positive-color: #3fb950;
+            --negative-color: #f85149;
+            --button-bg-color: #21262d;
+            --button-hover-bg-color: #30363d;
+            --button-border-color: #30363d;
+            --button-hover-border-color: #8b949e;
+            --button-active-bg-color: var(--accent-color);
+            --button-active-text-color: #ffffff;
+            --button-active-border-color: var(--accent-color);
+            --input-bg-color: var(--card-bg-color);
+            --input-border-color: var(--border-color);
+            --input-focus-border-color: var(--accent-color);
+            --input-focus-shadow-color: rgba(88, 166, 255, 0.3);
+            --table-header-bg: #161b22;
+            --table-row-even-bg: #1a1f27;
+            --table-row-hover-bg: #21262d;
+            --table-row-selected-bg: #1f6feb;
+            --link-color: var(--accent-color);
+            --link-hover-color: var(--accent-hover-color);
+            --na-value-color: #484f58;
+            --vendor-price-color: var(--text-color-secondary);
+            --chart-placeholder-color: #6e7681;
+        }
+
+        /* --- General Styles (Using Variables) --- */
         *, *::before, *::after { box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif; margin: 0; padding: 0;
-            background-color: #f6f8fa; /* Original hardcoded */
-            color: #24292f; /* Original hardcoded */
+            background-color: var(--bg-color); color: var(--text-color-primary);
             line-height: 1.5; font-size: 14px;
             transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-            padding-bottom: 80px; /* Add padding for fixed button */
+            /* Removed padding-bottom */
         }
         .container { max-width: 1600px; margin: 25px auto; padding: 0 25px; }
-        h1 { text-align: center; color: #24292f; margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.8em; letter-spacing: -0.5px; }
-        /* Container for the new button */
-        .activate-dark-mode-container {
+        h1 { text-align: center; color: var(--text-color-primary); margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.8em; letter-spacing: -0.5px; }
+
+        /* Container for the theme toggle button */
+        .theme-toggle-container {
             text-align: center; /* Center the button */
             margin-bottom: 25px; /* Space below button */
         }
-        /* Style for the new button */
-        #activate-dark-mode {
-            padding: 6px 16px;
-            font-size: 0.9em;
-            font-weight: 500;
-            background-color: #e9ecef; /* Light mode bg */
-            color: #0969da; /* Light mode text */
-            border: 1px solid #d0d7de; /* Light mode border */
-            border-radius: 6px;
+        /* Style for the theme toggle button */
+        #theme-toggle-btn { /* Renamed ID */
+            padding: 6px 16px; font-size: 0.9em; font-weight: 500;
+            background-color: var(--button-bg-color); color: var(--text-color-primary); /* Use primary text color */
+            border: 1px solid var(--button-border-color); border-radius: 6px;
             cursor: pointer;
-            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+            display: inline-flex; /* Align icon and text */
+            align-items: center;
+            gap: 6px; /* Space between icon and text */
         }
-        #activate-dark-mode:hover {
-            background-color: #dfe3e6;
-        }
-        #activate-dark-mode:disabled {
-            opacity: 0.7;
-            cursor: default;
-            background-color: #ced4da; /* Disabled bg */
-            color: #57606a; /* Disabled text */
-            border-color: #ced4da;
-        }
+        #theme-toggle-btn:hover { background-color: var(--button-hover-bg-color); }
+        /* Icon visibility styles */
+        #theme-toggle-btn .fa-sun { display: none; }
+        #theme-toggle-btn .fa-moon { display: inline-block; }
+        html[data-theme="dark"] #theme-toggle-btn .fa-sun { display: inline-block; }
+        html[data-theme="dark"] #theme-toggle-btn .fa-moon { display: none; }
+
 
         .feedback-link-container { text-align: center; margin-bottom: 25px; font-size: 0.9em; }
-        .feedback-link-container a { color: #57606a; text-decoration: none; border-bottom: 1px dashed #57606a; transition: color 0.2s, border-color 0.2s; padding-bottom: 1px; }
-        .feedback-link-container a:hover { color: var(--link-color-light); border-color: var(--link-color-light); }
-        .controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 16px 20px; margin-bottom: 30px; gap: 15px; background-color: #fcfcfd; border: 1px solid #d0d7de; border-radius: 6px; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
+        .feedback-link-container a { color: var(--muted-text-color); text-decoration: none; border-bottom: 1px dashed var(--muted-text-color); transition: color 0.2s, border-color 0.2s; padding-bottom: 1px; }
+        .feedback-link-container a:hover { color: var(--link-color); border-color: var(--link-color); }
+        .controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 16px 20px; margin-bottom: 30px; gap: 15px; background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
         .controls-left, .controls-right { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-        .search-form input[type="text"], .category-filter select { padding: 8px 12px; border: 1px solid #d0d7de; border-radius: 6px; min-width: 200px; font-size: 0.95em; background-color: #ffffff; box-shadow: inset 0 1px 0 rgba(27,31,36,0.075); transition: border-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out; color: #24292f;}
-        .search-form input[type="text"]:focus, .category-filter select:focus { border-color: var(--accent-color-light); box-shadow: inset 0 1px 0 rgba(27,31,36,0.075), 0 0 0 3px rgba(9, 105, 218, 0.3); outline: none; }
-        .sort-options span { font-weight: 600; color: #57606a; margin-right: 4px; font-size: 0.9em; }
-        .sort-options button { padding: 5px 12px; background-color: #f6f8fa; color: #24292f; border-radius: 6px; font-size: 0.9em; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; border: 1px solid rgba(27, 31, 36, 0.15); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); cursor: pointer; font-weight: 500; line-height: 20px; }
-        .sort-options button:hover { background-color: #f0f2f4; border-color: rgba(27, 31, 36, 0.35); }
-        .sort-options button.current-sort { background-color: var(--accent-color-light); color: white; border-color: var(--accent-color-light); font-weight: 600; }
+        .search-form input[type="text"], .category-filter select { padding: 8px 12px; border: 1px solid var(--input-border-color); border-radius: 6px; min-width: 200px; font-size: 0.95em; background-color: var(--input-bg-color); box-shadow: inset 0 1px 0 rgba(27,31,36,0.075); transition: border-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out; color: var(--text-color-primary);}
+        .search-form input[type="text"]:focus, .category-filter select:focus { border-color: var(--input-focus-border-color); box-shadow: inset 0 1px 0 rgba(27,31,36,0.075), 0 0 0 3px var(--input-focus-shadow-color); outline: none; }
+        .sort-options span { font-weight: 600; color: var(--text-color-secondary); margin-right: 4px; font-size: 0.9em; }
+        .sort-options button { padding: 5px 12px; background-color: var(--button-bg-color); color: var(--text-color-primary); border-radius: 6px; font-size: 0.9em; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); cursor: pointer; font-weight: 500; line-height: 20px; }
+        .sort-options button:hover { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
+        .sort-options button.current-sort { background-color: var(--button-active-bg-color); color: var(--button-active-text-color); border-color: var(--button-active-border-color); font-weight: 600; }
         .main-layout { display: flex; flex-wrap: wrap; gap: 25px; }
         .item-table-container { flex: 3; min-width: 550px; }
         .chart-display-container { flex: 2; min-width: 400px; }
-        .table-wrapper { max-height: 78vh; overflow-y: auto; border: 1px solid #d0d7de; border-radius: 6px; background-color: #ffffff; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
+        .table-wrapper { max-height: 78vh; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--card-bg-color); transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
         #item-table { width: 100%; border-collapse: collapse; }
-        #item-table th, #item-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #d0d7de; white-space: nowrap; vertical-align: middle; font-size: 0.95em; }
-        #item-table th { background-color: #f6f8fa; font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; color: #57606a; position: sticky; top: 0; z-index: 1; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;}
+        #item-table th, #item-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; vertical-align: middle; font-size: 0.95em; }
+        #item-table th { background-color: var(--table-header-bg); font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted-text-color); position: sticky; top: 0; z-index: 1; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;}
         #item-table tbody tr { transition: background-color 0.15s ease; }
-        #item-table tbody tr:nth-child(even) { background-color: #fbfcfd; }
-        #item-table tbody tr:hover { background-color: #f6f8fa; }
-        #item-table tbody tr.selected-item { background-color: #ddf4ff; font-weight: 500; }
-        #item-table td:nth-child(1) { font-weight: 500; cursor: pointer; color: var(--link-color-light); max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
-        #item-table td:nth-child(1):hover { text-decoration: underline; color: var(--link-hover-color-light); }
-        #item-table td:nth-child(2) { font-size: 0.9em; color: #57606a; max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+        #item-table tbody tr:nth-child(even) { background-color: var(--table-row-even-bg); }
+        #item-table tbody tr:hover { background-color: var(--table-row-hover-bg); }
+        #item-table tbody tr.selected-item { background-color: var(--table-row-selected-bg); font-weight: 500; }
+        #item-table td { color: var(--text-color-primary); } /* Added */
+        #item-table td:nth-child(1) { font-weight: 500; cursor: pointer; color: var(--link-color); max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+        #item-table td:nth-child(1):hover { text-decoration: underline; color: var(--link-hover-color); }
+        #item-table td:nth-child(2) { font-size: 0.9em; color: var(--muted-text-color); max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
         #item-table td:nth-child(n+3) { text-align: right; font-family: var(--code-font); font-size: 0.95em; }
         .trend-value-container { display: flex; align-items: center; justify-content: flex-end; gap: 3px; }
         .trend-icon { width: 14px; height: 14px; vertical-align: text-bottom; }
-        .trend-positive { color: var(--positive-color-light); }
-        .trend-negative { color: var(--negative-color-light); }
-        .vendor-price { color: #57606a; }
-        .na-value { color: #cdd4de; font-style: normal; }
-        .chart-display { background-color: #ffffff; border: 1px solid #d0d7de; border-radius: 6px; padding: 20px; min-height: 450px; position: relative; display: flex; flex-direction: column; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
+        .trend-positive { color: var(--positive-color); }
+        .trend-negative { color: var(--negative-color); }
+        .vendor-price { color: var(--vendor-price-color); }
+        .na-value { color: var(--na-value-color); font-style: normal; }
+        .chart-display { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 20px; min-height: 450px; position: relative; display: flex; flex-direction: column; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
 
         .chart-controls-container { /* Container for all chart controls */
              display: flex;
@@ -109,24 +164,24 @@
         .chart-controls { text-align: center; } /* Original class for time */
         .scale-controls { text-align: center; } /* New class for scale toggle */
 
-        .chart-controls button, .scale-controls button { margin: 0 4px; padding: 5px 10px; font-size: 0.85em; background-color: #f6f8fa; border: 1px solid rgba(27, 31, 36, 0.15); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); border-radius: 6px; cursor: pointer; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; font-weight: 500; color: #24292f;}
-        .chart-controls button:hover, .scale-controls button:hover { background-color: #f0f2f4; border-color: rgba(27, 31, 36, 0.35); }
-        .chart-controls button.active, .scale-controls button.active { background-color: var(--accent-color-light); color: white; border-color: var(--accent-color-light); font-weight: 600; } /* Keep active style consistent */
+        .chart-controls button, .scale-controls button { margin: 0 4px; padding: 5px 10px; font-size: 0.85em; background-color: var(--button-bg-color); border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); border-radius: 6px; cursor: pointer; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; font-weight: 500; color: var(--text-color-primary);}
+        .chart-controls button:hover, .scale-controls button:hover { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
+        .chart-controls button.active, .scale-controls button.active { background-color: var(--button-active-bg-color); color: var(--button-active-text-color); border-color: var(--button-active-border-color); font-weight: 600; }
 
-        .chart-placeholder { text-align: center; color: #b0b8c2; padding: 60px; font-size: 1.05em; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
+        .chart-placeholder { text-align: center; color: var(--chart-placeholder-color); padding: 60px; font-size: 1.05em; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
         .chart-plot { flex-grow: 1; position: relative; min-height: 320px; }
         .chart-plot canvas { max-width: 100%; max-height: 380px; }
         .pagination { text-align: center; margin-top: 20px; padding-bottom: 20px; }
-        .pagination button { margin: 0 3px; padding: 7px 14px; background-color: #f6f8fa; border: 1px solid rgba(27, 31, 36, 0.15); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); color: var(--accent-color-light); border-radius: 6px; transition: background-color 0.1s, border-color 0.1s; cursor: pointer; font-weight: 500; font-size: 0.9em; }
-        .pagination button:hover:not(:disabled) { background-color: #f1f3f5; border-color: #adb5bd; }
-        .pagination button.current { background-color: var(--accent-color-light); color: white; border-color: var(--accent-color-light); font-weight: bold; cursor: default; }
-        .pagination button:disabled { color: #8c959f; background-color: #f6f8fa; cursor: not-allowed; border-color: transparent; }
-        .loading-message, .error-message { text-align: center; padding: 40px; font-size: 1.1em; color: #57606a; }
-        .error-message { color: var(--negative-color-light); }
+        .pagination button { margin: 0 3px; padding: 7px 14px; background-color: var(--button-bg-color); border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); color: var(--accent-color); border-radius: 6px; transition: background-color 0.1s, border-color 0.1s; cursor: pointer; font-weight: 500; font-size: 0.9em; }
+        .pagination button:hover:not(:disabled) { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
+        .pagination button.current { background-color: var(--button-active-bg-color); color: var(--button-active-text-color); border-color: var(--button-active-border-color); font-weight: bold; cursor: default; }
+        .pagination button:disabled { color: var(--muted-text-color); background-color: var(--button-bg-color); opacity: 0.6; cursor: not-allowed; border-color: transparent; }
+        .loading-message, .error-message { text-align: center; padding: 40px; font-size: 1.1em; color: var(--muted-text-color); }
+        .error-message { color: var(--negative-color); }
         .hidden { display: none; }
-        footer { text-align: center; margin-top: 60px; padding: 25px 0; font-size: 0.8em; color: #57606a; border-top: 1px solid #d0d7de; transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
-        footer span, footer a { margin: 0 8px; color: #57606a; text-decoration: none; }
-        footer a:hover { text-decoration: underline; color: var(--link-hover-color-light); }
+        footer { text-align: center; margin-top: 60px; padding: 25px 0; font-size: 0.8em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
+        footer span, footer a { margin: 0 8px; color: var(--muted-text-color); text-decoration: none; }
+        footer a:hover { text-decoration: underline; color: var(--link-hover-color); }
          @media (max-width: 768px) {
             .controls { flex-direction: column; align-items: stretch; }
             .controls-left, .controls-right { width: 100%; justify-content: center; }
@@ -135,64 +190,13 @@
             .item-table-container, .chart-display-container { min-width: unset; }
             .table-wrapper { max-height: 60vh; }
             h1 { font-size: 1.5em; }
-            .theme-toggle-container { bottom: 10px; } /* Adjust position */
-            .chart-controls-container { flex-direction: column; gap: 10px; } /* Stack controls on mobile */
+            /* Removed fixed button container styles */
+            .chart-controls-container { flex-direction: column; gap: 10px; }
         }
 
-        /* --- Dark Mode Overrides (Added) --- */
-        html[data-theme="dark"] body { background-color: #0d1117; color: #c9d1d9; }
-        html[data-theme="dark"] h1 { color: #c9d1d9; }
-        html[data-theme="dark"] #activate-dark-mode { background-color: #21262d; color: #58a6ff; border-color: #30363d;}
-        html[data-theme="dark"] #activate-dark-mode:hover { background-color: #30363d; }
-        html[data-theme="dark"] #activate-dark-mode:disabled { background-color: #161b22; color: #484f58; border-color: #161b22; }
-        html[data-theme="dark"] .feedback-link-container a { color: #8b949e; border-color: #8b949e; }
-        html[data-theme="dark"] .feedback-link-container a:hover { color: #58a6ff; border-color: #58a6ff; }
-        html[data-theme="dark"] .controls { background-color: #161b22; border-color: #30363d; }
-        html[data-theme="dark"] .search-form input[type="text"],
-        html[data-theme="dark"] .category-filter select { border-color: #30363d; background-color: #161b22; color: #c9d1d9; }
-        html[data-theme="dark"] .search-form input[type="text"]:focus,
-        html[data-theme="dark"] .category-filter select:focus { border-color: #58a6ff; box-shadow: inset 0 1px 0 rgba(27,31,36,0.075), 0 0 0 3px rgba(88, 166, 255, 0.3); }
-        html[data-theme="dark"] .sort-options span { color: #8b949e; }
-        html[data-theme="dark"] .sort-options button { background-color: #21262d; color: #c9d1d9; border-color: #30363d; }
-        html[data-theme="dark"] .sort-options button:hover { background-color: #30363d; border-color: #8b949e; }
-        html[data-theme="dark"] .sort-options button.current-sort { background-color: #58a6ff; color: #ffffff; border-color: #58a6ff; } /* Ensure white text */
-        html[data-theme="dark"] .table-wrapper { border-color: #30363d; background-color: #161b22; }
-        html[data-theme="dark"] #item-table th,
-        html[data-theme="dark"] #item-table td { border-bottom-color: #30363d; }
-        html[data-theme="dark"] #item-table th { background-color: #161b22; color: #8b949e; }
-        html[data-theme="dark"] #item-table tbody tr:nth-child(even) { background-color: #1a1f27; }
-        html[data-theme="dark"] #item-table tbody tr:hover { background-color: #21262d; }
-        html[data-theme="dark"] #item-table tbody tr.selected-item { background-color: #1f6feb; }
-        html[data-theme="dark"] #item-table td { color: #c9d1d9; }
-        html[data-theme="dark"] #item-table td:nth-child(1) { color: #58a6ff; }
-        html[data-theme="dark"] #item-table td:nth-child(1):hover { color: #79c0ff; }
-        html[data-theme="dark"] #item-table td:nth-child(2) { color: #8b949e; }
-        html[data-theme="dark"] .trend-positive { color: #3fb950; }
-        html[data-theme="dark"] .trend-negative { color: #f85149; }
-        html[data-theme="dark"] .vendor-price { color: #8b949e; }
-        html[data-theme="dark"] .na-value { color: #484f58; }
-        html[data-theme="dark"] .chart-display { background-color: #161b22; border-color: #30363d; }
-        html[data-theme="dark"] .chart-controls button,
-        html[data-theme="dark"] .scale-controls button { background-color: #21262d; color: #c9d1d9; border-color: #30363d; }
-        html[data-theme="dark"] .chart-controls button:hover,
-        html[data-theme="dark"] .scale-controls button:hover { background-color: #30363d; border-color: #8b949e; }
-        html[data-theme="dark"] .chart-controls button.active,
-        html[data-theme="dark"] .scale-controls button.active { background-color: #58a6ff; color: #ffffff; border-color: #58a6ff; } /* Ensure white text */
-        html[data-theme="dark"] .chart-placeholder { color: #6e7681; }
-        html[data-theme="dark"] .pagination button { background-color: #21262d; border-color: #30363d; color: #58a6ff; }
-        html[data-theme="dark"] .pagination button:hover:not(:disabled) { background-color: #30363d; border-color: #8b949e; }
-        html[data-theme="dark"] .pagination button.current { background-color: #58a6ff; color: #ffffff; border-color: #58a6ff; } /* Ensure white text */
-        html[data-theme="dark"] .pagination button:disabled { color: #484f58; background-color: #21262d; }
-        html[data-theme="dark"] .loading-message,
-        html[data-theme="dark"] .error-message { color: #8b949e; }
-        html[data-theme="dark"] .error-message { color: #f85149; }
-        html[data-theme="dark"] footer { color: #8b949e; border-top-color: #30363d; }
-        html[data-theme="dark"] footer span,
-        html[data-theme="dark"] footer a { color: #8b949e; }
-        html[data-theme="dark"] footer a:hover { color: #79c0ff; }
+        /* Removed dark mode override block - styles now use CSS variables */
 
-        /* Remove styles for the old fixed toggle button */
-        /* .theme-toggle-container, #theme-toggle { ... } */
+        /* Removed fixed theme toggle button styles */
 
     </style>
 </head>
@@ -200,8 +204,12 @@
 
     <div class="container">
         <h1>MWI Market Trends</h1>
-        <div class="activate-dark-mode-container">
-            <button id="activate-dark-mode">Now with dark mode</button>
+        <div class="theme-toggle-container" >
+             <button id="theme-toggle-btn" title="Toggle Theme">
+                 <i class="fas fa-moon"></i>
+                 <i class="fas fa-sun"></i>
+                 <span class="toggle-text" style="margin-left: 6px;">Toggle Theme</span>
+             </button>
         </div>
         <div class="feedback-link-container">
             <a href="https://github.com/SporkSlinger/market-tracker-mwi/issues" target="_blank" rel="noopener noreferrer">Report an Issue or Suggest a Feature</a>
@@ -323,7 +331,9 @@
         const scaleToggleButton = document.getElementById('scale-toggle-btn'); // Scale toggle button
         const loadingMessageEl = document.getElementById('loading-message');
         const errorMessageEl = document.getElementById('error-message');
-        const activateDarkModeButton = document.getElementById('activate-dark-mode'); // New button reference
+        // const activateDarkModeButton = document.getElementById('activate-dark-mode'); // Removed old button reference
+        const themeToggleButton = document.getElementById('theme-toggle-btn'); // Renamed reference for new toggle button
+
 
         // --- SVG Icons for Trends (Original) ---
         const trendUpIcon = `<svg class="trend-icon" aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"><path fill="currentColor" d="M8.707 2.293a1 1 0 0 0-1.414 0l-4 4a1 1 0 1 0 1.414 1.414L8 4.414l3.293 3.293a1 1 0 0 0 1.414-1.414l-4-4Z"></path></svg>`;
@@ -341,47 +351,45 @@
             return `<span class="trend-value-container ${trendClass}">${arrow}<span>${trend.toFixed(2)}%</span></span>`;
         }
 
-        // --- Theme Switching Logic (Modified for new button) ---
+        // --- Theme Switching Logic (Simplified - No Chart Update) ---
         const THEME_KEY = 'mwi-market-theme';
         function applyTheme(theme) {
-            // Sets the attribute and saves to localStorage
+            // ONLY sets the attribute and saves to localStorage
+            console.log(`Applying theme: ${theme}`);
             if (theme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
             } else {
                 document.documentElement.removeAttribute('data-theme');
             }
             localStorage.setItem(THEME_KEY, theme);
-            // Does NOT interact with the chart JS
+            // NO direct chart manipulation here
         }
 
-        // Removed toggleTheme function
+        function toggleTheme() { // Simple toggle logic
+            console.log("toggleTheme called");
+            const currentTheme = document.documentElement.hasAttribute('data-theme') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            console.log(`Switching to theme: ${newTheme}`);
+            applyTheme(newTheme);
+        }
 
-        function initTheme() { // Kept to apply saved theme on load
+        function initTheme() { // Applies theme on load
+            console.log("initTheme called");
             const savedTheme = localStorage.getItem(THEME_KEY);
             const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+            console.log(`Initializing with theme: ${initialTheme}`);
             applyTheme(initialTheme);
-
-            // Also update the button state if dark mode is already active on load
-            if (initialTheme === 'dark' && activateDarkModeButton) {
-                 activateDarkModeButton.textContent = "Dark Mode Activated!";
-                 activateDarkModeButton.disabled = true;
-            }
         }
 
-        // Add listener for the NEW activate dark mode button
-        if (activateDarkModeButton) {
-             activateDarkModeButton.addEventListener('click', () => {
-                 console.log("Activate dark mode button clicked");
-                 applyTheme('dark');
-                 // Update button state after click
-                 activateDarkModeButton.textContent = "Dark Mode Activated!";
-                 activateDarkModeButton.disabled = true;
-             }, { once: true }); // Use { once: true } if it should only activate once per page load
-                                 // Remove { once: true } if clicking it again should re-apply (though it's disabled now)
+        // Add listener for the theme toggle button
+        if (themeToggleButton) {
+             themeToggleButton.addEventListener('click', toggleTheme);
         } else {
-             console.error("Activate dark mode button not found!");
+             console.error("Theme toggle button (#theme-toggle-btn) not found!");
         }
+
+        // REMOVED updateChartTheme, getChartColors, getCssVariable
 
 
         // --- Data Fetching (Original - Untouched) ---
@@ -411,10 +419,13 @@
                 }
 
             } catch (error) {
-                console.error("Error loading data:", error);
+                console.error("Error loading data:", error); // Keep generic error log
                 loadingMessageEl.style.display = 'none';
+                // Show generic error message for ANY load failure
                 errorMessageEl.textContent = `Error loading market data: ${error.message}. Check console (F12) & data files.`;
                 errorMessageEl.classList.remove('hidden');
+                tableWrapperEl.classList.add('hidden'); // Ensure table is hidden on error
+                paginationEl.style.display = 'none'; // Ensure pagination is hidden on error
             }
         }
 
@@ -517,7 +528,7 @@
             paginationEl.style.display = totalPages > 1 ? 'flex' : 'none';
         }
 
-        // --- Charting (Modified for Scale Toggle, Grace, Tension, Points) ---
+        // --- Charting (Reverted to Original Colors, Kept Scale Toggle/Refinements) ---
         function displayChart(productName, clickedTrElement) {
             chartPlaceholder.style.display = 'none';
             chartPlotContainer.classList.remove('hidden');
@@ -527,10 +538,13 @@
             if (clickedTrElement) { clickedTrElement.classList.add('selected-item'); selectedTableRow = clickedTrElement; }
             currentChartProduct = productName;
 
-            const productHistoryData = allMarketData[productName];
+            let productHistoryData;
+            if (allMarketData && allMarketData[productName]) {
+                 productHistoryData = allMarketData[productName];
+            }
 
             if (!productHistoryData || (!productHistoryData.buy?.length && !productHistoryData.ask?.length)) {
-                console.warn(`No chart data found for ${productName} in allMarketData.`);
+                console.warn(`No chart data found or provided for ${productName}.`);
                 if (currentChart) { currentChart.destroy(); currentChart = null; }
                 chartPlotContainer.classList.add('hidden');
                 chartControlsArea.style.display = 'none'; // Hide controls if no data
@@ -565,7 +579,16 @@
                  return;
             }
 
-            const parsePoints = (points) => points.map(p => ({ x: new Date(p.timestamp * 1000), y: p.price }));
+            // Robust data parsing
+            const parsePoints = (points) => points
+                .map(p => {
+                    const price = (typeof p.price === 'number' && isFinite(p.price)) ? p.price : null;
+                    const timestamp = (typeof p.timestamp === 'number' && isFinite(p.timestamp)) ? new Date(p.timestamp * 1000) : null;
+                    if (timestamp === null) { console.warn("Invalid timestamp:", p); return null; }
+                    return { x: timestamp, y: price };
+                })
+                .filter(p => p !== null);
+
             const buyData = parsePoints(filteredBuy);
             const askData = parsePoints(filteredAsk);
 
@@ -574,9 +597,9 @@
                 scaleToggleButton.textContent = currentYScaleType === 'logarithmic' ? 'Switch to Linear Scale' : 'Switch to Log Scale';
             }
 
+            // ** REVERTED to original hardcoded colors for datasets **
             const chartData = {
                 datasets: [
-                    // Original Hardcoded Colors, Added Tension and PointRadius
                     { label: 'Buy', data: buyData, borderColor: '#0969da', backgroundColor: 'rgba(9, 105, 218, 0.1)', tension: 0, pointRadius: 2, pointHoverRadius: 5, spanGaps: false, borderWidth: 1.5 },
                     { label: 'Ask', data: askData, borderColor: '#cf222e', backgroundColor: 'rgba(207, 34, 46, 0.1)', tension: 0, pointRadius: 2, pointHoverRadius: 5, spanGaps: false, borderWidth: 1.5 }
                 ]
@@ -585,8 +608,7 @@
             if (currentChart) { currentChart.destroy(); }
 
             try {
-                 // Original Chart Options (Uses hardcoded colors)
-                 // Added dynamic scale type and grace
+                // ** REVERTED options colors to original hardcoded values **
                 currentChart = new Chart(chartCanvas, {
                     type: 'line',
                     data: chartData,
@@ -602,20 +624,30 @@
                                 type: 'time',
                                 time: { unit: timeUnit, tooltipFormat: 'PPp', displayFormats: { hour: 'h:mm a', day: 'MMM d', week: 'MMM d yy' } },
                                 title: { display: false },
-                                grid: { display: false },
+                                grid: { display: false }, // Keep X grid off
                                 ticks: { font: { size: 11 }, color: '#57606a', autoSkip: true, maxRotation: 0, minRotation: 0, maxTicksLimit: 8 } // Hardcoded
                             },
                             y: {
-                                type: currentYScaleType, // Use dynamic scale type
-                                min: currentYScaleType === 'logarithmic' ? 1 : undefined, // Set min only for log scale
-                                grace: '10%', // Add 10% padding
-                                title: { display: true, text: `Price (${currentYScaleType === 'logarithmic' ? 'Log' : 'Linear'} Scale)`, font: { size: 12 }, color: '#57606a' }, // Hardcoded, update label
+                                type: currentYScaleType, // Keep dynamic scale type
+                                min: currentYScaleType === 'logarithmic' ? 1 : undefined,
+                                grace: '10%', // Keep grace
+                                title: { display: true, text: `Price (${currentYScaleType === 'logarithmic' ? 'Log' : 'Linear'} Scale)`, font: { size: 12 }, color: '#57606a' }, // Hardcoded
                                 grid: { color: '#d0d7de' }, // Hardcoded
                                 ticks: {
                                     font: { size: 11 }, color: '#57606a', // Hardcoded
+                                    // Keep refined tick formatting
                                     callback: currentYScaleType === 'logarithmic'
-                                      ? function(value) { /* Log scale tick formatting */ if (value <= 0) return null; if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M'; if (value >= 1e3) return (value / 1e3).toFixed(1) + 'k'; const log10 = Math.log10(value); if (Math.abs(log10 - Math.round(log10)) < 0.01 || value < 10) { return value.toLocaleString(); } return null; }
-                                      : function(value) { return value.toLocaleString(); } // Standard formatting for linear
+                                      ? function(value) {
+                                          if (value <= 0) return null;
+                                          if (value < 1000) return value.toLocaleString();
+                                          if (value >= 1e9) return (value / 1e9).toFixed(1) + 'B';
+                                          if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M';
+                                          if (value >= 1e3) return (value / 1e3).toFixed(1) + 'k';
+                                          const log10 = Math.log10(value);
+                                          if (Math.abs(log10 - Math.round(log10)) < 0.01) { return value.toLocaleString(); }
+                                          return null;
+                                        }
+                                      : function(value) { return value.toLocaleString(); }
                                 }
                             }
                         },
@@ -626,11 +658,13 @@
             } catch(e) {
                 console.error("Error creating Chart.js instance:", e);
                 chartPlotContainer.classList.add('hidden');
-                chartControlsArea.style.display = 'none'; // Hide controls on error
+                chartControlsArea.style.display = 'none';
                 chartPlaceholder.textContent = 'Error rendering chart.';
                 chartPlaceholder.style.display = 'flex';
             }
         }
+
+         // REMOVED updateChartTheme function
 
 
         // --- Event Handlers (Original + Scale Toggle) ---
@@ -677,7 +711,7 @@
                 if (newRange !== currentChartTimeRange) {
                     currentChartTimeRange = newRange;
                     chartTimeControlsEl.querySelectorAll('button').forEach(btn => {
-                        btn.classList.toggle('active', btn.dataset.range === currentChartTimeRange);
+                        btn.classList.toggle('active', btn.dataset.range === newRange);
                     });
                     if (currentChartProduct) {
                         displayChart(currentChartProduct, selectedTableRow); // Re-render chart
