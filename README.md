@@ -6,7 +6,7 @@ This project automatically fetches market data for Milky Way Idle from public so
 
 ## Features
 
-* Displays current Buy/Ask/Vendor prices.
+* Displays current Buy/Ask/Vendor prices
 * Shows item categories (Loots, Resources, Equipment, etc.).
 * Calculates and displays 24-hour price trends (updated daily).
 * Provides interactive price history charts (using Chart.js) with selectable time ranges (24h, 48h, 7d, 30d).
