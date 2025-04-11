@@ -42,11 +42,8 @@
             --na-value-color: #cdd4de; /* Original NA color */
             --vendor-price-color: #57606a; /* Original vendor color */
             --chart-placeholder-color: #b0b8c2; /* Original placeholder color */
-            --chart-title-color: #24292f; /* Original chart title color */
-            --chart-legend-color: #24292f; /* Original chart legend color */
-            --chart-tick-color: #57606a; /* Original chart tick color */
-            --chart-grid-color: #d0d7de; /* Original chart grid color */
-            /* Chart dataset colors remain hardcoded in JS as per original */
+            /* Chart element colors are NOT controlled by variables here */
+            /* They will use the hardcoded values in the JS options */
         }
 
         html[data-theme="dark"] {
@@ -78,10 +75,6 @@
             --na-value-color: #484f58; /* Darker NA color */
             --vendor-price-color: var(--text-color-secondary);
             --chart-placeholder-color: #6e7681; /* Darker placeholder */
-            --chart-title-color: var(--text-color-primary);
-            --chart-legend-color: var(--text-color-primary);
-            --chart-tick-color: var(--text-color-secondary);
-            --chart-grid-color: #21262d;
         }
 
         /* --- General Styles --- */
@@ -102,7 +95,7 @@
         .controls {
             display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
             padding: 16px 20px; margin-bottom: 30px; gap: 15px;
-            background-color: var(--card-bg-color); /* Use var, original was #fcfcfd */
+            background-color: var(--card-bg-color); /* Use var */
             border: 1px solid var(--border-color); border-radius: 6px;
             transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
         }
@@ -182,9 +175,9 @@
         /* --- Pagination --- */
         .pagination { text-align: center; margin-top: 20px; padding-bottom: 20px; }
         .pagination button { margin: 0 3px; padding: 7px 14px; background-color: var(--button-bg-color); border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); color: var(--accent-color); border-radius: 6px; transition: background-color 0.1s, border-color 0.1s; cursor: pointer; font-weight: 500; font-size: 0.9em; }
-        .pagination button:hover:not(:disabled) { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); } /* Updated hover */
+        .pagination button:hover:not(:disabled) { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
         .pagination button.current { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: bold; cursor: default; }
-        .pagination button:disabled { color: var(--muted-text-color); background-color: var(--button-bg-color); opacity: 0.6; cursor: not-allowed; border-color: transparent; } /* Updated disabled */
+        .pagination button:disabled { color: var(--muted-text-color); background-color: var(--button-bg-color); opacity: 0.6; cursor: not-allowed; border-color: transparent; }
 
         /* --- Loading/Error/Footer --- */
         .loading-message, .error-message { text-align: center; padding: 40px; font-size: 1.1em; color: var(--muted-text-color); }
@@ -342,7 +335,7 @@
 
     <footer>
         <span>Made by Sporky with AI</span> |
-        <span class="status">Data Generated: <span id="last-update">2025-04-11 17:01:01</span></span> |
+        <span class="status">Data Generated: <span id="last-update">2025-04-11 17:06:35</span></span> |
         <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
     </footer>
 
@@ -395,17 +388,17 @@
             return `<span class="trend-value-container ${trendClass}">${arrow}<span>${trend.toFixed(2)}%</span></span>`;
         }
 
-        // --- Theme Switching Logic (Added) ---
+        // --- Theme Switching Logic (Added - Minimal) ---
         const THEME_KEY = 'mwi-market-theme';
         function applyTheme(theme) {
+            // ONLY sets the attribute and saves to localStorage
             if (theme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
             } else {
                 document.documentElement.removeAttribute('data-theme');
             }
             localStorage.setItem(THEME_KEY, theme);
-            // NOTE: Chart colors are NOT updated via JS here, as per user instruction.
-            // They will rely on CSS inheritance or original hardcoded values.
+            // NO direct chart manipulation here
         }
         function toggleTheme() {
             const currentTheme = document.documentElement.hasAttribute('data-theme') ? 'dark' : 'light';
@@ -419,7 +412,7 @@
             applyTheme(initialTheme);
         }
         // Add listener for the theme toggle button
-        if (themeToggleButton) { // Check if element exists before adding listener
+        if (themeToggleButton) {
              themeToggleButton.addEventListener('click', toggleTheme);
         } else {
              console.error("Theme toggle button not found!");
@@ -430,28 +423,25 @@
         async function loadData() {
             try {
                 loadingMessageEl.style.display = 'block';
-                errorMessageEl.classList.add('hidden'); // Use class
-                tableWrapperEl.classList.add('hidden'); // Use class
+                errorMessageEl.classList.add('hidden');
+                tableWrapperEl.classList.add('hidden');
                 paginationEl.style.display = 'none';
 
-                // Fetch summary first
                 const summaryRes = await fetch('./data/market_summary.json?t=' + Date.now());
                 if (!summaryRes.ok) throw new Error(`Failed to fetch market_summary.json (Status: ${summaryRes.status})`);
                 marketSummary = await summaryRes.json();
 
-                // Render table based on summary
                 applyFiltersAndSort();
                 loadingMessageEl.style.display = 'none';
-                tableWrapperEl.classList.remove('hidden'); // Use class
-                paginationEl.style.display = 'flex'; // Use flex
+                tableWrapperEl.classList.remove('hidden');
+                paginationEl.style.display = 'flex';
 
-                // Fetch history data (expects nested structure)
                 const historyRes = await fetch('./data/market_history.json?t=' + Date.now());
                 if (!historyRes.ok) {
                     console.warn(`Failed to fetch market_history.json (Status: ${historyRes.status}). Charts may not work.`);
                     allMarketData = {};
                 } else {
-                    allMarketData = await historyRes.json(); // Assign nested object
+                    allMarketData = await historyRes.json(); // Assumes nested structure
                     console.log("Market history data loaded.");
                 }
 
@@ -459,7 +449,7 @@
                 console.error("Error loading data:", error);
                 loadingMessageEl.style.display = 'none';
                 errorMessageEl.textContent = `Error loading market data: ${error.message}. Check console (F12) & data files.`;
-                errorMessageEl.classList.remove('hidden'); // Use class
+                errorMessageEl.classList.remove('hidden');
             }
         }
 
@@ -559,32 +549,30 @@
             pageInfoEl.textContent = `Page ${currentPage} of ${totalPages || 1}`;
             prevButton.disabled = currentPage <= 1;
             nextButton.disabled = currentPage >= totalPages;
-            paginationEl.style.display = totalPages > 1 ? 'flex' : 'none'; // Use flex
+            paginationEl.style.display = totalPages > 1 ? 'flex' : 'none';
         }
 
-        // --- Charting (Original - Expects Nested Data, Hardcoded Colors) ---
+        // --- Charting (Original - Untouched Logic/Options) ---
         function displayChart(productName, clickedTrElement) {
             chartPlaceholder.style.display = 'none';
-            chartPlotContainer.classList.remove('hidden'); // Use class
+            chartPlotContainer.classList.remove('hidden');
             chartTimeControlsEl.style.display = 'block';
 
             if (selectedTableRow) { selectedTableRow.classList.remove('selected-item'); }
             if (clickedTrElement) { clickedTrElement.classList.add('selected-item'); selectedTableRow = clickedTrElement; }
             currentChartProduct = productName;
 
-            // **Original logic: Expects nested allMarketData**
-            const productHistoryData = allMarketData[productName]; // Access using product name key
+            const productHistoryData = allMarketData[productName];
 
             if (!productHistoryData || (!productHistoryData.buy?.length && !productHistoryData.ask?.length)) {
-                console.warn(`No chart data found for ${productName} in allMarketData.`); // Adjusted warning
+                console.warn(`No chart data found for ${productName} in allMarketData.`);
                 if (currentChart) { currentChart.destroy(); currentChart = null; }
-                chartPlotContainer.classList.add('hidden'); // Use class
+                chartPlotContainer.classList.add('hidden');
                 chartPlaceholder.textContent = `No price history data available for ${productName}.`;
                 chartPlaceholder.style.display = 'flex';
                 return;
             }
 
-            // Filter data based on time range
             let filteredBuy = productHistoryData.buy || [];
             let filteredAsk = productHistoryData.ask || [];
             const now = new Date();
@@ -594,10 +582,8 @@
             if (currentChartTimeRange === '24h') { startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000)); timeUnit = 'hour'; }
             else if (currentChartTimeRange === '48h') { startDate = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000)); timeUnit = 'hour'; }
             else if (currentChartTimeRange === '7d') { startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)); timeUnit = 'day'; }
-            // else '30d' uses all data
 
             if (startDate) {
-                // Original filtering assumed timestamp was seconds epoch
                 const filterPoints = (points) => points.filter(p => (p.timestamp * 1000) >= startDate.getTime());
                 filteredBuy = filterPoints(filteredBuy);
                 filteredAsk = filterPoints(filteredAsk);
@@ -606,20 +592,19 @@
             if (filteredBuy.length < 1 && filteredAsk.length < 1) {
                  console.warn(`No chart data in range ${currentChartTimeRange} for ${productName}`);
                  if (currentChart) { currentChart.destroy(); currentChart = null; }
-                 chartPlotContainer.classList.add('hidden'); // Use class
+                 chartPlotContainer.classList.add('hidden');
                  chartPlaceholder.textContent = `No data available for ${productName} in the selected time range (${currentChartTimeRange}).`;
                  chartPlaceholder.style.display = 'flex';
                  return;
             }
 
-             // Prepare data for Chart.js, converting timestamps (original assumed seconds epoch)
             const parsePoints = (points) => points.map(p => ({ x: new Date(p.timestamp * 1000), y: p.price }));
             const buyData = parsePoints(filteredBuy);
             const askData = parsePoints(filteredAsk);
 
-            // **Original hardcoded colors**
             const chartData = {
                 datasets: [
+                    // Original Hardcoded Colors
                     { label: 'Buy', data: buyData, borderColor: '#0969da', backgroundColor: 'rgba(9, 105, 218, 0.1)', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: true, borderWidth: 1.5 },
                     { label: 'Ask', data: askData, borderColor: '#cf222e', backgroundColor: 'rgba(207, 34, 46, 0.1)', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: true, borderWidth: 1.5 }
                 ]
@@ -628,22 +613,15 @@
             if (currentChart) { currentChart.destroy(); }
 
             try {
-                // Get theme-dependent colors for non-dataset elements
-                const themeColors = {
-                     title: getComputedStyle(document.documentElement).getPropertyValue('--chart-title-color').trim() || '#24292f',
-                     legend: getComputedStyle(document.documentElement).getPropertyValue('--chart-legend-color').trim() || '#24292f',
-                     grid: getComputedStyle(document.documentElement).getPropertyValue('--chart-grid-color').trim() || '#d0d7de',
-                     ticks: getComputedStyle(document.documentElement).getPropertyValue('--chart-tick-color').trim() || '#57606a'
-                };
-
+                 // Original Chart Options (Uses hardcoded colors where applicable)
                 currentChart = new Chart(chartCanvas, {
                     type: 'line',
-                    data: chartData, // Uses hardcoded dataset colors
-                    options: { // Uses theme colors for axes, titles etc where possible
+                    data: chartData,
+                    options: {
                         responsive: true, maintainAspectRatio: false,
                         plugins: {
-                            title: { display: true, text: `${productName} (${currentChartTimeRange})`, font: { size: 15, weight: '600' }, padding: { bottom: 15 }, color: themeColors.title },
-                            legend: { position: 'top', labels: { font: { size: 12 }, color: themeColors.legend } },
+                            title: { display: true, text: `${productName} (${currentChartTimeRange})`, font: { size: 15, weight: '600' }, padding: { bottom: 15 }, color: '#24292f' }, // Hardcoded/Default color
+                            legend: { position: 'top', labels: { font: { size: 12 }, color: '#24292f' } }, // Hardcoded/Default color
                             tooltip: { mode: 'index', intersect: false, bodySpacing: 5, titleSpacing: 6, padding: 10, boxPadding: 4 } // Default tooltip colors
                         },
                         scales: {
@@ -651,23 +629,23 @@
                                 type: 'time',
                                 time: { unit: timeUnit, tooltipFormat: 'PPp', displayFormats: { hour: 'h:mm a', day: 'MMM d', week: 'MMM d yy' } },
                                 title: { display: false },
-                                grid: { display: false }, // Original had no grid
-                                ticks: { font: { size: 11 }, color: themeColors.ticks, autoSkip: true, maxRotation: 0, minRotation: 0, maxTicksLimit: 8 }
+                                grid: { display: false },
+                                ticks: { font: { size: 11 }, color: '#57606a', autoSkip: true, maxRotation: 0, minRotation: 0, maxTicksLimit: 8 } // Hardcoded/Default color
                             },
                             y: {
-                                type: 'logarithmic', min: 1, // Add min: 1 for log scale robustness
-                                title: { display: true, text: 'Price (Log Scale)', font: { size: 12 }, color: themeColors.ticks },
-                                grid: { color: themeColors.grid },
-                                ticks: { font: { size: 11 }, color: themeColors.ticks, callback: function(value) { /* Log scale tick formatting */ if (value <= 0) return null; if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M'; if (value >= 1e3) return (value / 1e3).toFixed(1) + 'k'; const log10 = Math.log10(value); if (Math.abs(log10 - Math.round(log10)) < 0.01 || value < 10) { return value.toLocaleString(); } return null; } }
+                                type: 'logarithmic', min: 1,
+                                title: { display: true, text: 'Price (Log Scale)', font: { size: 12 }, color: '#57606a' }, // Hardcoded/Default color
+                                grid: { color: '#d0d7de' }, // Hardcoded/Default color
+                                ticks: { font: { size: 11 }, color: '#57606a', callback: function(value) { /* Log scale tick formatting */ if (value <= 0) return null; if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M'; if (value >= 1e3) return (value / 1e3).toFixed(1) + 'k'; const log10 = Math.log10(value); if (Math.abs(log10 - Math.round(log10)) < 0.01 || value < 10) { return value.toLocaleString(); } return null; } } // Hardcoded/Default color
                             }
                         },
                         interaction: { mode: 'index', axis: 'x', intersect: false },
-                         animation: { duration: 0 } // Original might not have had this
+                         animation: { duration: 0 }
                     }
                 });
             } catch(e) {
                 console.error("Error creating Chart.js instance:", e);
-                chartPlotContainer.classList.add('hidden'); // Use class
+                chartPlotContainer.classList.add('hidden');
                 chartPlaceholder.textContent = 'Error rendering chart.';
                 chartPlaceholder.style.display = 'flex';
             }
