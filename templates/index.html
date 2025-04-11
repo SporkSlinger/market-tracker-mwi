@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en"> <head>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MWI Market Trends</title>
@@ -8,150 +9,43 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <style>
-        /* --- CSS Variables for Theming --- */
+        /* --- Styling (mostly unchanged from previous version) --- */
         :root {
-            /* Light Theme (Default) */
-            --bg-color: #f6f8fa;
-            --card-bg-color: #ffffff;
-            --text-color-primary: #24292f;
-            --text-color-secondary: #57606a;
-            --muted-text-color: #57606a; /* Added for consistency */
-            --border-color: #d0d7de;
-            --accent-color: #0969da;
-            --accent-hover-color: #0550ae;
-            --positive-color: #1a7f37;
-            --negative-color: #cf222e;
-            --button-bg-color: #f6f8fa;
-            --button-hover-bg-color: #f0f2f4;
-            --button-border-color: rgba(27, 31, 36, 0.15);
-            --button-hover-border-color: rgba(27, 31, 36, 0.35);
-            --input-bg-color: var(--card-bg-color); /* Use card bg for inputs */
-            --input-border-color: var(--border-color);
-            --input-focus-border-color: var(--accent-color);
-            --input-focus-shadow-color: rgba(9, 105, 218, 0.3);
-            --shadow-color-light: rgba(140, 149, 159, 0.15);
-            --shadow-color-medium: rgba(140, 149, 159, 0.2);
-            --table-header-bg: #f6f8fa;
-            --table-row-hover-bg: #f6f8fa;
-            --table-row-selected-bg: #ddf4ff;
-            --link-color: var(--accent-color);
-            --link-hover-color: var(--accent-hover-color);
+            --bg-color: #f6f8fa; --card-bg-color: #ffffff; --text-color-primary: #24292f;
+            --text-color-secondary: #57606a; --border-color: #d0d7de; --accent-color: #0969da;
+            --accent-hover-color: #0550ae; --positive-color: #1a7f37; --negative-color: #cf222e;
+            --button-bg-color: #f6f8fa; --button-hover-bg-color: #f0f2f4;
+            --button-border-color: rgba(27, 31, 36, 0.15); --button-hover-border-color: rgba(27, 31, 36, 0.35);
+            --shadow-color-light: rgba(140, 149, 159, 0.15); --shadow-color-medium: rgba(140, 149, 159, 0.2);
+            --table-header-bg: #f6f8fa; --table-row-hover-bg: #f6f8fa; --table-row-selected-bg: #ddf4ff;
+            --link-color: var(--accent-color); --link-hover-color: var(--accent-hover-color);
             --code-font: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
-            --chart-grid-color: #d0d7de; /* Use border color for grid */
-            --chart-tick-color: var(--text-color-secondary); /* Use secondary text for ticks */
-            --chart-title-color: var(--text-color-primary); /* Use primary text for titles */
-            --chart-tooltip-bg: rgba(0, 0, 0, 0.8);
-            --chart-tooltip-text-color: #ffffff;
         }
-
-        html[data-theme="dark"] {
-             /* Dark Theme Overrides */
-            --bg-color: #0d1117;
-            --card-bg-color: #161b22;
-            --text-color-primary: #c9d1d9;
-            --text-color-secondary: #8b949e;
-            --muted-text-color: #8b949e;
-            --border-color: #30363d;
-            --accent-color: #58a6ff;
-            --accent-hover-color: #79c0ff;
-            --positive-color: #3fb950;
-            --negative-color: #f85149;
-            --button-bg-color: #21262d;
-            --button-hover-bg-color: #30363d;
-            --button-border-color: #30363d;
-            --button-hover-border-color: #8b949e;
-            --input-bg-color: var(--card-bg-color);
-            --input-border-color: var(--border-color);
-            --input-focus-border-color: var(--accent-color);
-            --input-focus-shadow-color: rgba(88, 166, 255, 0.3);
-            --shadow-color-light: rgba(0, 0, 0, 0.2);
-            --shadow-color-medium: rgba(0, 0, 0, 0.3);
-            --table-header-bg: #161b22;
-            --table-row-hover-bg: #21262d;
-            --table-row-selected-bg: #1f6feb; /* Adjusted dark selection */
-            --link-color: var(--accent-color);
-            --link-hover-color: var(--accent-hover-color);
-            --chart-grid-color: #21262d; /* Darker grid */
-            --chart-tick-color: var(--text-color-secondary);
-            --chart-title-color: var(--text-color-primary);
-            --chart-tooltip-bg: rgba(201, 209, 217, 0.9); /* Lighter tooltip bg */
-            --chart-tooltip-text-color: #0d1117; /* Darker tooltip text */
-        }
-
-
-        /* --- General Styles --- */
         *, *::before, *::after { box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif; margin: 0; padding: 0;
-            background-color: var(--bg-color); color: var(--text-color-primary);
-            line-height: 1.5; font-size: 14px;
-            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; /* Theme transition */
-        }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-color-primary); line-height: 1.5; font-size: 14px; }
         .container { max-width: 1600px; margin: 25px auto; padding: 0 25px; }
         h1 { text-align: center; color: var(--text-color-primary); margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.8em; letter-spacing: -0.5px; }
         .feedback-link-container { text-align: center; margin-bottom: 25px; font-size: 0.9em; }
         .feedback-link-container a { color: var(--muted-text-color); text-decoration: none; border-bottom: 1px dashed var(--muted-text-color); transition: color 0.2s, border-color 0.2s; padding-bottom: 1px; }
         .feedback-link-container a:hover { color: var(--link-color); border-color: var(--link-color); }
-
-        /* --- Controls Area --- */
-        .controls {
-            display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
-            padding: 16px 20px; margin-bottom: 30px; gap: 15px;
-            background-color: var(--card-bg-color); /* Use variable */
-            border: 1px solid var(--border-color); border-radius: 6px;
-            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out; /* Theme transition */
-        }
+        .controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 16px 20px; margin-bottom: 30px; gap: 15px; background-color: #fcfcfd; border: 1px solid var(--border-color); border-radius: 6px; }
         .controls-left, .controls-right { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-        .search-form input[type="text"], .category-filter select {
-            padding: 8px 12px; border: 1px solid var(--input-border-color); border-radius: 6px;
-            min-width: 200px; font-size: 0.95em; background-color: var(--input-bg-color);
-            color: var(--text-color-primary); /* Use variable */
-            box-shadow: inset 0 1px 0 rgba(27,31,36,0.075);
-            transition: border-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-        }
-        .search-form input[type="text"]:focus, .category-filter select:focus {
-            border-color: var(--input-focus-border-color);
-            box-shadow: inset 0 1px 0 rgba(27,31,36,0.075), 0 0 0 3px var(--input-focus-shadow-color);
-            outline: none;
-        }
-
-        /* --- Theme Toggle Button --- */
-        #theme-toggle {
-            padding: 8px 15px; background-color: var(--button-bg-color); color: var(--text-color-primary);
-            border: 1px solid var(--button-border-color); border-radius: 6px; cursor: pointer;
-            font-size: 0.95em; font-weight: 500; text-align: center;
-            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-            display: inline-flex; align-items: center; gap: 6px;
-            min-width: 40px; justify-content: center;
-        }
-        #theme-toggle:hover { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
-        #theme-toggle .fa-sun { display: none; } /* Hide sun icon by default */
-        #theme-toggle .fa-moon { display: inline-block; } /* Show moon icon by default */
-        html[data-theme="dark"] #theme-toggle .fa-sun { display: inline-block; } /* Show sun in dark mode */
-        html[data-theme="dark"] #theme-toggle .fa-moon { display: none; } /* Hide moon in dark mode */
-
-
-        /* --- Sort Options (Unchanged from original) --- */
+        .search-form input[type="text"], .category-filter select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; min-width: 200px; font-size: 0.95em; background-color: var(--card-bg-color); box-shadow: inset 0 1px 0 rgba(27,31,36,0.075); transition: border-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out; }
+        .search-form input[type="text"]:focus, .category-filter select:focus { border-color: var(--accent-color); box-shadow: inset 0 1px 0 rgba(27,31,36,0.075), 0 0 0 3px rgba(9, 105, 218, 0.3); outline: none; }
         .sort-options span { font-weight: 600; color: var(--text-color-secondary); margin-right: 4px; font-size: 0.9em; }
         .sort-options button { padding: 5px 12px; background-color: var(--button-bg-color); color: var(--text-color-primary); border-radius: 6px; font-size: 0.9em; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); cursor: pointer; font-weight: 500; line-height: 20px; }
         .sort-options button:hover { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
         .sort-options button.current-sort { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: 600; }
-
-        /* --- Layout (Unchanged from original) --- */
         .main-layout { display: flex; flex-wrap: wrap; gap: 25px; }
         .item-table-container { flex: 3; min-width: 550px; }
         .chart-display-container { flex: 2; min-width: 400px; }
-
-        /* --- Table (Using CSS Vars) --- */
-        .table-wrapper { max-height: 78vh; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--card-bg-color); transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out; }
+        .table-wrapper { max-height: 78vh; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--card-bg-color); }
         #item-table { width: 100%; border-collapse: collapse; }
         #item-table th, #item-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; vertical-align: middle; font-size: 0.95em; }
-        #item-table th { background-color: var(--table-header-bg); font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted-text-color); position: sticky; top: 0; z-index: 1; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
-        #item-table tbody tr { transition: background-color 0.15s ease; } /* Add transition for theme change */
-        #item-table tbody tr:nth-child(even) { background-color: var(--bg-color); } /* Use bg color for striping */
+        #item-table th { background-color: var(--table-header-bg); font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted-text-color); position: sticky; top: 0; z-index: 1; }
+        #item-table tbody tr:nth-child(even) { background-color: #fbfcfd; }
         #item-table tbody tr:hover { background-color: var(--table-row-hover-bg); }
         #item-table tbody tr.selected-item { background-color: var(--table-row-selected-bg); font-weight: 500; }
         #item-table td:nth-child(1) { font-weight: 500; cursor: pointer; color: var(--link-color); max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
@@ -162,47 +56,26 @@
         .trend-icon { width: 14px; height: 14px; vertical-align: text-bottom; }
         .trend-positive { color: var(--positive-color); }
         .trend-negative { color: var(--negative-color); }
-        .vendor-price { color: var(--text-color-secondary); } /* Use variable */
-        .na-value { color: var(--muted-text-color); opacity: 0.7; font-style: normal; } /* Adjusted NA style */
-
-        /* --- Chart (Using CSS Vars) --- */
-        .chart-display { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 20px; min-height: 450px; position: relative; display: flex; flex-direction: column; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out; }
+        .vendor-price { color: #57606a; }
+        .na-value { color: #cdd4de; font-style: normal; }
+        .chart-display { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 20px; min-height: 450px; position: relative; display: flex; flex-direction: column; }
         .chart-controls { text-align: center; margin-bottom: 15px; }
-        .chart-controls button { margin: 0 4px; padding: 5px 10px; font-size: 0.85em; background-color: var(--button-bg-color); color: var(--text-color-primary); border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); border-radius: 6px; cursor: pointer; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; font-weight: 500;}
+        .chart-controls button { margin: 0 4px; padding: 5px 10px; font-size: 0.85em; background-color: var(--button-bg-color); border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); border-radius: 6px; cursor: pointer; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; font-weight: 500;}
         .chart-controls button:hover { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
         .chart-controls button.active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: 600; }
-        .chart-placeholder { text-align: center; color: var(--muted-text-color); padding: 60px; font-size: 1.05em; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
+        .chart-placeholder { text-align: center; color: #b0b8c2; padding: 60px; font-size: 1.05em; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
         .chart-plot { flex-grow: 1; position: relative; min-height: 320px; }
         .chart-plot canvas { max-width: 100%; max-height: 380px; }
-
-        /* --- Pagination (Using CSS Vars) --- */
         .pagination { text-align: center; margin-top: 20px; padding-bottom: 20px; }
         .pagination button { margin: 0 3px; padding: 7px 14px; background-color: var(--button-bg-color); border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); color: var(--accent-color); border-radius: 6px; transition: background-color 0.1s, border-color 0.1s; cursor: pointer; font-weight: 500; font-size: 0.9em; }
-        .pagination button:hover:not(:disabled) { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
+        .pagination button:hover:not(:disabled) { background-color: #f1f3f5; border-color: #adb5bd; }
         .pagination button.current { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: bold; cursor: default; }
-        .pagination button:disabled { color: var(--muted-text-color); background-color: var(--button-bg-color); opacity: 0.6; cursor: not-allowed; border-color: transparent; }
-
-        /* --- Loading/Error/Footer (Using CSS Vars) --- */
+        .pagination button:disabled { color: #8c959f; background-color: var(--button-bg-color); cursor: not-allowed; border-color: transparent; }
         .loading-message, .error-message { text-align: center; padding: 40px; font-size: 1.1em; color: var(--muted-text-color); }
         .error-message { color: var(--negative-color); }
-        footer { text-align: center; margin-top: 60px; padding: 25px 0; font-size: 0.8em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out; }
+        footer { text-align: center; margin-top: 60px; padding: 25px 0; font-size: 0.8em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); }
         footer span, footer a { margin: 0 8px; color: var(--muted-text-color); text-decoration: none; }
         footer a:hover { text-decoration: underline; color: var(--link-hover-color); }
-
-        /* Hidden utility */
-        .hidden { display: none; }
-
-        /* Responsive */
-         @media (max-width: 768px) {
-            .controls { flex-direction: column; align-items: stretch; }
-            .controls-left, .controls-right { width: 100%; justify-content: center; }
-            .search-form input[type="text"], .category-filter select { width: 100%; min-width: unset; }
-            .main-layout { flex-direction: column; } /* Stack table and chart */
-            .item-table-container, .chart-display-container { min-width: unset; }
-            .table-wrapper { max-height: 60vh; } /* Adjust height */
-            h1 { font-size: 1.5em; }
-        }
-
     </style>
 </head>
 <body>
@@ -216,37 +89,36 @@
         <div class="controls">
             <div class="controls-left">
                  <div class="search-form">
-                     <input type="text" id="search-input" placeholder="Search Product Name...">
-                 </div>
-                 <div class="category-filter">
-                      <select id="category-filter">
-                          <option value="All">All Categories</option>
-                          {% for category in categories %}
-                          <option value="{{ category }}">{{ category }}</option>
-                          {% endfor %}
-                      </select>
-                 </div>
+                    <input type="text" id="search-input" placeholder="Search Product Name...">
+                </div>
+                <div class="category-filter">
+                     <select id="category-filter">
+                         <option value="All">All Categories</option>
+                         {% for category in categories %}
+                         <option value="{{ category }}">{{ category }}</option>
+                         {% endfor %}
+                     </select>
+                </div>
             </div>
             <div class="controls-right">
-                 <button id="theme-toggle" title="Toggle Theme">
-                     <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
-                 </button>
-                 <div class="sort-options" id="sort-options">
-                      <span>Sort By:</span>
-                      <button data-sort="name_asc" class="current-sort">Name</button>
-                      <button data-sort="category_asc">Category</button>
-                      <button data-sort="buy_desc">Buy</button>
-                      <button data-sort="ask_asc">Ask</button>
-                      <button data-sort="vendor_desc">Vendor</button>
-                      <button data-sort="trend_dec">Trend %</button>
-                 </div>
+                <div class="sort-options" id="sort-options">
+                    <span>Sort By:</span>
+                    <button data-sort="name_asc" class="current-sort">Name</button>
+                    <button data-sort="category_asc">Category</button>
+                    <button data-sort="buy_desc">Buy</button>
+                    <button data-sort="ask_asc">Ask</button>
+                    <button data-sort="vendor_desc">Vendor</button>
+                    <button data-sort="trend_dec">Trend %</button>
+                </div>
             </div>
         </div>
 
         <div class="main-layout">
             <div class="item-table-container">
                 <div id="loading-message" class="loading-message">Loading market data...</div>
-                <div id="error-message" class="error-message hidden"></div> <div class="table-wrapper hidden"> <table id="item-table">
+                <div id="error-message" class="error-message" style="display: none;"></div>
+                <div class="table-wrapper" style="display: none;">
+                    <table id="item-table">
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -260,7 +132,8 @@
                         <tbody id="item-table-body"></tbody>
                     </table>
                 </div>
-                <div class="pagination" id="pagination" style="display: none;"> <button id="prev-page" disabled>&laquo; Previous</button>
+                <div class="pagination" id="pagination" style="display: none;">
+                    <button id="prev-page" disabled>&laquo; Previous</button>
                     <span id="page-info">Page 1 of 1</span>
                     <button id="next-page" disabled>Next &raquo;</button>
                 </div>
@@ -275,7 +148,8 @@
                          <button data-range="30d" class="active">30d</button>
                      </div>
                     <div class="chart-placeholder" id="chart-placeholder">Select an item name from the table to view its chart.</div>
-                    <div class="chart-plot hidden"> <canvas id="single-chart-canvas"></canvas>
+                    <div class="chart-plot" style="display: none;">
+                        <canvas id="single-chart-canvas"></canvas>
                     </div>
                 </div>
             </div>
@@ -290,21 +164,21 @@
     </footer>
 
     <script>
-        // --- Global State (Original) ---
-        let allMarketData = []; // Holds data from market_history.json
-        let marketSummary = []; // Holds data from market_summary.json
-        let filteredAndSortedSummary = []; // Holds items currently displayed in table
+        // --- Global State ---
+        let allMarketData = [];
+        let marketSummary = [];
+        let filteredAndSortedSummary = [];
         let currentChart = null;
         let currentPage = 1;
-        const itemsPerPage = 20; // Adjusted for potentially more items
-        let currentSort = 'name_asc'; // Default sort
+        const itemsPerPage = 20;
+        let currentSort = 'name_asc';
         let currentSearch = '';
         let currentCategoryFilter = 'All';
-        let selectedTableRow = null; // Keep track of the selected TR element
-        let currentChartProduct = null; // Keep track of the product in the chart
-        let currentChartTimeRange = '30d'; // Default chart time range
+        let selectedTableRow = null;
+        let currentChartProduct = null;
+        let currentChartTimeRange = '30d';
 
-        // --- DOM Elements (Original) ---
+        // --- DOM Elements ---
         const tableBodyEl = document.getElementById('item-table-body');
         const tableWrapperEl = document.querySelector('.table-wrapper');
         const paginationEl = document.getElementById('pagination');
@@ -320,13 +194,12 @@
         const chartTimeControlsEl = document.getElementById('chart-time-controls');
         const loadingMessageEl = document.getElementById('loading-message');
         const errorMessageEl = document.getElementById('error-message');
-        const themeToggleButton = document.getElementById('theme-toggle'); // Added for theme toggle
 
-        // --- SVG Icons for Trends (Original) ---
+        // --- SVG Icons for Trends ---
         const trendUpIcon = `<svg class="trend-icon" aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"><path fill="currentColor" d="M8.707 2.293a1 1 0 0 0-1.414 0l-4 4a1 1 0 1 0 1.414 1.414L8 4.414l3.293 3.293a1 1 0 0 0 1.414-1.414l-4-4Z"></path></svg>`;
         const trendDownIcon = `<svg class="trend-icon" aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"><path fill="currentColor" d="M7.293 13.707a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0-1.414-1.414L8 11.586 4.707 8.293a1 1 0 0 0-1.414 1.414l4 4Z"></path></svg>`;
 
-        // --- Utility Functions (Original) ---
+        // --- Utility Functions ---
         function formatPrice(price) {
             if (price === null || price === undefined || isNaN(price)) return '<span class="na-value">--</span>';
             return price.toLocaleString();
@@ -338,93 +211,48 @@
             return `<span class="trend-value-container ${trendClass}">${arrow}<span>${trend.toFixed(2)}%</span></span>`;
         }
 
-        // --- Theme Switching Logic (Added) ---
-        const THEME_KEY = 'mwi-market-theme';
-        function applyTheme(theme) {
-            if (theme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            } else {
-                document.documentElement.removeAttribute('data-theme');
-            }
-            localStorage.setItem(THEME_KEY, theme);
-            // Update chart colors if chart exists
-            if (currentChart) {
-                updateChartTheme(); // Call function to update chart colors
-            }
-        }
-        function toggleTheme() {
-            const currentTheme = document.documentElement.hasAttribute('data-theme') ? 'dark' : 'light';
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            applyTheme(newTheme);
-        }
-        function initTheme() {
-            const savedTheme = localStorage.getItem(THEME_KEY);
-            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-            applyTheme(initialTheme);
-        }
-        themeToggleButton.addEventListener('click', toggleTheme); // Add listener
-
-        // --- Data Fetching (Original) ---
+        // --- Data Fetching ---
         async function loadData() {
             try {
                 loadingMessageEl.style.display = 'block';
-                errorMessageEl.classList.add('hidden'); // Use class
-                tableWrapperEl.classList.add('hidden'); // Use class
-                paginationEl.style.display = 'none'; // Keep style for now
-
-                // Fetch summary first to populate table quickly
-                const summaryRes = await fetch('./data/market_summary.json?t=' + Date.now()); // Add cache bust
+                errorMessageEl.style.display = 'none';
+                tableWrapperEl.style.display = 'none';
+                paginationEl.style.display = 'none';
+                const [historyRes, summaryRes] = await Promise.all([
+                    fetch('./data/market_history.json'),
+                    fetch('./data/market_summary.json')
+                ]);
+                if (!historyRes.ok) throw new Error(`Failed to fetch market_history.json (Status: ${historyRes.status})`);
                 if (!summaryRes.ok) throw new Error(`Failed to fetch market_summary.json (Status: ${summaryRes.status})`);
+                allMarketData = await historyRes.json();
                 marketSummary = await summaryRes.json();
-
-                // Apply filters/sort and render initial table view
-                applyFiltersAndSort();
                 loadingMessageEl.style.display = 'none';
-                tableWrapperEl.classList.remove('hidden'); // Use class
-                paginationEl.style.display = 'flex'; // Use flex for pagination layout
-
-                // Fetch history data in the background
-                const historyRes = await fetch('./data/market_history.json?t=' + Date.now()); // Add cache bust
-                if (!historyRes.ok) {
-                    console.warn(`Failed to fetch market_history.json (Status: ${historyRes.status}). Charts may not work.`);
-                    allMarketData = {}; // Set to empty object if fetch fails
-                } else {
-                    allMarketData = await historyRes.json(); // Assumes nested structure
-                    console.log("Market history data loaded.");
-                }
-
+                tableWrapperEl.style.display = 'block';
+                paginationEl.style.display = 'block';
+                applyFiltersAndSort();
             } catch (error) {
                 console.error("Error loading data:", error);
                 loadingMessageEl.style.display = 'none';
                 errorMessageEl.textContent = `Error loading market data: ${error.message}. Check console (F12) & data files.`;
-                errorMessageEl.classList.remove('hidden'); // Use class
+                errorMessageEl.style.display = 'block';
             }
         }
 
-
-        // --- Filtering and Sorting (Original) ---
+        // --- Filtering and Sorting ---
         function applyFiltersAndSort() {
-            let result = [...marketSummary]; // Start with full summary
-            // Apply category filter
+            let result = [...marketSummary];
             if (currentCategoryFilter !== 'All') {
                 result = result.filter(item => item.category === currentCategoryFilter);
             }
-            // Apply search term filter
             const searchTerm = currentSearch.toLowerCase();
             if (searchTerm) {
                 result = result.filter(item => item.name.toLowerCase().includes(searchTerm));
             }
-            // Apply sorting
             result.sort((a, b) => {
                 try {
                     const sortNum = (valA, valB, ascending = true) => {
-                        // Nulls/undefined are treated as Infinity for asc (last), -Infinity for desc (first)
                         const numA = valA ?? (ascending ? Infinity : -Infinity);
                         const numB = valB ?? (ascending ? Infinity : -Infinity);
-                        // Handle potential non-numeric values that might slip through
-                        if (isNaN(numA)) return ascending ? 1 : -1;
-                        if (isNaN(numB)) return ascending ? -1 : 1;
                         return ascending ? numA - numB : numB - numA;
                     };
                     const sortStr = (valA, valB, ascending = true) => {
@@ -438,42 +266,23 @@
                         case 'buy_desc': return sortNum(a.buy, b.buy, false);
                         case 'ask_asc': return sortNum(a.ask, b.ask, true);
                         case 'vendor_desc': return sortNum(a.vendor, b.vendor, false);
-                        case 'trend_inc': return sortNum(a.trend, b.trend, true); // Added missing trend sort cases
+                        case 'trend_inc': return sortNum(a.trend, b.trend, true);
                         case 'trend_dec': return sortNum(a.trend, b.trend, false);
                         case 'name_asc': default: return sortStr(a.name, b.name, true);
                     }
                 } catch (e) { console.error("Sort comparison error:", e); return 0; }
             });
             filteredAndSortedSummary = result;
-            currentPage = 1; // Reset to first page after filtering/sorting
-            renderCurrentPage(); // Render the table and update pagination
+            currentPage = 1;
+            renderCurrentPage();
         }
 
-        // --- Rendering (Original) ---
+        // --- Rendering ---
         function renderCurrentPage() {
-            tableBodyEl.innerHTML = ''; // Clear table
-            // Deselect previous row visually if any
-            if (selectedTableRow) {
-                selectedTableRow.classList.remove('selected-item');
-                selectedTableRow = null; // Reset selection state
-            }
-             // If the currently charted item is no longer on the current page, keep the chart but deselect row
-            if (currentChartProduct) {
-                 const stillVisible = filteredAndSortedSummary.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-                                     .some(item => item.name === currentChartProduct);
-                 if (!stillVisible) {
-                      console.log(`${currentChartProduct} is no longer on this page, deselecting row.`);
-                      // Keep chart, but no row is selected
-                 } else {
-                      // Find the row corresponding to the current chart product to re-select it later
-                      // We'll do this after appending rows
-                 }
-            }
-
-
+            tableBodyEl.innerHTML = '';
+            selectedTableRow = null;
             const totalItems = filteredAndSortedSummary.length;
             const totalPages = Math.ceil(totalItems / itemsPerPage);
-            // Ensure currentPage is valid
             currentPage = Math.max(1, Math.min(currentPage, totalPages || 1));
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
@@ -484,193 +293,151 @@
                  const tr = document.createElement('tr');
                  const td = document.createElement('td');
                  td.colSpan = 6; td.textContent = message; td.style.textAlign = 'center';
-                 td.style.padding = '20px'; td.style.color = 'var(--muted-text-color)'; // Use CSS var
+                 td.style.padding = '20px'; td.style.color = 'var(--muted-text-color)';
                  tr.appendChild(td); tableBodyEl.appendChild(tr);
             } else {
-                 itemsToDisplay.forEach(item => {
-                     const tr = document.createElement('tr');
-                     tr.dataset.product = encodeURIComponent(item.name); // Use encodeURIComponent just in case
-                     tr.style.cursor = 'pointer';
-                     tr.innerHTML = `
-                         <td><a>${item.name}</a></td>
-                         <td>${item.category || '<span class="na-value">N/A</span>'}</td>
-                         <td>${formatPrice(item.buy)}</td>
-                         <td>${formatPrice(item.ask)}</td>
-                         <td><span class="vendor-price">${formatPrice(item.vendor)}</span></td>
-                         <td>${formatTrend(item.trend)}</td>
-                     `;
-                     tr.addEventListener('click', handleProductClick);
-                     tableBodyEl.appendChild(tr);
-                     // Re-select the row if it corresponds to the currently displayed chart
-                     if (item.name === currentChartProduct) {
-                          tr.classList.add('selected-item');
-                          selectedTableRow = tr;
-                     }
-                 });
+                itemsToDisplay.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.dataset.product = encodeURIComponent(item.name);
+                    tr.style.cursor = 'pointer';
+                    tr.innerHTML = `
+                        <td><a>${item.name}</a></td>
+                        <td>${item.category || '<span class="na-value">N/A</span>'}</td>
+                        <td>${formatPrice(item.buy)}</td>
+                        <td>${formatPrice(item.ask)}</td>
+                        <td><span class="vendor-price">${formatPrice(item.vendor)}</span></td>
+                        <td>${formatTrend(item.trend)}</td>
+                    `;
+                    tr.addEventListener('click', handleProductClick);
+                    tableBodyEl.appendChild(tr);
+                });
             }
-            renderPagination(totalPages); // Update pagination controls
+            renderPagination(totalPages);
         }
 
         function renderPagination(totalPages) {
             pageInfoEl.textContent = `Page ${currentPage} of ${totalPages || 1}`;
             prevButton.disabled = currentPage <= 1;
             nextButton.disabled = currentPage >= totalPages;
-             // Show/hide pagination container based on total pages
-            paginationEl.style.display = totalPages > 1 ? 'flex' : 'none';
         }
 
-        // --- Charting (Modified for Theme Colors) ---
-        // Function to get computed style for theme-aware colors
-        function getCssVariable(varName) {
-            return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
-        }
-        function getChartColors() {
-             // Use CSS variables defined in the <style> block
-            return {
-                buyColor: getCssVariable('--positive-color') || 'rgba(9, 105, 218, 0.8)', // Fallback blue
-                askColor: getCssVariable('--negative-color') || 'rgba(207, 34, 46, 0.8)', // Fallback red
-                gridColor: getCssVariable('--chart-grid-color') || 'rgba(0, 0, 0, 0.1)',
-                tickColor: getCssVariable('--chart-tick-color') || '#57606a',
-                titleColor: getCssVariable('--chart-title-color') || '#24292f',
-                legendColor: getCssVariable('--chart-title-color') || '#24292f', // Use title color for legend
-                tooltipBgColor: getCssVariable('--chart-tooltip-bg') || 'rgba(0, 0, 0, 0.8)',
-                tooltipTextColor: getCssVariable('--chart-tooltip-text-color') || '#ffffff'
-            };
-        }
-
+        // --- Charting ---
         function displayChart(productName, clickedTrElement) {
-            chartPlaceholder.style.display = 'none'; // Hide placeholder
-            chartPlotContainer.classList.remove('hidden'); // Show plot area
-            chartTimeControlsEl.style.display = 'block'; // Show time controls
+            chartPlaceholder.style.display = 'none';
+            chartPlotContainer.style.display = 'block';
+            chartTimeControlsEl.style.display = 'block';
 
-            // Handle row selection visual state
             if (selectedTableRow) { selectedTableRow.classList.remove('selected-item'); }
             if (clickedTrElement) { clickedTrElement.classList.add('selected-item'); selectedTableRow = clickedTrElement; }
-            currentChartProduct = productName; // Store the name of the item being charted
+            currentChartProduct = productName;
 
-            // Retrieve history data (assuming nested structure from original allMarketData)
-            const productHistoryData = allMarketData[productName];
+            const productHistory = allMarketData.filter(d => d.product === productName);
 
-            if (!productHistoryData || (!productHistoryData.buy?.length && !productHistoryData.ask?.length)) {
-                console.warn(`No chart data found for ${productName}`);
-                if (currentChart) { currentChart.destroy(); currentChart = null; }
-                chartPlotContainer.classList.add('hidden'); // Hide plot area
-                chartPlaceholder.textContent = `No price history data available for ${productName}.`;
-                chartPlaceholder.style.display = 'flex'; // Show placeholder
+            let filteredHistory = productHistory;
+            const now = new Date();
+            let startDate;
+            let timeUnit = 'day'; // Default unit for time scale
+
+            if (currentChartTimeRange === '24h') {
+                startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000)); timeUnit = 'hour';
+            } else if (currentChartTimeRange === '48h') {
+                startDate = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000)); timeUnit = 'hour';
+            } else if (currentChartTimeRange === '7d') {
+                startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)); timeUnit = 'day';
+            } // else '30d' uses all data
+
+            if (startDate) {
+                // Convert timestamp strings to Date objects for reliable comparison
+                filteredHistory = productHistory.filter(d => new Date(d.timestamp) >= startDate);
+            }
+            console.log(`Rendering chart for ${productName}, Range: ${currentChartTimeRange}, Filtered points: ${filteredHistory.length}`);
+
+
+            if (!filteredHistory || filteredHistory.length < 1) {
+                 if (currentChart) { currentChart.destroy(); currentChart = null; }
+                 chartPlotContainer.innerHTML = `<p style="text-align:center; color: orange;">No data available for this item in the selected time range (${currentChartTimeRange}).</p><canvas id="single-chart-canvas" style="display:none;"></canvas>`;
                 return;
             }
 
-            // Filter data based on time range
-            let filteredBuy = productHistoryData.buy || [];
-            let filteredAsk = productHistoryData.ask || [];
-            const now = new Date();
-            let startDate;
-            let timeUnit = 'day';
-
-            if (currentChartTimeRange === '24h') { startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000)); timeUnit = 'hour'; }
-            else if (currentChartTimeRange === '48h') { startDate = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000)); timeUnit = 'hour'; }
-            else if (currentChartTimeRange === '7d') { startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)); timeUnit = 'day'; }
-            // else '30d' uses all data
-
-            if (startDate) {
-                const filterPoints = (points) => points.filter(p => new Date(p.timestamp * 1000) >= startDate);
-                filteredBuy = filterPoints(filteredBuy);
-                filteredAsk = filterPoints(filteredAsk);
-            }
-
-            if (filteredBuy.length < 1 && filteredAsk.length < 1) {
-                 console.warn(`No chart data in range ${currentChartTimeRange} for ${productName}`);
-                 if (currentChart) { currentChart.destroy(); currentChart = null; }
-                 chartPlotContainer.classList.add('hidden');
-                 chartPlaceholder.textContent = `No data available for ${productName} in the selected time range (${currentChartTimeRange}).`;
-                 chartPlaceholder.style.display = 'flex';
-                 return;
-            }
-
-             // Prepare data for Chart.js, converting timestamps
-            const parsePoints = (points) => points.map(p => ({ x: new Date(p.timestamp * 1000), y: p.price }));
-            const buyData = parsePoints(filteredBuy);
-            const askData = parsePoints(filteredAsk);
-
-            const colors = getChartColors(); // Get current theme colors
+            // No need to sort again if data is already sorted by timestamp
+            // filteredHistory.sort((a, b) => (a.timestamp < b.timestamp ? -1 : 1));
+            const labels = filteredHistory.map(d => d.timestamp); // Keep as ISO strings for adapter
+            const buyData = filteredHistory.map(d => d.buy);
+            const askData = filteredHistory.map(d => d.ask);
 
             const chartData = {
-                // labels: labels, // Not needed when using time scale with {x,y} data
+                labels: labels,
                 datasets: [
-                    { label: 'Buy', data: buyData, borderColor: colors.buyColor, backgroundColor: colors.buyColor + '1A', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: false, borderWidth: 1.5 }, // Use theme colors
-                    { label: 'Ask', data: askData, borderColor: colors.askColor, backgroundColor: colors.askColor + '1A', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: false, borderWidth: 1.5 } // Use theme colors
+                    { label: 'Buy', data: buyData, borderColor: '#0969da', backgroundColor: 'rgba(9, 105, 218, 0.1)', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: true, borderWidth: 1.5 },
+                    { label: 'Ask', data: askData, borderColor: '#cf222e', backgroundColor: 'rgba(207, 34, 46, 0.1)', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: true, borderWidth: 1.5 }
                 ]
             };
 
-            if (currentChart) { currentChart.destroy(); } // Destroy previous chart instance
+            if (currentChart) { currentChart.destroy(); }
+
+            let canvasEl = document.getElementById('single-chart-canvas');
+             if (!canvasEl) {
+                 chartPlotContainer.innerHTML = '';
+                 canvasEl = document.createElement('canvas');
+                 canvasEl.id = 'single-chart-canvas';
+                 chartPlotContainer.appendChild(canvasEl);
+             }
+             canvasEl.style.display = '';
+             const errorP = chartPlotContainer.querySelector('p');
+             if(errorP) errorP.remove();
 
             try {
-                currentChart = new Chart(chartCanvas, { // Use chartCanvas (context already fetched)
+                currentChart = new Chart(canvasEl, {
                     type: 'line',
                     data: chartData,
                     options: {
-                        responsive: true, maintainAspectRatio: false,
+                        responsive: true,
+                        maintainAspectRatio: false,
                         plugins: {
-                            title: { display: true, text: `${productName} (${currentChartTimeRange})`, font: { size: 15, weight: '600' }, padding: { bottom: 15 }, color: colors.titleColor }, // Use theme color
-                            legend: { position: 'top', labels: { font: { size: 12 }, color: colors.legendColor } }, // Use theme color
-                            tooltip: { mode: 'index', intersect: false, bodySpacing: 5, titleSpacing: 6, padding: 10, boxPadding: 4, backgroundColor: colors.tooltipBgColor, titleColor: colors.tooltipTextColor, bodyColor: colors.tooltipTextColor } // Use theme colors
+                            title: { display: true, text: `${productName} (${currentChartTimeRange})`, font: { size: 15, weight: '600' }, padding: { bottom: 15 }, color: '#24292f' },
+                            legend: { position: 'top', labels: { font: { size: 12 }, color: '#24292f' } },
+                            tooltip: { mode: 'index', intersect: false, bodySpacing: 5, titleSpacing: 6, padding: 10, boxPadding: 4 }
                         },
                         scales: {
                             x: {
+                                // *** Use Time Scale ***
                                 type: 'time',
-                                time: { unit: timeUnit, tooltipFormat: 'PPp', displayFormats: { hour: 'h:mm a', day: 'MMM d', week: 'MMM d yyyy' } },
-                                title: { display: false },
-                                grid: { color: colors.gridColor }, // Use theme color
-                                ticks: { font: { size: 11 }, color: colors.tickColor, autoSkip: true, maxRotation: 0, minRotation: 0, maxTicksLimit: 8 } // Use theme color
+                                time: {
+                                    unit: timeUnit, // Set unit based on range
+                                    tooltipFormat: 'PPp', // Example using date-fns format (requires adapter)
+                                    displayFormats: { // Control how labels look for different units
+                                        hour: 'h:mm a',
+                                        day: 'MMM d',
+                                        week: 'MMM d yyyy'
+                                    }
+                                },
+                                title: { display: false }, // Hide x-axis title
+                                grid: { display: false },
+                                ticks: { font: { size: 11 }, color: '#57606a', autoSkip: true, maxRotation: 0, minRotation: 0, maxTicksLimit: 8 } // Limit ticks, prevent rotation
                             },
                             y: {
-                                type: 'logarithmic', min: 1, // Important for log scale
-                                title: { display: true, text: 'Price (Log Scale)', font: { size: 12 }, color: colors.tickColor }, // Use theme color
-                                grid: { color: colors.gridColor }, // Use theme color
-                                ticks: { font: { size: 11 }, color: colors.tickColor, callback: function(value) { /* Log scale tick formatting */ if (value <= 0) return null; if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M'; if (value >= 1e3) return (value / 1e3).toFixed(1) + 'k'; const log10 = Math.log10(value); if (Math.abs(log10 - Math.round(log10)) < 0.01 || value < 10) { return value.toLocaleString(); } return null; } } // Use theme color
+                                type: 'logarithmic',
+                                title: { display: true, text: 'Price (Log Scale)', font: { size: 12 }, color: '#57606a' },
+                                grid: { color: '#d0d7de' },
+                                ticks: { font: { size: 11 }, color: '#57606a' }
                             }
                         },
-                        interaction: { mode: 'index', axis: 'x', intersect: false }, // Changed from 'nearest' to 'index'
-                         animation: { duration: 0 } // Disable animation
+                        interaction: { mode: 'index', axis: 'x', intersect: false },
                     }
                 });
             } catch(e) {
-                console.error("Error creating Chart.js instance:", e);
-                chartPlotContainer.classList.add('hidden');
-                chartPlaceholder.textContent = 'Error rendering chart.';
-                chartPlaceholder.style.display = 'flex';
+                 console.error("Error creating Chart.js instance:", e);
+                 chartPlotContainer.innerHTML = '<p style="text-align:center; color: red;">Error rendering chart.</p>';
             }
         }
 
-        // Function to update chart colors when theme changes
-        function updateChartTheme() {
-            if (!currentChart) return;
-            const colors = getChartColors();
-            // Update options
-            currentChart.options.plugins.title.color = colors.titleColor;
-            currentChart.options.plugins.legend.labels.color = colors.legendColor;
-            currentChart.options.plugins.tooltip.backgroundColor = colors.tooltipBgColor;
-            currentChart.options.plugins.tooltip.titleColor = colors.tooltipTextColor;
-            currentChart.options.plugins.tooltip.bodyColor = colors.tooltipTextColor;
-            currentChart.options.scales.x.grid.color = colors.gridColor;
-            currentChart.options.scales.x.ticks.color = colors.tickColor;
-            currentChart.options.scales.y.grid.color = colors.gridColor;
-            currentChart.options.scales.y.ticks.color = colors.tickColor;
-            currentChart.options.scales.y.title.color = colors.tickColor; // Match tick color
-            // Update dataset colors
-            currentChart.data.datasets[0].borderColor = colors.buyColor;
-            currentChart.data.datasets[0].backgroundColor = colors.buyColor + '1A';
-            currentChart.data.datasets[1].borderColor = colors.askColor;
-            currentChart.data.datasets[1].backgroundColor = colors.askColor + '1A';
-            currentChart.update(); // Redraw chart with new colors
-        }
 
-
-        // --- Event Handlers (Original + Theme Toggle) ---
+        // --- Event Handlers ---
+        // (Event handlers remain the same)
         function handleProductClick(event) {
             const clickedTr = event.currentTarget;
             const productName = decodeURIComponent(clickedTr.dataset.product);
-            displayChart(productName, clickedTr); // Pass the clicked TR element
+            displayChart(productName, clickedTr);
         }
         let searchTimeout;
         searchInput.addEventListener('input', (event) => {
@@ -678,7 +445,7 @@
             searchTimeout = setTimeout(() => {
                 currentSearch = event.target.value;
                 applyFiltersAndSort();
-            }, 300); // Debounce search input
+            }, 300);
         });
         categoryFilterEl.addEventListener('change', (event) => {
              currentCategoryFilter = event.target.value;
@@ -687,12 +454,10 @@
         sortOptionsEl.addEventListener('click', (event) => {
             if (event.target.tagName === 'BUTTON' && event.target.dataset.sort) {
                 const newSort = event.target.dataset.sort;
-                // Allow toggling name sort direction, otherwise just set
-                if (newSort === currentSort) {
+                if (newSort === currentSort) { // Simple reverse for name only
                     if (currentSort === 'name_asc') currentSort = 'name_desc';
                     else if (currentSort === 'name_desc') currentSort = 'name_asc';
                 } else { currentSort = newSort; }
-
                 sortOptionsEl.querySelectorAll('button').forEach(btn => {
                     btn.classList.toggle('current-sort', btn.dataset.sort === currentSort);
                 });
@@ -715,7 +480,6 @@
                         btn.classList.toggle('active', btn.dataset.range === currentChartTimeRange);
                     });
                     if (currentChartProduct) {
-                        // Re-display chart for the current product with the new time range
                         displayChart(currentChartProduct, selectedTableRow);
                     }
                 }
@@ -723,10 +487,7 @@
         });
 
         // --- Initial Load ---
-        document.addEventListener('DOMContentLoaded', () => {
-             initTheme(); // Initialize theme on load
-             loadData(); // Load data
-        });
+        document.addEventListener('DOMContentLoaded', loadData);
 
     </script>
 
