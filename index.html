@@ -321,7 +321,7 @@
 
     <footer>
         <span>Made by Sporky with AI</span> |
-        <span class="status">Data Generated: <span id="last-update">2025-04-11 14:43:56</span></span> |
+        <span class="status">Data Generated: <span id="last-update">2025-04-11 14:45:39</span></span> |
         <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
         </footer>
 
@@ -442,25 +442,3 @@
 </body>
 </html>
 ```
-
-**Summary of Changes:**
-
-1.  **HTML:**
-    * Added a `div` with class `motd` below the feedback link container.
-    * Hardcoded the message "Now with dark mode" inside it.
-2.  **CSS:**
-    * Added styling for the `.motd` class, including background, text color, border, padding, etc.
-    * Added theme-specific overrides for `.motd` colors within the `[data-theme="dark"]` and `[data-theme="grey"]` blocks to ensure it looks good in all themes.
-
-**Instructions:**
-
-1.  Replace the content of your local `templates/index.html` file with this new code.
-2.  Run `python build_site.py` locally.
-3.  Test `output/index.html` using your local web server (`python -m http.server` inside `output`). Verify the message appears below the header and looks okay in light, grey, and dark modes.
-4.  If it looks correct, commit the updated `templates/index.html` and push it to your `main` branch on GitHub to trigger the Action and update the live site.
-    ```bash
-    git add templates/index.html
-    git commit -m "Add Message of the Day section"
-    git push origin main
-    ```
-To change the message in the future, you will need to edit it directly in the `index.html` template file and then rebuild/redeploy the si
