@@ -2,7 +2,7 @@
 <html lang="en"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warning, site updating, est 5min</title>
+    <title>MWI Market Trends</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@^4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,7 +32,7 @@
             color: #24292f; /* Original hardcoded */
             line-height: 1.5; font-size: 14px;
             transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-            /* Removed padding-bottom for fixed button */
+            padding-bottom: 80px; /* Add padding for fixed button */
         }
         .container { max-width: 1600px; margin: 25px auto; padding: 0 25px; }
         h1 { text-align: center; color: #24292f; margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.8em; letter-spacing: -0.5px; }
@@ -97,10 +97,22 @@
         .vendor-price { color: #57606a; }
         .na-value { color: #cdd4de; font-style: normal; }
         .chart-display { background-color: #ffffff; border: 1px solid #d0d7de; border-radius: 6px; padding: 20px; min-height: 450px; position: relative; display: flex; flex-direction: column; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
-        .chart-controls { text-align: center; margin-bottom: 15px; }
-        .chart-controls button { margin: 0 4px; padding: 5px 10px; font-size: 0.85em; background-color: #f6f8fa; border: 1px solid rgba(27, 31, 36, 0.15); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); border-radius: 6px; cursor: pointer; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; font-weight: 500; color: #24292f;}
-        .chart-controls button:hover { background-color: #f0f2f4; border-color: rgba(27, 31, 36, 0.35); }
-        .chart-controls button.active { background-color: var(--accent-color-light); color: white; border-color: var(--accent-color-light); font-weight: 600; }
+
+        .chart-controls-container { /* Container for all chart controls */
+             display: flex;
+             justify-content: center; /* Center inner divs */
+             align-items: center;
+             flex-wrap: wrap; /* Allow wrapping */
+             gap: 15px; /* Space between control groups */
+             margin-bottom: 15px;
+        }
+        .chart-controls { text-align: center; } /* Original class for time */
+        .scale-controls { text-align: center; } /* New class for scale toggle */
+
+        .chart-controls button, .scale-controls button { margin: 0 4px; padding: 5px 10px; font-size: 0.85em; background-color: #f6f8fa; border: 1px solid rgba(27, 31, 36, 0.15); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); border-radius: 6px; cursor: pointer; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; font-weight: 500; color: #24292f;}
+        .chart-controls button:hover, .scale-controls button:hover { background-color: #f0f2f4; border-color: rgba(27, 31, 36, 0.35); }
+        .chart-controls button.active, .scale-controls button.active { background-color: var(--accent-color-light); color: white; border-color: var(--accent-color-light); font-weight: 600; } /* Keep active style consistent */
+
         .chart-placeholder { text-align: center; color: #b0b8c2; padding: 60px; font-size: 1.05em; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
         .chart-plot { flex-grow: 1; position: relative; min-height: 320px; }
         .chart-plot canvas { max-width: 100%; max-height: 380px; }
@@ -123,7 +135,8 @@
             .item-table-container, .chart-display-container { min-width: unset; }
             .table-wrapper { max-height: 60vh; }
             h1 { font-size: 1.5em; }
-            /* Removed fixed button container styles */
+            .theme-toggle-container { bottom: 10px; } /* Adjust position */
+            .chart-controls-container { flex-direction: column; gap: 10px; } /* Stack controls on mobile */
         }
 
         /* --- Dark Mode Overrides (Added) --- */
@@ -159,9 +172,12 @@
         html[data-theme="dark"] .vendor-price { color: #8b949e; }
         html[data-theme="dark"] .na-value { color: #484f58; }
         html[data-theme="dark"] .chart-display { background-color: #161b22; border-color: #30363d; }
-        html[data-theme="dark"] .chart-controls button { background-color: #21262d; color: #c9d1d9; border-color: #30363d; }
-        html[data-theme="dark"] .chart-controls button:hover { background-color: #30363d; border-color: #8b949e; }
-        html[data-theme="dark"] .chart-controls button.active { background-color: #58a6ff; color: #ffffff; border-color: #58a6ff; } /* Ensure white text */
+        html[data-theme="dark"] .chart-controls button,
+        html[data-theme="dark"] .scale-controls button { background-color: #21262d; color: #c9d1d9; border-color: #30363d; }
+        html[data-theme="dark"] .chart-controls button:hover,
+        html[data-theme="dark"] .scale-controls button:hover { background-color: #30363d; border-color: #8b949e; }
+        html[data-theme="dark"] .chart-controls button.active,
+        html[data-theme="dark"] .scale-controls button.active { background-color: #58a6ff; color: #ffffff; border-color: #58a6ff; } /* Ensure white text */
         html[data-theme="dark"] .chart-placeholder { color: #6e7681; }
         html[data-theme="dark"] .pagination button { background-color: #21262d; border-color: #30363d; color: #58a6ff; }
         html[data-theme="dark"] .pagination button:hover:not(:disabled) { background-color: #30363d; border-color: #8b949e; }
@@ -298,11 +314,16 @@
 
             <div class="chart-display-container">
                 <div class="chart-display" id="chart-display">
-                     <div class="chart-controls" id="chart-time-controls" style="display: none;">
-                         <button data-range="24h">24h</button>
-                         <button data-range="48h">48h</button>
-                         <button data-range="7d">7d</button>
-                         <button data-range="30d" class="active">30d</button>
+                     <div class="chart-controls-container" id="chart-controls-area" style="display: none;">
+                         <div class="chart-controls" id="chart-time-controls">
+                             <button data-range="24h">24h</button>
+                             <button data-range="48h">48h</button>
+                             <button data-range="7d">7d</button>
+                             <button data-range="30d" class="active">30d</button>
+                         </div>
+                          <div class="scale-controls">
+                             <button id="scale-toggle-btn">Switch to Linear Scale</button>
+                         </div>
                      </div>
                     <div class="chart-placeholder" id="chart-placeholder">Select an item name from the table to view its chart.</div>
                     <div class="chart-plot hidden">
@@ -316,12 +337,12 @@
 
     <footer>
         <span>Made by Sporky with AI</span> |
-        <span class="status">Data Generated: <span id="last-update">2025-04-11 19:06:37</span></span> |
+        <span class="status">Data Generated: <span id="last-update">2025-04-11 19:07:22</span></span> |
         <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
     </footer>
 
      <script>
-        // --- Global State (Original) ---
+        // --- Global State (Original + Scale Type) ---
         let allMarketData = {}; // Expecting nested object: { "Product": { buy: [...], ask: [...] } }
         let marketSummary = []; // Array of { name, category, buy, ask, vendor, trend }
         let filteredAndSortedSummary = []; // Items currently displayed in table
@@ -334,8 +355,9 @@
         let selectedTableRow = null;
         let currentChartProduct = null;
         let currentChartTimeRange = '30d';
+        let currentYScaleType = 'logarithmic'; // Added state for scale type
 
-        // --- DOM Elements (Original + New Button) ---
+        // --- DOM Elements (Original + New Buttons) ---
         const tableBodyEl = document.getElementById('item-table-body');
         const tableWrapperEl = document.querySelector('.table-wrapper');
         const paginationEl = document.getElementById('pagination');
@@ -349,9 +371,10 @@
         const chartPlotContainer = document.querySelector('.chart-plot');
         const chartPlaceholder = document.getElementById('chart-placeholder');
         const chartTimeControlsEl = document.getElementById('chart-time-controls');
+        const chartControlsArea = document.getElementById('chart-controls-area'); // Container for all chart controls
+        const scaleToggleButton = document.getElementById('scale-toggle-btn'); // Scale toggle button
         const loadingMessageEl = document.getElementById('loading-message');
         const errorMessageEl = document.getElementById('error-message');
-        // const themeToggleButton = document.getElementById('theme-toggle'); // Old button reference removed
         const activateDarkModeButton = document.getElementById('activate-dark-mode'); // New button reference
 
         // --- SVG Icons for Trends (Original) ---
@@ -546,11 +569,11 @@
             paginationEl.style.display = totalPages > 1 ? 'flex' : 'none';
         }
 
-        // --- Charting (Original - Untouched Logic/Options) ---
+        // --- Charting (Modified for Scale Toggle, Grace, Tension, Points) ---
         function displayChart(productName, clickedTrElement) {
             chartPlaceholder.style.display = 'none';
             chartPlotContainer.classList.remove('hidden');
-            chartTimeControlsEl.style.display = 'block';
+            chartControlsArea.style.display = 'flex'; // Show the whole controls area
 
             if (selectedTableRow) { selectedTableRow.classList.remove('selected-item'); }
             if (clickedTrElement) { clickedTrElement.classList.add('selected-item'); selectedTableRow = clickedTrElement; }
@@ -562,6 +585,7 @@
                 console.warn(`No chart data found for ${productName} in allMarketData.`);
                 if (currentChart) { currentChart.destroy(); currentChart = null; }
                 chartPlotContainer.classList.add('hidden');
+                chartControlsArea.style.display = 'none'; // Hide controls if no data
                 chartPlaceholder.textContent = `No price history data available for ${productName}.`;
                 chartPlaceholder.style.display = 'flex';
                 return;
@@ -587,6 +611,7 @@
                  console.warn(`No chart data in range ${currentChartTimeRange} for ${productName}`);
                  if (currentChart) { currentChart.destroy(); currentChart = null; }
                  chartPlotContainer.classList.add('hidden');
+                 chartControlsArea.style.display = 'none'; // Hide controls if no data in range
                  chartPlaceholder.textContent = `No data available for ${productName} in the selected time range (${currentChartTimeRange}).`;
                  chartPlaceholder.style.display = 'flex';
                  return;
@@ -596,11 +621,16 @@
             const buyData = parsePoints(filteredBuy);
             const askData = parsePoints(filteredAsk);
 
+            // Update scale toggle button text
+            if(scaleToggleButton) {
+                scaleToggleButton.textContent = currentYScaleType === 'logarithmic' ? 'Switch to Linear Scale' : 'Switch to Log Scale';
+            }
+
             const chartData = {
                 datasets: [
-                    // Original Hardcoded Colors
-                    { label: 'Buy', data: buyData, borderColor: '#0969da', backgroundColor: 'rgba(9, 105, 218, 0.1)', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: true, borderWidth: 1.5 },
-                    { label: 'Ask', data: askData, borderColor: '#cf222e', backgroundColor: 'rgba(207, 34, 46, 0.1)', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: true, borderWidth: 1.5 }
+                    // Original Hardcoded Colors, Added Tension and PointRadius
+                    { label: 'Buy', data: buyData, borderColor: '#0969da', backgroundColor: 'rgba(9, 105, 218, 0.1)', tension: 0, pointRadius: 2, pointHoverRadius: 5, spanGaps: false, borderWidth: 1.5 },
+                    { label: 'Ask', data: askData, borderColor: '#cf222e', backgroundColor: 'rgba(207, 34, 46, 0.1)', tension: 0, pointRadius: 2, pointHoverRadius: 5, spanGaps: false, borderWidth: 1.5 }
                 ]
             };
 
@@ -608,6 +638,7 @@
 
             try {
                  // Original Chart Options (Uses hardcoded colors)
+                 // Added dynamic scale type and grace
                 currentChart = new Chart(chartCanvas, {
                     type: 'line',
                     data: chartData,
@@ -627,10 +658,17 @@
                                 ticks: { font: { size: 11 }, color: '#57606a', autoSkip: true, maxRotation: 0, minRotation: 0, maxTicksLimit: 8 } // Hardcoded
                             },
                             y: {
-                                type: 'logarithmic', min: 1,
-                                title: { display: true, text: 'Price (Log Scale)', font: { size: 12 }, color: '#57606a' }, // Hardcoded
+                                type: currentYScaleType, // Use dynamic scale type
+                                min: currentYScaleType === 'logarithmic' ? 1 : undefined, // Set min only for log scale
+                                grace: '10%', // Add 10% padding
+                                title: { display: true, text: `Price (${currentYScaleType === 'logarithmic' ? 'Log' : 'Linear'} Scale)`, font: { size: 12 }, color: '#57606a' }, // Hardcoded, update label
                                 grid: { color: '#d0d7de' }, // Hardcoded
-                                ticks: { font: { size: 11 }, color: '#57606a', callback: function(value) { /* Log scale tick formatting */ if (value <= 0) return null; if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M'; if (value >= 1e3) return (value / 1e3).toFixed(1) + 'k'; const log10 = Math.log10(value); if (Math.abs(log10 - Math.round(log10)) < 0.01 || value < 10) { return value.toLocaleString(); } return null; } } // Hardcoded
+                                ticks: {
+                                    font: { size: 11 }, color: '#57606a', // Hardcoded
+                                    callback: currentYScaleType === 'logarithmic'
+                                      ? function(value) { /* Log scale tick formatting */ if (value <= 0) return null; if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M'; if (value >= 1e3) return (value / 1e3).toFixed(1) + 'k'; const log10 = Math.log10(value); if (Math.abs(log10 - Math.round(log10)) < 0.01 || value < 10) { return value.toLocaleString(); } return null; }
+                                      : function(value) { return value.toLocaleString(); } // Standard formatting for linear
+                                }
                             }
                         },
                         interaction: { mode: 'index', axis: 'x', intersect: false },
@@ -640,13 +678,14 @@
             } catch(e) {
                 console.error("Error creating Chart.js instance:", e);
                 chartPlotContainer.classList.add('hidden');
+                chartControlsArea.style.display = 'none'; // Hide controls on error
                 chartPlaceholder.textContent = 'Error rendering chart.';
                 chartPlaceholder.style.display = 'flex';
             }
         }
 
 
-        // --- Event Handlers (Original) ---
+        // --- Event Handlers (Original + Scale Toggle) ---
         function handleProductClick(event) {
             const clickedTr = event.currentTarget;
             const productName = decodeURIComponent(clickedTr.dataset.product);
@@ -698,6 +737,20 @@
                 }
             }
         });
+        // Listener for the new scale toggle button
+        if (scaleToggleButton) {
+            scaleToggleButton.addEventListener('click', () => {
+                currentYScaleType = (currentYScaleType === 'logarithmic') ? 'linear' : 'logarithmic';
+                console.log(`Switched scale to: ${currentYScaleType}`);
+                if (currentChartProduct) {
+                    // Redraw the current chart with the new scale
+                    displayChart(currentChartProduct, selectedTableRow);
+                }
+            });
+        } else {
+            console.error("Scale toggle button not found!");
+        }
+
 
         // --- Initial Load ---
         document.addEventListener('DOMContentLoaded', () => {
