@@ -42,8 +42,7 @@
             --na-value-color: #cdd4de; /* Original NA color */
             --vendor-price-color: #57606a; /* Original vendor color */
             --chart-placeholder-color: #b0b8c2; /* Original placeholder color */
-            /* Chart element colors are NOT controlled by variables here */
-            /* They will use the hardcoded values in the JS options */
+            /* Chart element colors use hardcoded values in JS */
         }
 
         html[data-theme="dark"] {
@@ -84,6 +83,7 @@
             background-color: var(--bg-color); color: var(--text-color-primary);
             line-height: 1.5; font-size: 14px;
             transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+            padding-bottom: 80px; /* Add padding to prevent content overlap with fixed button */
         }
         .container { max-width: 1600px; margin: 25px auto; padding: 0 25px; }
         h1 { text-align: center; color: var(--text-color-primary); margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.8em; letter-spacing: -0.5px; }
@@ -113,18 +113,28 @@
             outline: none;
         }
 
-        /* --- Theme Toggle Button --- */
+        /* --- Theme Toggle Button Styling (Fixed at bottom) --- */
+        .theme-toggle-container {
+            position: fixed; /* Fixed position */
+            bottom: 20px; /* Distance from bottom */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Precise centering */
+            z-index: 1000; /* Ensure it's on top */
+        }
         #theme-toggle {
-            padding: 5px 12px; /* Match sort button padding */
-            background-color: var(--button-bg-color); color: var(--text-color-primary);
-            border-radius: 6px; font-size: 0.9em;
-            transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out;
+            padding: 8px 15px; background-color: var(--button-bg-color); color: var(--text-color-primary);
+            border-radius: 9999px; /* Make it pill-shaped */ font-size: 0.9em;
+            transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out, color 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
             border: 1px solid var(--button-border-color);
-            box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Add shadow */
             cursor: pointer; font-weight: 500; line-height: 20px;
             display: inline-flex; align-items: center; justify-content: center; min-width: 40px;
         }
-        #theme-toggle:hover { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
+        #theme-toggle:hover {
+             background-color: var(--button-hover-bg-color);
+             border-color: var(--button-hover-border-color);
+             box-shadow: 0 3px 7px rgba(0,0,0,0.15); /* Enhance shadow on hover */
+        }
         #theme-toggle .fa-sun { display: none; }
         #theme-toggle .fa-moon { display: inline-block; }
         html[data-theme="dark"] #theme-toggle .fa-sun { display: inline-block; }
@@ -196,6 +206,9 @@
             .item-table-container, .chart-display-container { min-width: unset; }
             .table-wrapper { max-height: 60vh; }
             h1 { font-size: 1.5em; }
+            .theme-toggle-container { /* Adjust position slightly on mobile */
+                 bottom: 10px;
+            }
         }
     </style>
 </head>
@@ -222,9 +235,6 @@
                 </div>
             </div>
             <div class="controls-right">
-                 <button id="theme-toggle" title="Toggle Theme">
-                     <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
-                 </button>
                  <div class="sort-options" id="sort-options">
                     <span>Sort By:</span>
                     <button data-sort="name_asc" class="current-sort">Name</button>
@@ -287,6 +297,12 @@
         <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
     </footer>
 
+    <div class="theme-toggle-container">
+         <button id="theme-toggle" title="Toggle Theme">
+             <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
+         </button>
+    </div>
+
     <script>
         // --- Global State (Original) ---
         let allMarketData = {}; // Expecting nested object: { "Product": { buy: [...], ask: [...] } }
@@ -336,17 +352,17 @@
             return `<span class="trend-value-container ${trendClass}">${arrow}<span>${trend.toFixed(2)}%</span></span>`;
         }
 
-        // --- Theme Switching Logic (Added - Minimal) ---
+        // --- Theme Switching Logic (Added - Basic) ---
         const THEME_KEY = 'mwi-market-theme';
         function applyTheme(theme) {
-            // ONLY sets the attribute and saves to localStorage
+            // Sets the attribute and saves to localStorage
             if (theme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
             } else {
                 document.documentElement.removeAttribute('data-theme');
             }
             localStorage.setItem(THEME_KEY, theme);
-            // NO direct chart manipulation here
+            // Does NOT interact with the chart JS
         }
         function toggleTheme() {
             const currentTheme = document.documentElement.hasAttribute('data-theme') ? 'dark' : 'light';
@@ -367,7 +383,7 @@
         }
 
 
-        // --- Data Fetching (Original) ---
+        // --- Data Fetching (Original - Untouched) ---
         async function loadData() {
             try {
                 loadingMessageEl.style.display = 'block';
@@ -401,7 +417,7 @@
             }
         }
 
-        // --- Filtering and Sorting (Original) ---
+        // --- Filtering and Sorting (Original - Untouched) ---
         function applyFiltersAndSort() {
             let result = [...marketSummary];
             if (currentCategoryFilter !== 'All') {
@@ -442,7 +458,7 @@
             renderCurrentPage();
         }
 
-        // --- Rendering (Original) ---
+        // --- Rendering (Original - Untouched) ---
         function renderCurrentPage() {
             tableBodyEl.innerHTML = '';
             if (selectedTableRow) {
@@ -561,16 +577,16 @@
             if (currentChart) { currentChart.destroy(); }
 
             try {
-                 // Original Chart Options (Uses hardcoded colors where applicable)
+                 // Original Chart Options (Uses hardcoded colors)
                 currentChart = new Chart(chartCanvas, {
                     type: 'line',
                     data: chartData,
                     options: {
                         responsive: true, maintainAspectRatio: false,
                         plugins: {
-                            title: { display: true, text: `${productName} (${currentChartTimeRange})`, font: { size: 15, weight: '600' }, padding: { bottom: 15 }, color: '#24292f' }, // Hardcoded/Default color
-                            legend: { position: 'top', labels: { font: { size: 12 }, color: '#24292f' } }, // Hardcoded/Default color
-                            tooltip: { mode: 'index', intersect: false, bodySpacing: 5, titleSpacing: 6, padding: 10, boxPadding: 4 } // Default tooltip colors
+                            title: { display: true, text: `${productName} (${currentChartTimeRange})`, font: { size: 15, weight: '600' }, padding: { bottom: 15 }, color: '#24292f' }, // Hardcoded
+                            legend: { position: 'top', labels: { font: { size: 12 }, color: '#24292f' } }, // Hardcoded
+                            tooltip: { mode: 'index', intersect: false, bodySpacing: 5, titleSpacing: 6, padding: 10, boxPadding: 4 } // Default tooltip
                         },
                         scales: {
                             x: {
@@ -578,13 +594,13 @@
                                 time: { unit: timeUnit, tooltipFormat: 'PPp', displayFormats: { hour: 'h:mm a', day: 'MMM d', week: 'MMM d yy' } },
                                 title: { display: false },
                                 grid: { display: false },
-                                ticks: { font: { size: 11 }, color: '#57606a', autoSkip: true, maxRotation: 0, minRotation: 0, maxTicksLimit: 8 } // Hardcoded/Default color
+                                ticks: { font: { size: 11 }, color: '#57606a', autoSkip: true, maxRotation: 0, minRotation: 0, maxTicksLimit: 8 } // Hardcoded
                             },
                             y: {
                                 type: 'logarithmic', min: 1,
-                                title: { display: true, text: 'Price (Log Scale)', font: { size: 12 }, color: '#57606a' }, // Hardcoded/Default color
-                                grid: { color: '#d0d7de' }, // Hardcoded/Default color
-                                ticks: { font: { size: 11 }, color: '#57606a', callback: function(value) { /* Log scale tick formatting */ if (value <= 0) return null; if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M'; if (value >= 1e3) return (value / 1e3).toFixed(1) + 'k'; const log10 = Math.log10(value); if (Math.abs(log10 - Math.round(log10)) < 0.01 || value < 10) { return value.toLocaleString(); } return null; } } // Hardcoded/Default color
+                                title: { display: true, text: 'Price (Log Scale)', font: { size: 12 }, color: '#57606a' }, // Hardcoded
+                                grid: { color: '#d0d7de' }, // Hardcoded
+                                ticks: { font: { size: 11 }, color: '#57606a', callback: function(value) { /* Log scale tick formatting */ if (value <= 0) return null; if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M'; if (value >= 1e3) return (value / 1e3).toFixed(1) + 'k'; const log10 = Math.log10(value); if (Math.abs(log10 - Math.round(log10)) < 0.01 || value < 10) { return value.toLocaleString(); } return null; } } // Hardcoded
                             }
                         },
                         interaction: { mode: 'index', axis: 'x', intersect: false },
@@ -655,7 +671,7 @@
 
         // --- Initial Load ---
         document.addEventListener('DOMContentLoaded', () => {
-            initTheme(); // Initialize theme
+            initTheme(); // Initialize theme based on localStorage/preference
             loadData(); // Load data
         });
 
