@@ -9,539 +9,914 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <style>
-        /* --- Styling (mostly unchanged from previous version) --- */
+        /* --- CSS Variables for Theming --- */
         :root {
-            --bg-color: #f6f8fa; --card-bg-color: #ffffff; --text-color-primary: #24292f;
-            --text-color-secondary: #57606a; --border-color: #d0d7de; --accent-color: #0969da;
-            --accent-hover-color: #0550ae; --positive-color: #1a7f37; --negative-color: #cf222e;
-            --button-bg-color: #f6f8fa; --button-hover-bg-color: #f0f2f4;
-            --button-border-color: rgba(27, 31, 36, 0.15); --button-hover-border-color: rgba(27, 31, 36, 0.35);
-            --shadow-color-light: rgba(140, 149, 159, 0.15); --shadow-color-medium: rgba(140, 149, 159, 0.2);
-            --table-header-bg: #f6f8fa; --table-row-hover-bg: #f6f8fa; --table-row-selected-bg: #ddf4ff;
-            --link-color: var(--accent-color); --link-hover-color: var(--accent-hover-color);
-            --code-font: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            /* Light Theme (Default) */
+            --bg-color: #f8f9fa; /* Slightly off-white */
+            --card-bg-color: #ffffff;
+            --text-color-primary: #212529; /* Dark grey */
+            --text-color-secondary: #6c757d; /* Medium grey */
+            --border-color: #dee2e6; /* Light grey border */
+            --accent-color: #007bff; /* Standard blue */
+            --accent-hover-color: #0056b3;
+            --positive-color: #28a745; /* Green */
+            --negative-color: #dc3545; /* Red */
+            --button-bg-color: #e9ecef;
+            --button-hover-bg-color: #ced4da;
+            --button-border-color: #ced4da;
+            --button-hover-border-color: #adb5bd;
+            --input-bg-color: #ffffff;
+            --input-border-color: #ced4da;
+            --input-focus-border-color: #86b7fe;
+            --input-focus-shadow-color: rgba(0, 123, 255, 0.25);
+            --table-header-bg: #e9ecef;
+            --table-row-hover-bg: #f1f3f5;
+            --table-row-selected-bg: #cfe2ff; /* Light blue selection */
+            --link-color: var(--accent-color);
+            --link-hover-color: var(--accent-hover-color);
+            --chart-grid-color: rgba(0, 0, 0, 0.1);
+            --chart-tick-color: #6c757d;
+            --chart-title-color: #212529;
+            --chart-tooltip-bg: rgba(0, 0, 0, 0.8);
+            --chart-tooltip-text-color: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.1);
         }
+
+        html[data-theme="dark"] {
+            /* Dark Theme Overrides */
+            --bg-color: #1a1a1a; /* Very dark grey */
+            --card-bg-color: #2c2c2c; /* Dark grey card */
+            --text-color-primary: #e9ecef; /* Light grey text */
+            --text-color-secondary: #adb5bd; /* Medium grey text */
+            --border-color: #495057; /* Darker border */
+            --accent-color: #4dabf7; /* Lighter blue */
+            --accent-hover-color: #74c0fc;
+            --positive-color: #40c057; /* Lighter green */
+            --negative-color: #fa5252; /* Lighter red */
+            --button-bg-color: #495057;
+            --button-hover-bg-color: #6c757d;
+            --button-border-color: #6c757d;
+            --button-hover-border-color: #adb5bd;
+            --input-bg-color: #343a40;
+            --input-border-color: #495057;
+            --input-focus-border-color: #4dabf7;
+            --input-focus-shadow-color: rgba(77, 171, 247, 0.25);
+            --table-header-bg: #343a40;
+            --table-row-hover-bg: #3e444a;
+            --table-row-selected-bg: #364a6d; /* Darker blue selection */
+            --link-color: var(--accent-color);
+            --link-hover-color: var(--accent-hover-color);
+            --chart-grid-color: rgba(255, 255, 255, 0.15);
+            --chart-tick-color: #adb5bd;
+            --chart-title-color: #e9ecef;
+            --chart-tooltip-bg: rgba(255, 255, 255, 0.8);
+            --chart-tooltip-text-color: #1a1a1a;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        /* --- General Styles --- */
         *, *::before, *::after { box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-color-primary); line-height: 1.5; font-size: 14px; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-color-primary);
+            line-height: 1.5; font-size: 14px;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; /* Smooth theme transition */
+        }
+
         .container { max-width: 1600px; margin: 25px auto; padding: 0 25px; }
+
         h1 { text-align: center; color: var(--text-color-primary); margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.8em; letter-spacing: -0.5px; }
+
         .feedback-link-container { text-align: center; margin-bottom: 25px; font-size: 0.9em; }
-        .feedback-link-container a { color: var(--muted-text-color); text-decoration: none; border-bottom: 1px dashed var(--muted-text-color); transition: color 0.2s, border-color 0.2s; padding-bottom: 1px; }
+        .feedback-link-container a { color: var(--text-color-secondary); text-decoration: none; border-bottom: 1px dashed var(--text-color-secondary); transition: color 0.2s, border-color 0.2s; padding-bottom: 1px; }
         .feedback-link-container a:hover { color: var(--link-color); border-color: var(--link-color); }
-        .controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 16px 20px; margin-bottom: 30px; gap: 15px; background-color: #fcfcfd; border: 1px solid var(--border-color); border-radius: 6px; }
+
+        /* --- Controls Area --- */
+        .controls {
+            display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+            padding: 16px 20px; margin-bottom: 30px; gap: 15px;
+            background-color: var(--card-bg-color); border: 1px solid var(--border-color);
+            border-radius: 8px; /* Slightly larger radius */
+            box-shadow: 0 2px 5px var(--shadow-color);
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        }
         .controls-left, .controls-right { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-        .search-form input[type="text"], .category-filter select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; min-width: 200px; font-size: 0.95em; background-color: var(--card-bg-color); box-shadow: inset 0 1px 0 rgba(27,31,36,0.075); transition: border-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out; }
-        .search-form input[type="text"]:focus, .category-filter select:focus { border-color: var(--accent-color); box-shadow: inset 0 1px 0 rgba(27,31,36,0.075), 0 0 0 3px rgba(9, 105, 218, 0.3); outline: none; }
-        .sort-options span { font-weight: 600; color: var(--text-color-secondary); margin-right: 4px; font-size: 0.9em; }
-        .sort-options button { padding: 5px 12px; background-color: var(--button-bg-color); color: var(--text-color-primary); border-radius: 6px; font-size: 0.9em; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); cursor: pointer; font-weight: 500; line-height: 20px; }
-        .sort-options button:hover { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
-        .sort-options button.current-sort { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: 600; }
-        .main-layout { display: flex; flex-wrap: wrap; gap: 25px; }
-        .item-table-container { flex: 3; min-width: 550px; }
-        .chart-display-container { flex: 2; min-width: 400px; }
-        .table-wrapper { max-height: 78vh; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--card-bg-color); }
-        #item-table { width: 100%; border-collapse: collapse; }
-        #item-table th, #item-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; vertical-align: middle; font-size: 0.95em; }
-        #item-table th { background-color: var(--table-header-bg); font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted-text-color); position: sticky; top: 0; z-index: 1; }
-        #item-table tbody tr:nth-child(even) { background-color: #fbfcfd; }
-        #item-table tbody tr:hover { background-color: var(--table-row-hover-bg); }
-        #item-table tbody tr.selected-item { background-color: var(--table-row-selected-bg); font-weight: 500; }
-        #item-table td:nth-child(1) { font-weight: 500; cursor: pointer; color: var(--link-color); max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
-        #item-table td:nth-child(1):hover { text-decoration: underline; color: var(--link-hover-color); }
-        #item-table td:nth-child(2) { font-size: 0.9em; color: var(--muted-text-color); max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
-        #item-table td:nth-child(n+3) { text-align: right; font-family: var(--code-font); font-size: 0.95em; }
-        .trend-value-container { display: flex; align-items: center; justify-content: flex-end; gap: 3px; }
-        .trend-icon { width: 14px; height: 14px; vertical-align: text-bottom; }
+
+        /* Search and Filter Inputs */
+        .search-form input[type="text"], .category-filter select {
+            padding: 8px 12px; border: 1px solid var(--input-border-color); border-radius: 6px;
+            min-width: 200px; font-size: 0.95em; background-color: var(--input-bg-color);
+            color: var(--text-color-primary); box-shadow: inset 0 1px 2px rgba(0,0,0,0.075);
+            transition: border-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+        .search-form input[type="text"]:focus, .category-filter select:focus {
+            border-color: var(--input-focus-border-color);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.075), 0 0 0 3px var(--input-focus-shadow-color);
+            outline: none;
+        }
+
+        /* Buttons (General & Theme Toggle) */
+        .button, #theme-toggle {
+            padding: 8px 15px; background-color: var(--button-bg-color); color: var(--text-color-primary);
+            border: 1px solid var(--button-border-color); border-radius: 6px; cursor: pointer;
+            font-size: 0.95em; font-weight: 500; text-align: center;
+            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+            display: inline-flex; align-items: center; gap: 6px; /* For icon + text */
+        }
+        .button:hover, #theme-toggle:hover {
+            background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color);
+        }
+        #theme-toggle {
+            /* Specific styles for theme toggle if needed, e.g., fixed width */
+             min-width: 40px; /* Ensure enough space for icon */
+             justify-content: center;
+        }
+        #theme-toggle .fa-sun { display: none; } /* Hide sun icon by default */
+        #theme-toggle .fa-moon { display: inline-block; } /* Show moon icon by default */
+        html[data-theme="dark"] #theme-toggle .fa-sun { display: inline-block; } /* Show sun in dark mode */
+        html[data-theme="dark"] #theme-toggle .fa-moon { display: none; } /* Hide moon in dark mode */
+
+
+        /* --- Table Styles --- */
+        .table-container {
+            background-color: var(--card-bg-color); border: 1px solid var(--border-color);
+            border-radius: 8px; overflow: hidden; /* Needed for border-radius on table */
+            box-shadow: 0 2px 5px var(--shadow-color); margin-bottom: 25px;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th {
+            background-color: var(--table-header-bg); font-weight: 600; font-size: 0.9em;
+            color: var(--text-color-secondary); text-transform: uppercase; letter-spacing: 0.5px;
+            cursor: pointer; user-select: none; white-space: nowrap;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+        th .sort-icon { margin-left: 5px; color: var(--text-color-secondary); opacity: 0.6; }
+        th.sorted .sort-icon { opacity: 1; color: var(--text-color-primary); }
+        tbody tr { transition: background-color 0.15s ease; }
+        tbody tr:hover { background-color: var(--table-row-hover-bg); }
+        tbody tr.selected-row { background-color: var(--table-row-selected-bg); font-weight: 500; }
+        tbody tr:last-child td { border-bottom: none; }
+        td { color: var(--text-color-primary); font-size: 0.95em; transition: color 0.2s ease-in-out; }
+        td.number { text-align: right; font-variant-numeric: tabular-nums; } /* Align numbers */
+        td.trend { text-align: right; white-space: nowrap; }
+        .trend-icon { margin-left: 4px; font-size: 0.9em; }
         .trend-positive { color: var(--positive-color); }
         .trend-negative { color: var(--negative-color); }
-        .vendor-price { color: #57606a; }
-        .na-value { color: #cdd4de; font-style: normal; }
-        .chart-display { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 20px; min-height: 450px; position: relative; display: flex; flex-direction: column; }
-        .chart-controls { text-align: center; margin-bottom: 15px; }
-        .chart-controls button { margin: 0 4px; padding: 5px 10px; font-size: 0.85em; background-color: var(--button-bg-color); border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); border-radius: 6px; cursor: pointer; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; font-weight: 500;}
+        .trend-neutral { color: var(--text-color-secondary); }
+
+        /* --- Pagination --- */
+        .pagination { display: flex; justify-content: center; align-items: center; padding: 15px 0; gap: 8px; }
+        .pagination button {
+             padding: 6px 12px; background-color: var(--button-bg-color); color: var(--text-color-primary);
+             border: 1px solid var(--button-border-color); border-radius: 4px; cursor: pointer;
+             font-size: 0.9em; transition: background-color 0.15s ease, border-color 0.15s ease;
+        }
+        .pagination button:hover:not(:disabled) { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
+        .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .pagination span { font-size: 0.9em; color: var(--text-color-secondary); margin: 0 5px; }
+
+        /* --- Chart Area --- */
+        .chart-container {
+            background-color: var(--card-bg-color); border: 1px solid var(--border-color);
+            border-radius: 8px; padding: 20px; margin-bottom: 30px;
+            box-shadow: 0 2px 5px var(--shadow-color);
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;}
+        .chart-title { font-size: 1.1em; font-weight: 600; color: var(--text-color-primary); transition: color 0.2s ease-in-out; }
+        .chart-controls button {
+             padding: 5px 10px; background-color: var(--button-bg-color); color: var(--text-color-primary);
+             border: 1px solid var(--button-border-color); border-radius: 4px; cursor: pointer;
+             font-size: 0.85em; transition: background-color 0.15s ease, border-color 0.15s ease;
+        }
         .chart-controls button:hover { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
-        .chart-controls button.active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: 600; }
-        .chart-placeholder { text-align: center; color: #b0b8c2; padding: 60px; font-size: 1.05em; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
-        .chart-plot { flex-grow: 1; position: relative; min-height: 320px; }
-        .chart-plot canvas { max-width: 100%; max-height: 380px; }
-        .pagination { text-align: center; margin-top: 20px; padding-bottom: 20px; }
-        .pagination button { margin: 0 3px; padding: 7px 14px; background-color: var(--button-bg-color); border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); color: var(--accent-color); border-radius: 6px; transition: background-color 0.1s, border-color 0.1s; cursor: pointer; font-weight: 500; font-size: 0.9em; }
-        .pagination button:hover:not(:disabled) { background-color: #f1f3f5; border-color: #adb5bd; }
-        .pagination button.current { background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: bold; cursor: default; }
-        .pagination button:disabled { color: #8c959f; background-color: var(--button-bg-color); cursor: not-allowed; border-color: transparent; }
-        .loading-message, .error-message { text-align: center; padding: 40px; font-size: 1.1em; color: var(--muted-text-color); }
-        .error-message { color: var(--negative-color); }
-        footer { text-align: center; margin-top: 60px; padding: 25px 0; font-size: 0.8em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); }
-        footer span, footer a { margin: 0 8px; color: var(--muted-text-color); text-decoration: none; }
+        .chart-controls button.active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
+        #priceChart { max-height: 400px; } /* Limit chart height */
+
+        /* --- Footer --- */
+        footer { text-align: center; margin-top: 40px; padding: 20px; font-size: 0.85em; color: var(--text-color-secondary); border-top: 1px solid var(--border-color); transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out; }
+        footer a { color: var(--link-color); text-decoration: none; }
         footer a:hover { text-decoration: underline; color: var(--link-hover-color); }
+
+        /* --- Utility --- */
+        .loading-indicator, .error-message { text-align: center; padding: 40px; font-size: 1.1em; color: var(--text-color-secondary); }
+        .hidden { display: none; } /* Simple hide utility */
+
+        /* Responsive adjustments if needed */
+        @media (max-width: 768px) {
+            .controls { flex-direction: column; align-items: stretch; }
+            .controls-left, .controls-right { width: 100%; justify-content: center; }
+            .search-form input[type="text"], .category-filter select { width: 100%; min-width: unset; }
+            .chart-header { flex-direction: column; align-items: flex-start; }
+            th, td { padding: 8px 10px; font-size: 0.9em;} /* Smaller padding on mobile */
+            h1 { font-size: 1.5em; }
+        }
+
     </style>
 </head>
 <body>
-
     <div class="container">
-        <h1>MWI Market Trends</h1>
+        <h1>Milky Way Idle Market Trends</h1>
         <div class="feedback-link-container">
-            <a href="https://github.com/SporkSlinger/market-tracker-mwi/issues" target="_blank" rel="noopener noreferrer">Report an Issue or Suggest a Feature</a>
+             <a href="https://github.com/sporky/market-tracker-mwi/issues" target="_blank" rel="noopener noreferrer">Report an Issue / Feedback</a>
         </div>
 
         <div class="controls">
             <div class="controls-left">
-                 <div class="search-form">
-                    <input type="text" id="search-input" placeholder="Search Product Name...">
-                </div>
+                <form class="search-form" id="search-form" onsubmit="event.preventDefault();">
+                    <input type="text" id="search-input" placeholder="Search item name...">
+                </form>
                 <div class="category-filter">
-                     <select id="category-filter">
-                         <option value="All">All Categories</option>
-                         
-                         <option value="Books">Books</option>
-                         
-                         <option value="Consumables">Consumables</option>
-                         
-                         <option value="Currencies">Currencies</option>
-                         
-                         <option value="Equipment / Back">Equipment / Back</option>
-                         
-                         <option value="Equipment / Body">Equipment / Body</option>
-                         
-                         <option value="Equipment / Feet">Equipment / Feet</option>
-                         
-                         <option value="Equipment / Hands">Equipment / Hands</option>
-                         
-                         <option value="Equipment / Head">Equipment / Head</option>
-                         
-                         <option value="Equipment / Legs">Equipment / Legs</option>
-                         
-                         <option value="Equipment / Main Hand">Equipment / Main Hand</option>
-                         
-                         <option value="Equipment / Off Hand">Equipment / Off Hand</option>
-                         
-                         <option value="Equipment / Pouch">Equipment / Pouch</option>
-                         
-                         <option value="Jewelry">Jewelry</option>
-                         
-                         <option value="Keys">Keys</option>
-                         
-                         <option value="Loots">Loots</option>
-                         
-                         <option value="Resources">Resources</option>
-                         
-                         <option value="Tools / Alchemy">Tools / Alchemy</option>
-                         
-                         <option value="Tools / Brewing">Tools / Brewing</option>
-                         
-                         <option value="Tools / Cheesesmithing">Tools / Cheesesmithing</option>
-                         
-                         <option value="Tools / Cooking">Tools / Cooking</option>
-                         
-                         <option value="Tools / Crafting">Tools / Crafting</option>
-                         
-                         <option value="Tools / Enhancing">Tools / Enhancing</option>
-                         
-                         <option value="Tools / Foraging">Tools / Foraging</option>
-                         
-                         <option value="Tools / Milking">Tools / Milking</option>
-                         
-                         <option value="Tools / Tailoring">Tools / Tailoring</option>
-                         
-                         <option value="Tools / Woodcutting">Tools / Woodcutting</option>
-                         
-                         <option value="Trinket">Trinket</option>
-                         
-                     </select>
+                    <select id="category-select">
+                        <option value="">All Categories</option>
+                        
+                        <option value="Books">Books</option>
+                        
+                        <option value="Consumables">Consumables</option>
+                        
+                        <option value="Currencies">Currencies</option>
+                        
+                        <option value="Equipment / Back">Equipment / Back</option>
+                        
+                        <option value="Equipment / Body">Equipment / Body</option>
+                        
+                        <option value="Equipment / Feet">Equipment / Feet</option>
+                        
+                        <option value="Equipment / Hands">Equipment / Hands</option>
+                        
+                        <option value="Equipment / Head">Equipment / Head</option>
+                        
+                        <option value="Equipment / Legs">Equipment / Legs</option>
+                        
+                        <option value="Equipment / Main Hand">Equipment / Main Hand</option>
+                        
+                        <option value="Equipment / Off Hand">Equipment / Off Hand</option>
+                        
+                        <option value="Equipment / Pouch">Equipment / Pouch</option>
+                        
+                        <option value="Jewelry">Jewelry</option>
+                        
+                        <option value="Keys">Keys</option>
+                        
+                        <option value="Loots">Loots</option>
+                        
+                        <option value="Resources">Resources</option>
+                        
+                        <option value="Tools / Alchemy">Tools / Alchemy</option>
+                        
+                        <option value="Tools / Brewing">Tools / Brewing</option>
+                        
+                        <option value="Tools / Cheesesmithing">Tools / Cheesesmithing</option>
+                        
+                        <option value="Tools / Cooking">Tools / Cooking</option>
+                        
+                        <option value="Tools / Crafting">Tools / Crafting</option>
+                        
+                        <option value="Tools / Enhancing">Tools / Enhancing</option>
+                        
+                        <option value="Tools / Foraging">Tools / Foraging</option>
+                        
+                        <option value="Tools / Milking">Tools / Milking</option>
+                        
+                        <option value="Tools / Tailoring">Tools / Tailoring</option>
+                        
+                        <option value="Tools / Woodcutting">Tools / Woodcutting</option>
+                        
+                        <option value="Trinket">Trinket</option>
+                        
+                    </select>
                 </div>
             </div>
             <div class="controls-right">
-                <div class="sort-options" id="sort-options">
-                    <span>Sort By:</span>
-                    <button data-sort="name_asc" class="current-sort">Name</button>
-                    <button data-sort="category_asc">Category</button>
-                    <button data-sort="buy_desc">Buy</button>
-                    <button data-sort="ask_asc">Ask</button>
-                    <button data-sort="vendor_desc">Vendor</button>
-                    <button data-sort="trend_dec">Trend %</button>
-                </div>
-            </div>
+                 <button id="theme-toggle" title="Toggle Theme">
+                     <i class="fas fa-moon"></i> <i class="fas fa-sun"></i>  </button>
+                 </div>
         </div>
 
-        <div class="main-layout">
-            <div class="item-table-container">
-                <div id="loading-message" class="loading-message">Loading market data...</div>
-                <div id="error-message" class="error-message" style="display: none;"></div>
-                <div class="table-wrapper" style="display: none;">
-                    <table id="item-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Category</th>
-                                <th>Buy</th>
-                                <th>Ask</th>
-                                <th>Vendor</th>
-                                <th>Trend (24h)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="item-table-body"></tbody>
-                    </table>
-                </div>
-                <div class="pagination" id="pagination" style="display: none;">
-                    <button id="prev-page" disabled>&laquo; Previous</button>
-                    <span id="page-info">Page 1 of 1</span>
-                    <button id="next-page" disabled>Next &raquo;</button>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div id="chart-title" class="chart-title">Select an item to view price history</div>
+                <div class="chart-controls" id="chart-controls">
+                    <button data-range="24h" class="active">24h</button>
+                    <button data-range="48h">48h</button>
+                    <button data-range="7d">7d</button>
+                    <button data-range="30d">30d</button>
                 </div>
             </div>
-
-            <div class="chart-display-container">
-                <div class="chart-display" id="chart-display">
-                     <div class="chart-controls" id="chart-time-controls" style="display: none;">
-                         <button data-range="24h">24h</button>
-                         <button data-range="48h">48h</button>
-                         <button data-range="7d">7d</button>
-                         <button data-range="30d" class="active">30d</button>
-                     </div>
-                    <div class="chart-placeholder" id="chart-placeholder">Select an item name from the table to view its chart.</div>
-                    <div class="chart-plot" style="display: none;">
-                        <canvas id="single-chart-canvas"></canvas>
-                    </div>
-                </div>
-            </div>
+            <canvas id="priceChart"></canvas>
+            <div id="chart-loading" class="loading-indicator hidden">Loading chart data...</div>
+            <div id="chart-error" class="error-message hidden">Could not load chart data.</div>
         </div>
 
+        <div class="table-container">
+            <table id="market-table">
+                <thead>
+                    <tr>
+                        <th data-sort="name">Name <span class="sort-icon fas fa-sort"></span></th>
+                        <th data-sort="category">Category <span class="sort-icon fas fa-sort"></span></th>
+                        <th data-sort="buy" class="number">Buy Price <span class="sort-icon fas fa-sort"></span></th>
+                        <th data-sort="ask" class="number">Ask Price <span class="sort-icon fas fa-sort"></span></th>
+                        <th data-sort="vendor" class="number">Vendor <span class="sort-icon fas fa-sort"></span></th>
+                        <th data-sort="trend" class="number">24h Trend <span class="sort-icon fas fa-sort"></span></th>
+                    </tr>
+                </thead>
+                <tbody id="market-body">
+                    </tbody>
+            </table>
+            <div id="table-loading" class="loading-indicator">Loading market data...</div>
+            <div id="table-error" class="error-message hidden">Could not load market data.</div>
+            <div id="no-results" class="error-message hidden">No items match your search/filter.</div>
+        </div>
+
+        <div class="pagination" id="pagination">
+            </div>
+
+        <footer>
+            Data generated: <span id="last-update">2025-04-11 15:16:41</span> |
+            Created by Sporky with AI |
+            Data source: <a href="https://github.com/holychikenz/MWIApi" target="_blank" rel="noopener noreferrer">holychikenz/MWIApi</a>
+        </footer>
     </div>
 
-    <footer>
-        <span>Made by Sporky with AI</span> |
-        <span class="status">Data Generated: <span id="last-update">2025-04-11 15:13:11</span></span> |
-        <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
-    </footer>
-
     <script>
-        // --- Global State ---
-        let allMarketData = [];
-        let marketSummary = [];
-        let filteredAndSortedSummary = [];
-        let currentChart = null;
+        // --- Constants and State ---
+        const ITEMS_PER_PAGE = 20;
+        let allItems = []; // Holds all fetched item data
+        let filteredItems = []; // Holds items after search/filter
+        let sortedItems = []; // Holds items after sorting
         let currentPage = 1;
-        const itemsPerPage = 20;
-        let currentSort = 'name_asc';
-        let currentSearch = '';
-        let currentCategoryFilter = 'All';
-        let selectedTableRow = null;
-        let currentChartProduct = null;
-        let currentChartTimeRange = '30d';
+        let currentSort = { column: 'name', direction: 'asc' }; // Default sort
+        let selectedItem = null; // Name of the item selected for charting
+        let priceChart = null; // Chart.js instance
+        let historicalDataCache = {}; // Cache for fetched historical data {itemName: data}
+        let currentChartRange = '24h'; // Default chart range
 
         // --- DOM Elements ---
-        const tableBodyEl = document.getElementById('item-table-body');
-        const tableWrapperEl = document.querySelector('.table-wrapper');
-        const paginationEl = document.getElementById('pagination');
-        const pageInfoEl = document.getElementById('page-info');
-        const prevButton = document.getElementById('prev-page');
-        const nextButton = document.getElementById('next-page');
+        const tableBody = document.getElementById('market-body');
+        const paginationContainer = document.getElementById('pagination');
         const searchInput = document.getElementById('search-input');
-        const categoryFilterEl = document.getElementById('category-filter');
-        const sortOptionsEl = document.getElementById('sort-options');
-        const chartCanvas = document.getElementById('single-chart-canvas');
-        const chartPlotContainer = document.querySelector('.chart-plot');
-        const chartPlaceholder = document.getElementById('chart-placeholder');
-        const chartTimeControlsEl = document.getElementById('chart-time-controls');
-        const loadingMessageEl = document.getElementById('loading-message');
-        const errorMessageEl = document.getElementById('error-message');
+        const categorySelect = document.getElementById('category-select');
+        const tableLoading = document.getElementById('table-loading');
+        const tableError = document.getElementById('table-error');
+        const noResults = document.getElementById('no-results');
+        const chartCanvas = document.getElementById('priceChart').getContext('2d');
+        const chartTitle = document.getElementById('chart-title');
+        const chartControls = document.getElementById('chart-controls');
+        const chartLoading = document.getElementById('chart-loading');
+        const chartError = document.getElementById('chart-error');
+        const themeToggleButton = document.getElementById('theme-toggle'); // Theme toggle button
 
-        // --- SVG Icons for Trends ---
-        const trendUpIcon = `<svg class="trend-icon" aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"><path fill="currentColor" d="M8.707 2.293a1 1 0 0 0-1.414 0l-4 4a1 1 0 1 0 1.414 1.414L8 4.414l3.293 3.293a1 1 0 0 0 1.414-1.414l-4-4Z"></path></svg>`;
-        const trendDownIcon = `<svg class="trend-icon" aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"><path fill="currentColor" d="M7.293 13.707a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0-1.414-1.414L8 11.586 4.707 8.293a1 1 0 0 0-1.414 1.414l4 4Z"></path></svg>`;
+        // --- Theme Switching Logic ---
+        const THEME_KEY = 'mwi-market-theme';
 
-        // --- Utility Functions ---
-        function formatPrice(price) {
-            if (price === null || price === undefined || isNaN(price)) return '<span class="na-value">--</span>';
-            return price.toLocaleString();
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            localStorage.setItem(THEME_KEY, theme);
+            // Update chart colors if chart exists
+            if (priceChart) {
+                updateChartTheme();
+            }
         }
-        function formatTrend(trend) {
-            if (trend === null || trend === undefined || isNaN(trend)) return '<span class="na-value">--</span>';
-            const arrow = trend > 0 ? trendUpIcon : trend < 0 ? trendDownIcon : '';
-            const trendClass = trend > 0 ? 'trend-positive' : trend < 0 ? 'trend-negative' : '';
-            return `<span class="trend-value-container ${trendClass}">${arrow}<span>${trend.toFixed(2)}%</span></span>`;
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.hasAttribute('data-theme') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
         }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem(THEME_KEY);
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+            applyTheme(initialTheme);
+        }
+
+        // Add event listener for the theme toggle button
+        themeToggleButton.addEventListener('click', toggleTheme);
+
+        // Initialize theme on load
+        document.addEventListener('DOMContentLoaded', initTheme);
+
 
         // --- Data Fetching ---
-        async function loadData() {
+        async function fetchData() {
+            tableLoading.classList.remove('hidden');
+            tableError.classList.add('hidden');
+            noResults.classList.add('hidden');
+            tableBody.innerHTML = ''; // Clear table while loading
+            paginationContainer.innerHTML = ''; // Clear pagination
+
             try {
-                loadingMessageEl.style.display = 'block';
-                errorMessageEl.style.display = 'none';
-                tableWrapperEl.style.display = 'none';
-                paginationEl.style.display = 'none';
-                const [historyRes, summaryRes] = await Promise.all([
-                    fetch('./data/market_history.json'),
-                    fetch('./data/market_summary.json')
-                ]);
-                if (!historyRes.ok) throw new Error(`Failed to fetch market_history.json (Status: ${historyRes.status})`);
-                if (!summaryRes.ok) throw new Error(`Failed to fetch market_summary.json (Status: ${summaryRes.status})`);
-                allMarketData = await historyRes.json();
-                marketSummary = await summaryRes.json();
-                loadingMessageEl.style.display = 'none';
-                tableWrapperEl.style.display = 'block';
-                paginationEl.style.display = 'block';
-                applyFiltersAndSort();
+                const response = await fetch('./data/market_summary.json?t=' + Date.now()); // Cache bust
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                allItems = await response.json();
+                // Initial processing
+                filteredItems = [...allItems];
+                sortItems(); // Apply default sort
+                renderTablePage();
+                renderPagination();
+                tableLoading.classList.add('hidden');
+
             } catch (error) {
-                console.error("Error loading data:", error);
-                loadingMessageEl.style.display = 'none';
-                errorMessageEl.textContent = `Error loading market data: ${error.message}. Check console (F12) & data files.`;
-                errorMessageEl.style.display = 'block';
+                console.error("Failed to fetch market data:", error);
+                tableLoading.classList.add('hidden');
+                tableError.textContent = `Error loading market data: ${error.message}. Please try again later.`;
+                tableError.classList.remove('hidden');
             }
         }
 
-        // --- Filtering and Sorting ---
-        function applyFiltersAndSort() {
-            let result = [...marketSummary];
-            if (currentCategoryFilter !== 'All') {
-                result = result.filter(item => item.category === currentCategoryFilter);
+        async function fetchHistoricalData(itemName) {
+            if (historicalDataCache[itemName]) {
+                return historicalDataCache[itemName];
             }
-            const searchTerm = currentSearch.toLowerCase();
+            chartLoading.classList.remove('hidden');
+            chartError.classList.add('hidden');
+            try {
+                // Use a cache-busting query parameter
+                const response = await fetch(`./data/market_history.json?t=${Date.now()}`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const allHistory = await response.json();
+                if (!allHistory[itemName]) {
+                     console.warn(`No historical data found for ${itemName} in market_history.json`);
+                     historicalDataCache[itemName] = { buy: [], ask: [] }; // Cache empty data
+                     chartLoading.classList.add('hidden');
+                     chartError.textContent = `No historical data available for ${itemName}.`;
+                     chartError.classList.remove('hidden');
+                     return historicalDataCache[itemName];
+                }
+                // Convert timestamps (seconds since epoch) to Date objects for Chart.js
+                const parseHistory = (history) => history.map(p => ({ x: new Date(p.timestamp * 1000), y: p.price }));
+                const itemData = {
+                    buy: parseHistory(allHistory[itemName].buy || []),
+                    ask: parseHistory(allHistory[itemName].ask || [])
+                };
+                historicalDataCache[itemName] = itemData; // Cache the data
+                chartLoading.classList.add('hidden');
+                return itemData;
+            } catch (error) {
+                console.error(`Failed to fetch historical data for ${itemName}:`, error);
+                chartLoading.classList.add('hidden');
+                chartError.textContent = `Error loading chart data for ${itemName}.`;
+                chartError.classList.remove('hidden');
+                return null; // Indicate error
+            }
+        }
+
+
+        // --- Data Filtering and Sorting ---
+        function filterAndSort() {
+            // 1. Filter by search term
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            let tempItems = allItems;
             if (searchTerm) {
-                result = result.filter(item => item.name.toLowerCase().includes(searchTerm));
+                tempItems = tempItems.filter(item => item.name.toLowerCase().includes(searchTerm));
             }
-            result.sort((a, b) => {
-                try {
-                    const sortNum = (valA, valB, ascending = true) => {
-                        const numA = valA ?? (ascending ? Infinity : -Infinity);
-                        const numB = valB ?? (ascending ? Infinity : -Infinity);
-                        return ascending ? numA - numB : numB - numA;
-                    };
-                    const sortStr = (valA, valB, ascending = true) => {
-                        const strA = (valA ?? '').toLowerCase(); const strB = (valB ?? '').toLowerCase();
-                        const compare = strA.localeCompare(strB);
-                        return ascending ? compare : -compare;
-                    };
-                    switch (currentSort) {
-                        case 'name_desc': return sortStr(a.name, b.name, false);
-                        case 'category_asc': return sortStr(a.category, b.category, true);
-                        case 'buy_desc': return sortNum(a.buy, b.buy, false);
-                        case 'ask_asc': return sortNum(a.ask, b.ask, true);
-                        case 'vendor_desc': return sortNum(a.vendor, b.vendor, false);
-                        case 'trend_inc': return sortNum(a.trend, b.trend, true);
-                        case 'trend_dec': return sortNum(a.trend, b.trend, false);
-                        case 'name_asc': default: return sortStr(a.name, b.name, true);
-                    }
-                } catch (e) { console.error("Sort comparison error:", e); return 0; }
-            });
-            filteredAndSortedSummary = result;
+
+            // 2. Filter by category
+            const selectedCategory = categorySelect.value;
+            if (selectedCategory) {
+                tempItems = tempItems.filter(item => item.category === selectedCategory);
+            }
+            filteredItems = tempItems;
+
+            // 3. Sort
+            sortItems();
+
+            // 4. Reset to page 1 and re-render
             currentPage = 1;
-            renderCurrentPage();
+            renderTablePage();
+            renderPagination();
+
+             // Show 'no results' message if applicable
+            noResults.classList.toggle('hidden', filteredItems.length > 0);
+            // Hide/show table container based on results
+            document.querySelector('.table-container').classList.toggle('hidden', filteredItems.length === 0);
+            paginationContainer.classList.toggle('hidden', filteredItems.length === 0);
+        }
+
+        function sortItems() {
+            const { column, direction } = currentSort;
+            sortedItems = [...filteredItems].sort((a, b) => {
+                let valA = a[column];
+                let valB = b[column];
+
+                // Handle null/undefined values (e.g., vendor price -1 becomes null)
+                // Treat nulls as lowest value for sorting purposes
+                if (valA === null || valA === undefined) valA = direction === 'asc' ? -Infinity : Infinity;
+                if (valB === null || valB === undefined) valB = direction === 'asc' ? -Infinity : Infinity;
+
+                // Handle numeric vs string comparison
+                if (typeof valA === 'number' && typeof valB === 'number') {
+                    return direction === 'asc' ? valA - valB : valB - valA;
+                } else {
+                    // Ensure consistent string comparison (case-insensitive)
+                    valA = String(valA).toLowerCase();
+                    valB = String(valB).toLowerCase();
+                    if (valA < valB) return direction === 'asc' ? -1 : 1;
+                    if (valA > valB) return direction === 'asc' ? 1 : -1;
+                    return 0;
+                }
+            });
+        }
+
+        function handleSort(event) {
+            const newColumn = event.target.closest('th').dataset.sort;
+            if (!newColumn) return; // Clicked outside a sortable header
+
+            let newDirection = 'asc';
+            if (currentSort.column === newColumn && currentSort.direction === 'asc') {
+                newDirection = 'desc';
+            }
+
+            currentSort = { column: newColumn, direction: newDirection };
+            sortItems(); // Re-sort the currently filtered items
+            currentPage = 1; // Go back to page 1 after sorting
+            renderTablePage();
+            renderPagination(); // Pagination might change if sorting affects order significantly (though usually not item count)
+            updateSortIcons();
+        }
+
+        function updateSortIcons() {
+            document.querySelectorAll('#market-table th[data-sort]').forEach(th => {
+                const column = th.dataset.sort;
+                const icon = th.querySelector('.sort-icon');
+                th.classList.remove('sorted');
+                icon.className = 'sort-icon fas fa-sort'; // Reset icon
+
+                if (column === currentSort.column) {
+                    th.classList.add('sorted');
+                    icon.className = `sort-icon fas ${currentSort.direction === 'asc' ? 'fa-sort-up' : 'fa-sort-down'}`;
+                }
+            });
         }
 
         // --- Rendering ---
-        function renderCurrentPage() {
-            tableBodyEl.innerHTML = '';
-            selectedTableRow = null;
-            const totalItems = filteredAndSortedSummary.length;
-            const totalPages = Math.ceil(totalItems / itemsPerPage);
-            currentPage = Math.max(1, Math.min(currentPage, totalPages || 1));
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const itemsToDisplay = filteredAndSortedSummary.slice(startIndex, endIndex);
+        function renderTablePage() {
+            tableBody.innerHTML = ''; // Clear previous page
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            const pageItems = sortedItems.slice(start, end);
 
-            if (itemsToDisplay.length === 0) {
-                 const message = currentSearch || currentCategoryFilter !== 'All' ? 'No items match your filters.' : 'No market data available.';
-                 const tr = document.createElement('tr');
-                 const td = document.createElement('td');
-                 td.colSpan = 6; td.textContent = message; td.style.textAlign = 'center';
-                 td.style.padding = '20px'; td.style.color = 'var(--muted-text-color)';
-                 tr.appendChild(td); tableBodyEl.appendChild(tr);
-            } else {
-                itemsToDisplay.forEach(item => {
-                    const tr = document.createElement('tr');
-                    tr.dataset.product = encodeURIComponent(item.name);
-                    tr.style.cursor = 'pointer';
-                    tr.innerHTML = `
-                        <td><a>${item.name}</a></td>
-                        <td>${item.category || '<span class="na-value">N/A</span>'}</td>
-                        <td>${formatPrice(item.buy)}</td>
-                        <td>${formatPrice(item.ask)}</td>
-                        <td><span class="vendor-price">${formatPrice(item.vendor)}</span></td>
-                        <td>${formatTrend(item.trend)}</td>
-                    `;
-                    tr.addEventListener('click', handleProductClick);
-                    tableBodyEl.appendChild(tr);
-                });
-            }
-            renderPagination(totalPages);
-        }
-
-        function renderPagination(totalPages) {
-            pageInfoEl.textContent = `Page ${currentPage} of ${totalPages || 1}`;
-            prevButton.disabled = currentPage <= 1;
-            nextButton.disabled = currentPage >= totalPages;
-        }
-
-        // --- Charting ---
-        function displayChart(productName, clickedTrElement) {
-            chartPlaceholder.style.display = 'none';
-            chartPlotContainer.style.display = 'block';
-            chartTimeControlsEl.style.display = 'block';
-
-            if (selectedTableRow) { selectedTableRow.classList.remove('selected-item'); }
-            if (clickedTrElement) { clickedTrElement.classList.add('selected-item'); selectedTableRow = clickedTrElement; }
-            currentChartProduct = productName;
-
-            const productHistory = allMarketData.filter(d => d.product === productName);
-
-            let filteredHistory = productHistory;
-            const now = new Date();
-            let startDate;
-            let timeUnit = 'day'; // Default unit for time scale
-
-            if (currentChartTimeRange === '24h') {
-                startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000)); timeUnit = 'hour';
-            } else if (currentChartTimeRange === '48h') {
-                startDate = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000)); timeUnit = 'hour';
-            } else if (currentChartTimeRange === '7d') {
-                startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)); timeUnit = 'day';
-            } // else '30d' uses all data
-
-            if (startDate) {
-                // Convert timestamp strings to Date objects for reliable comparison
-                filteredHistory = productHistory.filter(d => new Date(d.timestamp) >= startDate);
-            }
-            console.log(`Rendering chart for ${productName}, Range: ${currentChartTimeRange}, Filtered points: ${filteredHistory.length}`);
-
-
-            if (!filteredHistory || filteredHistory.length < 1) {
-                 if (currentChart) { currentChart.destroy(); currentChart = null; }
-                 chartPlotContainer.innerHTML = `<p style="text-align:center; color: orange;">No data available for this item in the selected time range (${currentChartTimeRange}).</p><canvas id="single-chart-canvas" style="display:none;"></canvas>`;
+            if (pageItems.length === 0 && allItems.length > 0) {
+                 // Handled by the 'no-results' div toggle in filterAndSort
                 return;
             }
 
-            // No need to sort again if data is already sorted by timestamp
-            // filteredHistory.sort((a, b) => (a.timestamp < b.timestamp ? -1 : 1));
-            const labels = filteredHistory.map(d => d.timestamp); // Keep as ISO strings for adapter
-            const buyData = filteredHistory.map(d => d.buy);
-            const askData = filteredHistory.map(d => d.ask);
+            const fragment = document.createDocumentFragment();
+            pageItems.forEach(item => {
+                const row = document.createElement('tr');
+                row.dataset.itemName = item.name; // Store item name for chart selection
+                row.classList.toggle('selected-row', item.name === selectedItem); // Highlight if selected
 
-            const chartData = {
-                labels: labels,
-                datasets: [
-                    { label: 'Buy', data: buyData, borderColor: '#0969da', backgroundColor: 'rgba(9, 105, 218, 0.1)', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: true, borderWidth: 1.5 },
-                    { label: 'Ask', data: askData, borderColor: '#cf222e', backgroundColor: 'rgba(207, 34, 46, 0.1)', tension: 0.1, pointRadius: 1, pointHoverRadius: 4, spanGaps: true, borderWidth: 1.5 }
-                ]
+                // Trend display
+                let trendHtml = '<span class="trend-neutral">-</span>'; // Default: neutral
+                if (typeof item.trend === 'number' && !isNaN(item.trend)) {
+                    const trendClass = item.trend > 0 ? 'trend-positive' : (item.trend < 0 ? 'trend-negative' : 'trend-neutral');
+                    const trendIcon = item.trend > 0 ? 'fa-arrow-up' : (item.trend < 0 ? 'fa-arrow-down' : '');
+                    trendHtml = `<span class="${trendClass}">${item.trend.toFixed(1)}% ${trendIcon ? `<i class="fas ${trendIcon} trend-icon"></i>` : ''}</span>`;
+                }
+
+                // Format numbers nicely, handle nulls gracefully
+                const formatPrice = (price) => (price === null || price === undefined) ? '-' : price.toLocaleString();
+
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.category || 'N/A'}</td>
+                    <td class="number">${formatPrice(item.buy)}</td>
+                    <td class="number">${formatPrice(item.ask)}</td>
+                    <td class="number">${item.vendor === null ? '-' : formatPrice(item.vendor)}</td>
+                    <td class="trend number">${trendHtml}</td>
+                `;
+                // Add click listener for chart selection
+                row.addEventListener('click', handleRowClick);
+                fragment.appendChild(row);
+            });
+            tableBody.appendChild(fragment);
+        }
+
+        function renderPagination() {
+            paginationContainer.innerHTML = ''; // Clear previous controls
+            const totalPages = Math.ceil(sortedItems.length / ITEMS_PER_PAGE);
+
+            if (totalPages <= 1) return; // No pagination needed for 0 or 1 page
+
+            const fragment = document.createDocumentFragment();
+
+            // Previous Button
+            const prevButton = document.createElement('button');
+            prevButton.innerHTML = '&laquo; Prev';
+            prevButton.disabled = currentPage === 1;
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTablePage();
+                    renderPagination(); // Re-render to update button states
+                }
+            });
+            fragment.appendChild(prevButton);
+
+            // Page Info Span
+            const pageInfo = document.createElement('span');
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            fragment.appendChild(pageInfo);
+
+            // Next Button
+            const nextButton = document.createElement('button');
+            nextButton.innerHTML = 'Next &raquo;';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTablePage();
+                    renderPagination(); // Re-render to update button states
+                }
+            });
+            fragment.appendChild(nextButton);
+
+            paginationContainer.appendChild(fragment);
+        }
+
+        // --- Charting ---
+
+        // Function to get computed style for theme-aware colors
+        function getCssVariable(varName) {
+            return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+        }
+
+        function getChartColors() {
+             // Use CSS variables defined in the <style> block
+            return {
+                buyColor: getCssVariable('--positive-color') || 'rgba(40, 167, 69, 0.8)', // Greenish
+                askColor: getCssVariable('--negative-color') || 'rgba(220, 53, 69, 0.8)', // Reddish
+                gridColor: getCssVariable('--chart-grid-color') || 'rgba(0, 0, 0, 0.1)',
+                tickColor: getCssVariable('--chart-tick-color') || '#6c757d',
+                titleColor: getCssVariable('--chart-title-color') || '#212529',
+                tooltipBgColor: getCssVariable('--chart-tooltip-bg') || 'rgba(0, 0, 0, 0.8)',
+                tooltipTextColor: getCssVariable('--chart-tooltip-text-color') || '#ffffff'
+            };
+        }
+
+         function createOrUpdateChart(itemName, historyData) {
+            if (!historyData || (!historyData.buy.length && !historyData.ask.length)) {
+                 chartTitle.textContent = `No price history available for ${itemName}`;
+                 if (priceChart) {
+                     priceChart.destroy();
+                     priceChart = null;
+                 }
+                 return;
+            }
+
+            chartTitle.textContent = `Price History: ${itemName}`;
+            const colors = getChartColors();
+
+            const datasets = [
+                {
+                    label: 'Buy Price',
+                    data: historyData.buy,
+                    borderColor: colors.buyColor,
+                    backgroundColor: colors.buyColor, // For points/fill if needed
+                    tension: 0.1, // Slight smoothing
+                    pointRadius: 1, // Smaller points
+                    pointHoverRadius: 4,
+                    borderWidth: 1.5,
+                },
+                {
+                    label: 'Ask Price',
+                    data: historyData.ask,
+                    borderColor: colors.askColor,
+                    backgroundColor: colors.askColor,
+                    tension: 0.1,
+                    pointRadius: 1,
+                    pointHoverRadius: 4,
+                    borderWidth: 1.5,
+                }
+            ];
+
+            // Filter data based on the selected time range
+            const now = new Date();
+            let minTime;
+            switch (currentChartRange) {
+                case '48h': minTime = new Date(now.getTime() - 48 * 60 * 60 * 1000); break;
+                case '7d': minTime = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); break;
+                case '30d': minTime = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); break;
+                case '24h': // fallthrough default
+                default: minTime = new Date(now.getTime() - 24 * 60 * 60 * 1000); break;
+            }
+
+            const filteredDatasets = datasets.map(ds => ({
+                ...ds,
+                data: ds.data.filter(point => point.x >= minTime)
+            }));
+
+
+            const chartConfig = {
+                type: 'line',
+                data: { datasets: filteredDatasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: determineTimeUnit(minTime, now), // Auto unit based on range
+                                tooltipFormat: 'MMM d, yyyy HH:mm', // More detailed tooltip
+                                displayFormats: { // Sensible display formats
+                                    millisecond: 'HH:mm:ss.SSS',
+                                    second: 'HH:mm:ss',
+                                    minute: 'HH:mm',
+                                    hour: 'MMM d HH:mm',
+                                    day: 'MMM d',
+                                    week: 'MMM d',
+                                    month: 'MMM yyyy',
+                                    quarter: 'QQQ yyyy',
+                                    year: 'yyyy',
+                                }
+                            },
+                            grid: { color: colors.gridColor },
+                            ticks: { color: colors.tickColor, maxRotation: 0, autoSkip: true, maxTicksLimit: 10 }, // Limit ticks
+                            title: { display: true, text: 'Time', color: colors.titleColor }
+                        },
+                        y: {
+                            type: 'logarithmic', // Use logarithmic scale
+                             grid: { color: colors.gridColor },
+                            ticks: {
+                                color: colors.tickColor,
+                                // Use a callback to format ticks in a more readable way (e.g., 1k, 1M)
+                                callback: function(value, index, values) {
+                                    if (value >= 1000000) return (value / 1000000) + 'M';
+                                    if (value >= 1000) return (value / 1000) + 'k';
+                                    return value.toLocaleString(); // Standard formatting for smaller numbers
+                                }
+                            },
+                            title: { display: true, text: 'Price (Log Scale)', color: colors.titleColor },
+                            afterBuildTicks: (axis) => { // Prevent zero/negative ticks on log scale
+                                axis.ticks = axis.ticks.filter(tick => tick.value > 0);
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            mode: 'index', // Show tooltips for all datasets at the same x-index
+                            intersect: false, // Show even if not directly hovering over point
+                            backgroundColor: colors.tooltipBgColor,
+                            titleColor: colors.tooltipTextColor,
+                            bodyColor: colors.tooltipTextColor,
+                        },
+                        legend: {
+                            labels: { color: colors.titleColor } // Use title color for legend text
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest', // Better interaction modes
+                        axis: 'x',
+                        intersect: false
+                    },
+                    animation: { duration: 300 }, // Faster animation
+                }
             };
 
-            if (currentChart) { currentChart.destroy(); }
-
-            let canvasEl = document.getElementById('single-chart-canvas');
-             if (!canvasEl) {
-                 chartPlotContainer.innerHTML = '';
-                 canvasEl = document.createElement('canvas');
-                 canvasEl.id = 'single-chart-canvas';
-                 chartPlotContainer.appendChild(canvasEl);
-             }
-             canvasEl.style.display = '';
-             const errorP = chartPlotContainer.querySelector('p');
-             if(errorP) errorP.remove();
-
-            try {
-                currentChart = new Chart(canvasEl, {
-                    type: 'line',
-                    data: chartData,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            title: { display: true, text: `${productName} (${currentChartTimeRange})`, font: { size: 15, weight: '600' }, padding: { bottom: 15 }, color: '#24292f' },
-                            legend: { position: 'top', labels: { font: { size: 12 }, color: '#24292f' } },
-                            tooltip: { mode: 'index', intersect: false, bodySpacing: 5, titleSpacing: 6, padding: 10, boxPadding: 4 }
-                        },
-                        scales: {
-                            x: {
-                                // *** Use Time Scale ***
-                                type: 'time',
-                                time: {
-                                    unit: timeUnit, // Set unit based on range
-                                    tooltipFormat: 'PPp', // Example using date-fns format (requires adapter)
-                                    displayFormats: { // Control how labels look for different units
-                                        hour: 'h:mm a',
-                                        day: 'MMM d',
-                                        week: 'MMM d yyyy'
-                                    }
-                                },
-                                title: { display: false }, // Hide x-axis title
-                                grid: { display: false },
-                                ticks: { font: { size: 11 }, color: '#57606a', autoSkip: true, maxRotation: 0, minRotation: 0, maxTicksLimit: 8 } // Limit ticks, prevent rotation
-                            },
-                            y: {
-                                type: 'logarithmic',
-                                title: { display: true, text: 'Price (Log Scale)', font: { size: 12 }, color: '#57606a' },
-                                grid: { color: '#d0d7de' },
-                                ticks: { font: { size: 11 }, color: '#57606a' }
-                            }
-                        },
-                        interaction: { mode: 'index', axis: 'x', intersect: false },
-                    }
-                });
-            } catch(e) {
-                 console.error("Error creating Chart.js instance:", e);
-                 chartPlotContainer.innerHTML = '<p style="text-align:center; color: red;">Error rendering chart.</p>';
+            if (priceChart) {
+                priceChart.data.datasets = filteredDatasets; // Update data
+                priceChart.options.scales.x.time.unit = determineTimeUnit(minTime, now); // Update time unit
+                priceChart.options.scales.x.grid.color = colors.gridColor;
+                priceChart.options.scales.x.ticks.color = colors.tickColor;
+                priceChart.options.scales.x.title.color = colors.titleColor;
+                priceChart.options.scales.y.grid.color = colors.gridColor;
+                priceChart.options.scales.y.ticks.color = colors.tickColor;
+                priceChart.options.scales.y.title.color = colors.titleColor;
+                priceChart.options.plugins.tooltip.backgroundColor = colors.tooltipBgColor;
+                priceChart.options.plugins.tooltip.titleColor = colors.tooltipTextColor;
+                priceChart.options.plugins.tooltip.bodyColor = colors.tooltipTextColor;
+                priceChart.options.plugins.legend.labels.color = colors.titleColor;
+                // Update dataset colors directly
+                priceChart.data.datasets[0].borderColor = colors.buyColor;
+                priceChart.data.datasets[0].backgroundColor = colors.buyColor;
+                priceChart.data.datasets[1].borderColor = colors.askColor;
+                priceChart.data.datasets[1].backgroundColor = colors.askColor;
+                priceChart.update();
+            } else {
+                priceChart = new Chart(chartCanvas, chartConfig);
             }
+        }
+
+        // Helper to determine appropriate time unit for x-axis based on range
+        function determineTimeUnit(minTime, maxTime) {
+            const diffHours = (maxTime - minTime) / (1000 * 60 * 60);
+            if (diffHours <= 48) return 'hour';
+            if (diffHours <= 7 * 24) return 'day';
+            return 'day'; // Default to day for longer ranges
+        }
+
+        function updateChartTheme() {
+            if (!priceChart) return;
+            const colors = getChartColors();
+            // Update colors in options
+            priceChart.options.scales.x.grid.color = colors.gridColor;
+            priceChart.options.scales.x.ticks.color = colors.tickColor;
+            priceChart.options.scales.x.title.color = colors.titleColor;
+            priceChart.options.scales.y.grid.color = colors.gridColor;
+            priceChart.options.scales.y.ticks.color = colors.tickColor;
+            priceChart.options.scales.y.title.color = colors.titleColor;
+            priceChart.options.plugins.tooltip.backgroundColor = colors.tooltipBgColor;
+            priceChart.options.plugins.tooltip.titleColor = colors.tooltipTextColor;
+            priceChart.options.plugins.tooltip.bodyColor = colors.tooltipTextColor;
+            priceChart.options.plugins.legend.labels.color = colors.titleColor;
+            // Update dataset colors directly
+            priceChart.data.datasets[0].borderColor = colors.buyColor;
+            priceChart.data.datasets[0].backgroundColor = colors.buyColor;
+            priceChart.data.datasets[1].borderColor = colors.askColor;
+            priceChart.data.datasets[1].backgroundColor = colors.askColor;
+
+            priceChart.update(); // Re-render the chart with new colors
         }
 
 
         // --- Event Handlers ---
-        // (Event handlers remain the same)
-        function handleProductClick(event) {
-            const clickedTr = event.currentTarget;
-            const productName = decodeURIComponent(clickedTr.dataset.product);
-            displayChart(productName, clickedTr);
-        }
-        let searchTimeout;
-        searchInput.addEventListener('input', (event) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                currentSearch = event.target.value;
-                applyFiltersAndSort();
-            }, 300);
-        });
-        categoryFilterEl.addEventListener('change', (event) => {
-             currentCategoryFilter = event.target.value;
-             applyFiltersAndSort();
-        });
-        sortOptionsEl.addEventListener('click', (event) => {
-            if (event.target.tagName === 'BUTTON' && event.target.dataset.sort) {
-                const newSort = event.target.dataset.sort;
-                if (newSort === currentSort) { // Simple reverse for name only
-                    if (currentSort === 'name_asc') currentSort = 'name_desc';
-                    else if (currentSort === 'name_desc') currentSort = 'name_asc';
-                } else { currentSort = newSort; }
-                sortOptionsEl.querySelectorAll('button').forEach(btn => {
-                    btn.classList.toggle('current-sort', btn.dataset.sort === currentSort);
-                });
-                applyFiltersAndSort();
+        async function handleRowClick(event) {
+            const row = event.currentTarget;
+            const itemName = row.dataset.itemName;
+
+            if (selectedItem === itemName) return; // Don't reload if clicking the same item
+
+            // Update selected item state
+            selectedItem = itemName;
+
+            // Update row highlighting
+            document.querySelectorAll('#market-body tr.selected-row').forEach(r => r.classList.remove('selected-row'));
+            row.classList.add('selected-row');
+
+            // Fetch and display chart data
+            const historyData = await fetchHistoricalData(itemName);
+            if (historyData) { // Only update chart if data fetch was successful
+                 createOrUpdateChart(itemName, historyData);
+            } else {
+                 // Error handled within fetchHistoricalData, maybe clear chart?
+                 if (priceChart) {
+                     priceChart.destroy();
+                     priceChart = null;
+                 }
+                 chartTitle.textContent = `Could not load data for ${itemName}`;
             }
-        });
-        prevButton.addEventListener('click', () => {
-            if (currentPage > 1) { currentPage--; renderCurrentPage(); }
-        });
-        nextButton.addEventListener('click', () => {
-            const totalPages = Math.ceil(filteredAndSortedSummary.length / itemsPerPage);
-            if (currentPage < totalPages) { currentPage++; renderCurrentPage(); }
-        });
-        chartTimeControlsEl.addEventListener('click', (event) => {
-            if (event.target.tagName === 'BUTTON' && event.target.dataset.range) {
-                const newRange = event.target.dataset.range;
-                if (newRange !== currentChartTimeRange) {
-                    currentChartTimeRange = newRange;
-                    chartTimeControlsEl.querySelectorAll('button').forEach(btn => {
-                        btn.classList.toggle('active', btn.dataset.range === currentChartTimeRange);
+        }
+
+        function handleChartRangeChange(event) {
+            if (event.target.tagName !== 'BUTTON') return; // Ignore clicks not on buttons
+
+            const newRange = event.target.dataset.range;
+            if (newRange === currentChartRange) return; // No change
+
+            currentChartRange = newRange;
+
+            // Update button active state
+            chartControls.querySelectorAll('button').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.range === newRange);
+            });
+
+            // Re-fetch or re-filter and update chart if an item is selected
+            if (selectedItem) {
+                const cachedData = historicalDataCache[selectedItem];
+                if (cachedData) { // Use cached data if available
+                    createOrUpdateChart(selectedItem, cachedData);
+                } else {
+                    // This case should ideally not happen if row click fetches first,
+                    // but as a fallback, we could re-trigger fetch.
+                    fetchHistoricalData(selectedItem).then(historyData => {
+                         if (historyData) createOrUpdateChart(selectedItem, historyData);
                     });
-                    if (currentChartProduct) {
-                        displayChart(currentChartProduct, selectedTableRow);
-                    }
                 }
             }
+        }
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initial data fetch
+            fetchData();
+
+            // Add event listeners
+            searchInput.addEventListener('input', filterAndSort);
+            categorySelect.addEventListener('change', filterAndSort);
+            document.querySelector('#market-table thead').addEventListener('click', handleSort);
+            chartControls.addEventListener('click', handleChartRangeChange);
+
+            // Initial sort icon update
+            updateSortIcons();
+
+            // Note: Theme initialization is handled by its own DOMContentLoaded listener earlier
         });
 
-        // --- Initial Load ---
-        document.addEventListener('DOMContentLoaded', loadData);
-
     </script>
-
 </body>
 </html>
