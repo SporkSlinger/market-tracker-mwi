@@ -123,7 +123,7 @@
             flex-wrap: wrap; /* Allow wrapping on small screens */
         }
         /* Style for the theme toggle button */
-        #theme-toggle-btn, #show-test-graph-btn { /* Apply to both buttons */
+        #theme-toggle-btn, #show-test-graph-btn, #show-live-data-btn { /* Apply to all buttons */
             padding: 6px 16px; font-size: 0.9em; font-weight: 500;
             background-color: var(--button-bg-color); color: var(--text-color-primary);
             border: 1px solid var(--button-border-color); border-radius: 6px;
@@ -133,7 +133,7 @@
             align-items: center;
             gap: 6px; /* Space between icon and text */
         }
-        #theme-toggle-btn:hover, #show-test-graph-btn:hover { background-color: var(--button-hover-bg-color); }
+        #theme-toggle-btn:hover, #show-test-graph-btn:hover, #show-live-data-btn:hover { background-color: var(--button-hover-bg-color); }
         /* Icon visibility styles */
         #theme-toggle-btn .fa-sun { display: none; }
         #theme-toggle-btn .fa-moon { display: inline-block; }
@@ -238,13 +238,14 @@
 
     <div class="container">
         <h1>MWI Market Trends</h1>
-        <div class="theme-toggle-container" >
+        <div class="title-button-container" >
              <button id="theme-toggle-btn" title="Toggle Theme">
                  <i class="fas fa-moon"></i>
                  <i class="fas fa-sun"></i>
                  <span class="toggle-text" style="margin-left: 6px;">Toggle Theme</span>
              </button>
              <button id="show-test-graph-btn" title="Show Test Graph">Show Test Graph</button>
+             <button id="show-live-data-btn" title="Show Live Data">Show Live Data</button>
         </div>
         <div class="feedback-link-container">
             <a href="https://github.com/SporkSlinger/market-tracker-mwi/issues" target="_blank" rel="noopener noreferrer">Report an Issue or Suggest a Feature</a>
@@ -380,7 +381,7 @@
 
     <footer>
         <span>Made by Sporky with AI</span> |
-        <span class="status">Data Generated: <span id="last-update">2025-04-12 09:12:57</span></span> |
+        <span class="status">Data Generated: <span id="last-update">2025-04-12 10:46:26</span></span> |
         <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
     </footer>
 
@@ -423,6 +424,7 @@
         const errorMessageEl = document.getElementById('error-message');
         const themeToggleButton = document.getElementById('theme-toggle-btn'); // Renamed reference for new toggle button
         const showTestGraphBtn = document.getElementById('show-test-graph-btn'); // Added test graph button
+        const showLiveDataBtn = document.getElementById('show-live-data-btn'); // Added live data button
 
 
         // --- SVG Icons for Trends (Original) ---
@@ -534,12 +536,23 @@
 
         // --- Data Fetching (Restored Live Fetching) ---
         async function loadData() {
-            try {
-                loadingMessageEl.style.display = 'block';
-                errorMessageEl.classList.add('hidden');
-                tableWrapperEl.classList.add('hidden');
-                paginationEl.style.display = 'none';
+            // Reset chart view state before loading
+            if(currentChart) { currentChart.destroy(); currentChart = null; }
+            chartPlotContainer.classList.add('hidden');
+            chartControlsArea.style.display = 'none';
+            chartPlaceholder.style.display = 'flex';
+            chartPlaceholder.textContent = 'Select an item name from the table to view its chart.'; // Reset placeholder text
+            currentChartProduct = null;
+            if(selectedTableRow) selectedTableRow.classList.remove('selected-item');
+            selectedTableRow = null;
 
+            // Show loading indicators
+            loadingMessageEl.style.display = 'block';
+            errorMessageEl.classList.add('hidden');
+            tableWrapperEl.classList.add('hidden');
+            paginationEl.style.display = 'none';
+
+            try {
                 // Load pinned items initially
                 pinnedItems = getPinnedItems();
                 console.log("Loaded pinned items:", pinnedItems);
@@ -551,7 +564,7 @@
                 applyFiltersAndSort(); // Process summary data first
                 loadingMessageEl.style.display = 'none';
                 tableWrapperEl.classList.remove('hidden');
-                paginationEl.style.display = 'flex';
+                paginationEl.style.display = 'flex'; // Show pagination based on results later
 
                 // Fetch history data
                 const historyRes = await fetch('./data/market_history.json?t=' + Date.now());
@@ -564,14 +577,13 @@
                 }
 
             } catch (error) {
-                 // ** MODIFIED Catch Block: Call displayTestGraph on ANY error **
-                console.error("Error loading data:", error);
+                console.error("Error loading data:", error); // Keep generic error log
                 loadingMessageEl.style.display = 'none';
-                errorMessageEl.textContent = `Error loading live data: ${error.message}. Displaying TEST data & graph.`;
+                // Show generic error message for ANY load failure
+                errorMessageEl.textContent = `Error loading market data: ${error.message}. Check console (F12) & data files.`;
                 errorMessageEl.classList.remove('hidden');
-                tableWrapperEl.classList.add('hidden'); // Hide table wrapper
-                paginationEl.style.display = 'none'; // Hide pagination
-                displayTestGraph(); // Call test graph function on any load error
+                tableWrapperEl.classList.add('hidden'); // Ensure table is hidden on error
+                paginationEl.style.display = 'none'; // Ensure pagination is hidden on error
             }
         }
 
@@ -875,6 +887,18 @@
                          { "timestamp": sampleTimestamp2, "price": 162 },
                          { "timestamp": sampleTimestamp3, "price": 160 }
                      ]
+                 },
+                 "Test Item Beta": {
+                      "buy": [
+                         { "timestamp": nowSec - 48 * 3600, "price": 2100 },
+                         { "timestamp": nowSec - 24 * 3600, "price": 2050 },
+                         { "timestamp": nowSec - 1 * 3600, "price": 2000 }
+                     ],
+                     "ask": [ // Sample with nulls
+                         { "timestamp": nowSec - 48 * 3600, "price": 2200 },
+                         { "timestamp": nowSec - 24 * 3600, "price": null },
+                         { "timestamp": nowSec - 1 * 3600, "price": null }
+                     ]
                  }
              };
              const testSummaryData = [
@@ -975,6 +999,12 @@
              showTestGraphBtn.addEventListener('click', displayTestGraph);
         } else {
              console.error("Show Test Graph button not found!");
+        }
+        // Listener for the show live data button
+        if (showLiveDataBtn) {
+             showLiveDataBtn.addEventListener('click', loadData); // Re-call loadData
+        } else {
+             console.error("Show Live Data button not found!");
         }
 
 
