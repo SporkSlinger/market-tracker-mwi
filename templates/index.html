@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html lang="en"> <head>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MWI Market Trends & Enhancer Sim</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@^4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.min.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js" integrity="sha512-Hn1w6YiiFw6p6S2lXv6yKeqTk0PLVzeCwWY9n32beuPjQ5HLcvz5l2QsP+KilEr1ws37rCTw3bZpvfvVIG6BFw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> <link rel="preconnect" href="https://fonts.googleapis.com">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js" integrity="sha512-Hn1w6YiiFw6p6S2lXv6yKeqTk0PLVzeCwWY9n32beuPjQ5HLcvz5l2QsP+KilEr1ws37rCTw3bZpvfvVIG6BFw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -24,6 +27,8 @@
             --accent-hover-color: #0550ae;
             --positive-color: #1a7f37;
             --negative-color: #cf222e;
+            --info-color: #0969da; /* For general messages */
+            --warning-color: #d29922; /* For warnings like pinning limit */
             --button-bg-color: #f6f8fa;
             --button-hover-bg-color: #f0f2f4;
             --button-border-color: rgba(27, 31, 36, 0.15);
@@ -50,6 +55,15 @@
             --pin-color-active: #ffab00; /* Color for pinned star (gold) */
             --calc-border-color: #e1e4e8; /* Specific border for calc sections */
             --simulated-cost-color: #57606a; /* Color for simulated cost text */
+            --message-bg-error: rgba(207, 34, 46, 0.1);
+            --message-border-error: var(--negative-color);
+            --message-text-error: var(--negative-color);
+            --message-bg-warning: rgba(210, 153, 34, 0.1);
+            --message-border-warning: var(--warning-color);
+            --message-text-warning: #b08820; /* Darker warning text for light bg */
+            --message-bg-info: rgba(9, 105, 218, 0.1);
+            --message-border-info: var(--info-color);
+            --message-text-info: var(--info-color);
         }
 
         html[data-theme="dark"] {
@@ -64,6 +78,8 @@
             --accent-hover-color: #79c0ff;
             --positive-color: #3fb950;
             --negative-color: #f85149;
+            --info-color: #58a6ff;
+            --warning-color: #e3b341;
             --button-bg-color: #21262d;
             --button-hover-bg-color: #30363d;
             --button-border-color: #30363d;
@@ -89,6 +105,15 @@
             --pin-color-active: #f1e05a; /* Dark mode pinned star (lighter gold) */
             --calc-border-color: #30363d;
             --simulated-cost-color: #8b949e; /* Dark mode simulated cost text */
+            --message-bg-error: rgba(248, 81, 73, 0.15);
+            --message-border-error: var(--negative-color);
+            --message-text-error: var(--negative-color);
+            --message-bg-warning: rgba(227, 179, 65, 0.15);
+            --message-border-warning: var(--warning-color);
+            --message-text-warning: var(--warning-color);
+            --message-bg-info: rgba(88, 166, 255, 0.15);
+            --message-border-info: var(--info-color);
+            --message-text-info: var(--info-color);
         }
 
         /* --- General Styles (Using Variables) --- */
@@ -105,8 +130,8 @@
 
         /* Container for the buttons under title */
         .title-button-container {
-            text-align: center; margin-bottom: 25px; display: flex;
-            justify-content: center; gap: 10px; flex-wrap: wrap;
+            text-align: center; margin-bottom: 15px; /* Reduced margin */
+            display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
         }
         /* Style for the theme toggle button */
         #theme-toggle-btn {
@@ -124,10 +149,40 @@
         html[data-theme="dark"] #theme-toggle-btn .fa-sun { display: inline-block; }
         html[data-theme="dark"] #theme-toggle-btn .fa-moon { display: none; }
 
-
-        .feedback-link-container { text-align: center; margin-bottom: 25px; font-size: 0.9em; }
+        /* Feedback Link */
+        .feedback-link-container { text-align: center; margin-bottom: 20px; font-size: 0.9em; }
         .feedback-link-container a { color: var(--muted-text-color); text-decoration: none; border-bottom: 1px dashed var(--muted-text-color); transition: color 0.2s, border-color 0.2s; padding-bottom: 1px; }
         .feedback-link-container a:hover { color: var(--link-color); border-color: var(--link-color); }
+
+        /* Message Area Styles */
+        #message-area {
+            padding: 10px 15px; margin-bottom: 20px; border-radius: 6px;
+            font-size: 0.9em; font-weight: 500;
+            border: 1px solid transparent;
+            background-color: transparent;
+            color: transparent;
+            display: none; /* Hidden by default */
+            transition: all 0.3s ease-in-out;
+            text-align: center;
+        }
+        #message-area.visible { display: block; }
+        #message-area.error {
+            background-color: var(--message-bg-error);
+            border-color: var(--message-border-error);
+            color: var(--message-text-error);
+        }
+        #message-area.warning {
+            background-color: var(--message-bg-warning);
+            border-color: var(--message-border-warning);
+            color: var(--message-text-warning);
+        }
+         #message-area.info {
+            background-color: var(--message-bg-info);
+            border-color: var(--message-border-info);
+            color: var(--message-text-info);
+        }
+
+        /* Controls Bar */
         .controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 16px 20px; margin-bottom: 30px; gap: 15px; background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
         .controls-left, .controls-right { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
         label { display: block; margin-bottom: 0.25rem; font-size: 0.875rem; font-weight: 500; color: var(--text-color-secondary); }
@@ -145,13 +200,21 @@
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.075), 0 0 0 0.25rem var(--input-focus-shadow-color);
         }
         input[type="checkbox"] { border-radius: 0.25rem; border-color: var(--input-border-color); }
+        .search-form input[type="text"] { min-width: 200px; }
+        .category-filter select { min-width: 180px; }
+
+        /* Sort Options */
         .sort-options span { font-weight: 600; color: var(--text-color-secondary); margin-right: 4px; font-size: 0.9em; }
         .sort-options button { padding: 5px 12px; background-color: var(--button-bg-color); color: var(--text-color-primary); border-radius: 6px; font-size: 0.9em; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); cursor: pointer; font-weight: 500; line-height: 20px; }
         .sort-options button:hover { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
         .sort-options button.current-sort { background-color: var(--button-active-bg-color); color: var(--button-active-text-color); border-color: var(--button-active-border-color); font-weight: 600; }
+
+        /* Main Layout */
         .main-layout { display: flex; flex-wrap: wrap; gap: 25px; }
         .item-table-container { flex: 3; min-width: 550px; }
         .chart-display-container { flex: 2; min-width: 400px; }
+
+        /* Table Styles */
         .table-wrapper { max-height: 78vh; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--card-bg-color); transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
         #item-table { width: 100%; border-collapse: collapse; }
         #item-table th, #item-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; vertical-align: middle; font-size: 0.95em; }
@@ -161,14 +224,15 @@
         .pin-icon { cursor: pointer; color: var(--pin-color); font-size: 1.1em; transition: color 0.15s ease-in-out; }
         .pin-icon.pinned { color: var(--pin-color-active); }
         .pin-icon:hover { opacity: 0.7; }
-        /* Styles for Enhancer Level Controls in Table */
+
+        /* Enhancer Level Controls in Table */
         .enh-level-control { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; margin-left: 8px; vertical-align: middle;}
         .enh-level-btn { padding: 1px 4px; font-size: 0.8em; line-height: 1; cursor: pointer; border: 1px solid var(--button-border-color); background-color: var(--button-bg-color); border-radius: 4px; color: var(--text-color-secondary); }
         .enh-level-btn:hover:not(:disabled) { background-color: var(--button-hover-bg-color); }
         .enh-level-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .enh-level-display { font-size: 0.9em; min-width: 2.5em; text-align: center; font-family: var(--code-font); color: var(--text-color-secondary); padding: 0 2px; }
 
-
+        /* Table Row Styles */
         #item-table tbody tr { transition: background-color 0.15s ease; }
         #item-table tbody tr:nth-child(even) { background-color: var(--table-row-even-bg); }
         #item-table tbody tr:hover { background-color: var(--table-row-hover-bg); }
@@ -180,18 +244,20 @@
         #item-table td:nth-child(3) { font-size: 0.9em; color: var(--muted-text-color); max-width: 160px; overflow: hidden; text-overflow: ellipsis; } /* Category */
         #item-table td:nth-child(n+5) { text-align: right; font-family: var(--code-font); font-size: 0.95em; } /* Buy/Vendor/Trend */
         #item-table td:nth-child(4) { text-align: right; font-family: var(--code-font); font-size: 0.95em; } /* Ask */
+
         /* Simulated Cost Style */
         .simulated-cost { font-style: italic; opacity: 0.8; color: var(--simulated-cost-color); }
 
-
+        /* Trend Styles */
         .trend-value-container { display: flex; align-items: center; justify-content: flex-end; gap: 3px; }
         .trend-icon { width: 14px; height: 14px; vertical-align: text-bottom; }
         .trend-positive { color: var(--positive-color); }
         .trend-negative { color: var(--negative-color); }
         .vendor-price { color: var(--vendor-price-color); }
         .na-value { color: var(--na-value-color); font-style: normal; }
-        .chart-display { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 20px; min-height: 450px; position: relative; display: flex; flex-direction: column; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
 
+        /* Chart Display Styles */
+        .chart-display { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 20px; min-height: 450px; position: relative; display: flex; flex-direction: column; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
         .chart-controls-container { /* Container for all chart controls */
              display: flex;
              justify-content: center; /* Center inner divs */
@@ -202,39 +268,41 @@
         }
         .chart-controls { text-align: center; } /* Original class for time */
         .scale-controls { text-align: center; } /* New class for scale toggle */
-
         .chart-controls button, .scale-controls button { margin: 0 4px; padding: 5px 10px; font-size: 0.85em; background-color: var(--button-bg-color); border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); border-radius: 6px; cursor: pointer; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; font-weight: 500; color: var(--text-color-primary);}
         .chart-controls button:hover, .scale-controls button:hover { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
         .chart-controls button.active, .scale-controls button.active { background-color: var(--button-active-bg-color); color: var(--button-active-text-color); border-color: var(--button-active-border-color); font-weight: 600; }
-
         .chart-placeholder { text-align: center; color: var(--chart-placeholder-color); padding: 60px; font-size: 1.05em; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
         .chart-plot { flex-grow: 1; position: relative; min-height: 320px; }
         .chart-plot canvas { max-width: 100%; max-height: 380px; }
-        .pagination { text-align: center; margin-top: 20px; padding-bottom: 20px; }
-        .pagination button { margin: 0 3px; padding: 7px 14px; background-color: var(--button-bg-color); border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); color: var(--accent-color); border-radius: 6px; transition: background-color 0.1s, border-color 0.1s; cursor: pointer; font-weight: 500; font-size: 0.9em; }
+
+        /* Pagination */
+        .pagination { text-align: center; margin-top: 20px; padding-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .pagination button { padding: 7px 14px; background-color: var(--button-bg-color); border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); color: var(--accent-color); border-radius: 6px; transition: background-color 0.1s, border-color 0.1s; cursor: pointer; font-weight: 500; font-size: 0.9em; }
         .pagination button:hover:not(:disabled) { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
         .pagination button.current { background-color: var(--button-active-bg-color); color: var(--button-active-text-color); border-color: var(--button-active-border-color); font-weight: bold; cursor: default; }
         .pagination button:disabled { color: var(--muted-text-color); background-color: var(--button-bg-color); opacity: 0.6; cursor: not-allowed; border-color: transparent; }
-        .loading-message, .error-message { text-align: center; padding: 40px; font-size: 1.1em; color: var(--muted-text-color); }
-        .error-message { color: var(--negative-color); }
+        #page-info { font-size: 0.9em; color: var(--text-color-secondary); }
+
+        /* Loading/Error Messages */
+        .loading-message { text-align: center; padding: 40px; font-size: 1.1em; color: var(--muted-text-color); }
         .hidden { display: none; }
+
+        /* Footer */
         footer { text-align: center; margin-top: 60px; padding: 25px 0; font-size: 0.8em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
         footer span, footer a { margin: 0 8px; color: var(--muted-text-color); text-decoration: none; }
         footer a:hover { text-decoration: underline; color: var(--link-hover-color); }
 
+        /* Responsive Styles */
          @media (max-width: 768px) {
-            .controls { flex-direction: column; align-items: stretch; }
-            .controls-left, .controls-right { width: 100%; justify-content: center; }
-            .search-form input[type="text"], .category-filter select { width: 100%; min-width: unset; }
-            .main-layout { flex-direction: column; }
-            .item-table-container, .chart-display-container { min-width: unset; }
-            .table-wrapper { max-height: 60vh; }
-            h1 { font-size: 1.5em; }
-            /* Removed fixed button container styles */
-            .chart-controls-container { flex-direction: column; gap: 10px; }
-            /* Removed calculator styles as form is removed */
-        }
-
+             .controls { flex-direction: column; align-items: stretch; }
+             .controls-left, .controls-right { width: 100%; justify-content: center; }
+             .search-form input[type="text"], .category-filter select { width: 100%; min-width: unset; }
+             .main-layout { flex-direction: column; }
+             .item-table-container, .chart-display-container { min-width: unset; }
+             .table-wrapper { max-height: 60vh; }
+             h1 { font-size: 1.5em; }
+             .chart-controls-container { flex-direction: column; gap: 10px; }
+         }
     </style>
 </head>
 <body>
@@ -251,29 +319,30 @@
             <a href="https://github.com/SporkSlinger/market-tracker-mwi/issues" target="_blank" rel="noopener noreferrer">Report an Issue or Suggest a Feature</a>
         </div>
 
+        <div id="message-area"></div>
+
         <div class="controls">
             <div class="controls-left">
                  <div class="search-form">
-                    <input type="text" id="search-input" placeholder="Search Product Name...">
-                </div>
-                <div class="category-filter">
-                     <select id="category-filter">
-                         <option value="All">All Categories</option>
-                         {% for category in categories %}
-                         <option value="{{ category }}">{{ category }}</option>
-                         {% endfor %}
-                     </select>
-                </div>
+                     <label for="search-input">Search</label>
+                     <input type="text" id="search-input" placeholder="Product Name...">
+                 </div>
+                 <div class="category-filter">
+                      <label for="category-filter">Category</label>
+                      <select id="category-filter">
+                          <option value="All">All Categories</option>
+                          </select>
+                 </div>
             </div>
             <div class="controls-right">
                  <div class="sort-options" id="sort-options">
-                    <span>Sort By:</span>
-                    <button data-sort="name_asc" class="current-sort">Name</button>
-                    <button data-sort="category_asc">Category</button>
-                    <button data-sort="ask_asc">Ask</button>
-                    <button data-sort="buy_desc">Buy</button>
-                    <button data-sort="vendor_desc">Vendor</button>
-                    <button data-sort="trend_dec">Trend %</button>
+                     <span>Sort By:</span>
+                     <button data-sort="name_asc" class="current-sort">Name</button>
+                     <button data-sort="category_asc">Category</button>
+                     <button data-sort="ask_asc">Ask</button>
+                     <button data-sort="buy_desc">Buy</button>
+                     <button data-sort="vendor_desc">Vendor</button>
+                     <button data-sort="trend_dec">Trend %</button>
                  </div>
             </div>
         </div>
@@ -281,12 +350,12 @@
         <div class="main-layout">
             <div class="item-table-container">
                 <div id="loading-message" class="loading-message">Loading market data...</div>
-                <div id="error-message" class="error-message hidden"></div>
                 <div class="table-wrapper hidden">
                     <table id="item-table">
                         <thead>
                             <tr>
-                                <th class="pin-header"><i class="fas fa-thumbtack"></i></th> <th>Name</th>
+                                <th class="pin-header"><i class="fas fa-thumbtack"></i></th>
+                                <th>Name</th>
                                 <th>Category</th>
                                 <th>Ask</th>
                                 <th>Buy</th>
@@ -307,32 +376,30 @@
             <div class="chart-display-container">
                 <div class="chart-display" id="chart-display">
                      <div class="chart-controls-container" id="chart-controls-area" style="display: none;">
-                         <div class="chart-controls" id="chart-time-controls">
-                             <button data-range="24h">24h</button>
-                             <button data-range="48h">48h</button>
-                             <button data-range="7d">7d</button>
-                             <button data-range="30d" class="active">30d</button>
-                         </div>
-                          <div class="scale-controls">
-                             <button id="scale-toggle-btn">Switch to Linear Scale</button>
-                         </div>
+                          <div class="chart-controls" id="chart-time-controls">
+                              <button data-range="24h">24h</button>
+                              <button data-range="48h">48h</button>
+                              <button data-range="7d">7d</button>
+                              <button data-range="30d" class="active">30d</button>
+                          </div>
+                           <div class="scale-controls">
+                               <button id="scale-toggle-btn">Switch to Linear Scale</button>
+                           </div>
                      </div>
-                    <div class="chart-placeholder" id="chart-placeholder">Select an item name from the table to view its chart.</div>
-                    <div class="chart-plot hidden">
-                        <canvas id="single-chart-canvas"></canvas>
-                    </div>
+                     <div class="chart-placeholder" id="chart-placeholder">Select an item name from the table to view its chart.</div>
+                     <div class="chart-plot hidden">
+                         <canvas id="single-chart-canvas"></canvas>
+                     </div>
                 </div>
             </div>
         </div>
 
         <footer>
             <span>Made by Sporky with AI</span> |
-            <span class="status">Data Generated: <span id="last-update">{{ last_update }}</span></span> |
+            <span class="status">Data Fetched: <span id="last-update">N/A</span></span> |
             <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
         </footer>
-
-
-    <script>
+    </div> <script>
         // --- Global State ---
         let allMarketData = {}; // History data { "Product": { buy: [...], ask: [...] } }
         let marketSummary = []; // Summary data [ { name, category, buy, ask, vendor, trend }, ... ]
@@ -352,6 +419,7 @@
         const PINNED_ITEMS_KEY = 'mwiPinnedItems';
         const MAX_PINNED_ITEMS = 10;
         let simulatedLevels = {}; // Store simulated levels { itemName: { level: number, cost: number | null } }
+        let messageTimeout = null; // Timeout ID for clearing messages
 
         // --- DOM Elements ---
         const tableBodyEl = document.getElementById('item-table-body');
@@ -370,9 +438,9 @@
         const chartControlsArea = document.getElementById('chart-controls-area');
         const scaleToggleButton = document.getElementById('scale-toggle-btn');
         const loadingMessageEl = document.getElementById('loading-message');
-        const errorMessageEl = document.getElementById('error-message');
+        const messageAreaEl = document.getElementById('message-area'); // Message display area
         const themeToggleButton = document.getElementById('theme-toggle-btn');
-        // Removed calculator form/results references
+        const lastUpdateEl = document.getElementById('last-update');
 
         // --- SVG Icons for Trends ---
         const trendUpIcon = `<svg class="trend-icon" aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"><path fill="currentColor" d="M8.707 2.293a1 1 0 0 0-1.414 0l-4 4a1 1 0 1 0 1.414 1.414L8 4.414l3.293 3.293a1 1 0 0 0 1.414-1.414l-4-4Z"></path></svg>`;
@@ -383,7 +451,7 @@
             if (price === null || price === undefined || isNaN(price)) return '<span class="na-value">--</span>';
             return price.toLocaleString();
         }
-         function formatPriceSimulated(price) {
+        function formatPriceSimulated(price) {
             if (price === null || price === undefined || isNaN(price)) return '<span class="na-value">--</span>';
             return '<span class="simulated-cost">' + price.toLocaleString() + '</span>';
         }
@@ -414,6 +482,43 @@
              return itemDetail && Array.isArray(itemDetail.enhancementCosts) && itemDetail.enhancementCosts.length > 0;
          }
 
+        /**
+         * Displays a message in the message area.
+         * @param {string} message - The message text.
+         * @param {'error' | 'warning' | 'info'} type - The message type.
+         * @param {number} duration - How long to display the message in ms (0 = forever).
+         */
+        function showMessage(message, type = 'info', duration = 5000) {
+            if (!messageAreaEl) return; // Exit if the element doesn't exist
+
+            // Clear previous timeout if any
+            if (messageTimeout) {
+                clearTimeout(messageTimeout);
+                messageTimeout = null;
+            }
+
+            messageAreaEl.textContent = message;
+            messageAreaEl.className = 'visible ' + type; // Set type class and make visible
+
+            // Set timeout to hide the message if duration is > 0
+            if (duration > 0) {
+                messageTimeout = setTimeout(() => {
+                    messageAreaEl.className = ''; // Hide by removing classes
+                    messageTimeout = null;
+                }, duration);
+            }
+        }
+
+        /** Hides the message area immediately. */
+        function hideMessage() {
+            if (messageTimeout) {
+                clearTimeout(messageTimeout);
+                messageTimeout = null;
+            }
+             if (messageAreaEl) {
+                messageAreaEl.className = ''; // Hide by removing classes
+            }
+        }
 
         // --- Pinning Logic ---
         function getPinnedItems() {
@@ -426,24 +531,34 @@
             let currentPins = getPinnedItems(); const index = currentPins.indexOf(itemName);
             if (index > -1) { currentPins.splice(index, 1); }
             else {
-                if (currentPins.length >= MAX_PINNED_ITEMS) { alert(`You can only pin up to ${MAX_PINNED_ITEMS} items.`); return; }
+                if (currentPins.length >= MAX_PINNED_ITEMS) {
+                    // Use the new message system instead of alert
+                    showMessage(`You can only pin up to ${MAX_PINNED_ITEMS} items.`, 'warning');
+                    return;
+                }
                 currentPins.push(itemName);
             }
             savePinnedItems(currentPins); pinnedItems = currentPins; applyFiltersAndSort();
         }
-         function handlePinClick(event) {
+        function handlePinClick(event) {
              event.stopPropagation(); const icon = event.currentTarget; const itemName = icon.dataset.itemName;
              if (itemName) { togglePin(itemName); } else { console.error("Could not find item name for pinning."); }
          }
 
-
-        // --- Theme Switching Logic (Simplified - No Chart Update) ---
+        // --- Theme Switching Logic ---
         const THEME_KEY = 'mwi-market-theme';
         function applyTheme(theme) {
             console.log(`Applying theme: ${theme}`);
             if (theme === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); }
             else { document.documentElement.removeAttribute('data-theme'); }
             localStorage.setItem(THEME_KEY, theme);
+            // Re-render chart if it exists, as colors might need updating
+            if (currentChart && currentChartProduct) {
+                // Note: A full displayChart call might be needed if theme changes affect
+                // chart options beyond simple colors (e.g., grid lines based on theme vars).
+                // For now, we assume Chart.js handles basic color updates or we re-create.
+                displayChart(currentChartProduct, selectedTableRow);
+            }
         }
         function toggleTheme() {
             const currentTheme = document.documentElement.hasAttribute('data-theme') ? 'dark' : 'light';
@@ -459,24 +574,25 @@
         if (themeToggleButton) { themeToggleButton.addEventListener('click', toggleTheme); }
         else { console.error("Theme toggle button (#theme-toggle-btn) not found!"); }
 
-
         // --- Data Fetching (Fetches Summary, History, and Game Data) ---
         async function loadData() {
             // Reset UI state
+            hideMessage(); // Clear any previous messages
             if(currentChart) { currentChart.destroy(); currentChart = null; }
             chartPlotContainer.classList.add('hidden'); chartControlsArea.style.display = 'none';
             chartPlaceholder.style.display = 'flex'; chartPlaceholder.textContent = 'Select an item name from the table to view its chart.';
             currentChartProduct = null; if(selectedTableRow) selectedTableRow.classList.remove('selected-item'); selectedTableRow = null;
-            loadingMessageEl.style.display = 'block'; errorMessageEl.classList.add('hidden');
+            loadingMessageEl.style.display = 'block';
             tableWrapperEl.classList.add('hidden'); paginationEl.style.display = 'none';
+            lastUpdateEl.textContent = 'Loading...'; // Indicate loading in footer
 
             try {
                 pinnedItems = getPinnedItems(); console.log("Loaded pinned items:", pinnedItems);
                 // Fetch all data concurrently
                 const [summaryRes, historyRes, gameDataRes] = await Promise.all([
-                    fetch('./data/market_summary.json?t=' + Date.now()),
-                    fetch('./data/market_history.json?t=' + Date.now()),
-                    fetch('https://doh-nuts.github.io/Enhancelator/init_client_info.json?t=' + Date.now())
+                    fetch('./data/market_summary.json?t=' + Date.now()), // Cache bust
+                    fetch('./data/market_history.json?t=' + Date.now()), // Cache bust
+                    fetch('https://doh-nuts.github.io/Enhancelator/init_client_info.json?t=' + Date.now()) // Cache bust
                 ]);
 
                 // Process Summary
@@ -488,26 +604,48 @@
                 else { allMarketData = await historyRes.json(); console.log("Market history data loaded."); }
 
                  // Process Game Data
-                 if (!gameDataRes.ok) throw new Error(`Failed to fetch init_client_info.json (Status: ${gameDataRes.status})`);
-                 const fullGameData = await gameDataRes.json();
-                 gameData.itemDetailMap = fullGameData.itemDetailMap || {};
-                 console.log("Game data loaded (itemDetailMap).");
+                if (!gameDataRes.ok) throw new Error(`Failed to fetch init_client_info.json (Status: ${gameDataRes.status})`);
+                const fullGameData = await gameDataRes.json();
+                gameData.itemDetailMap = fullGameData.itemDetailMap || {};
+                console.log("Game data loaded (itemDetailMap).");
+
+                // Populate categories *after* data is loaded
+                populateCategoryFilter();
 
                 applyFiltersAndSort();
                 loadingMessageEl.style.display = 'none';
                 tableWrapperEl.classList.remove('hidden');
-                paginationEl.style.display = 'flex';
+                paginationEl.style.display = 'flex'; // Use flex for pagination centering
+                lastUpdateEl.textContent = new Date().toLocaleString(); // Set update time
 
             } catch (error) {
-                 // ** REINSTATED Test Data Fallback **
                 console.error("Error loading live data:", error);
                 loadingMessageEl.style.display = 'none';
-                errorMessageEl.textContent = `Error loading live data: ${error.message}. Displaying SAMPLE data for testing.`;
-                errorMessageEl.classList.remove('hidden');
+                // Use the message area for errors
+                showMessage(`Error loading live data: ${error.message}. Displaying SAMPLE data for testing.`, 'error', 0); // Show error permanently
                 tableWrapperEl.classList.add('hidden');
                 paginationEl.style.display = 'none';
+                lastUpdateEl.textContent = 'Error'; // Indicate error in footer
                 loadSampleDataForTesting(); // Call function to load sample data
             }
+        }
+
+        // --- Populate Category Filter ---
+        function populateCategoryFilter() {
+            if (!categoryFilterEl || !marketSummary) return;
+
+            const categories = [...new Set(marketSummary.map(item => item.category).filter(Boolean))].sort(); // Get unique, sorted categories
+
+            // Clear existing options (except the 'All' option)
+            categoryFilterEl.innerHTML = '<option value="All">All Categories</option>';
+
+            // Add new options
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryFilterEl.appendChild(option);
+            });
         }
 
 
@@ -537,7 +675,7 @@
                  } catch (e) { console.error("Sort comparison error:", e); return 0; }
              });
              filteredAndSortedSummary = result; currentPage = 1; renderCurrentPage();
-        }
+         }
 
         // --- Rendering (MODIFIED for Pinning & Enhancer Controls) ---
         function renderCurrentPage() {
@@ -562,13 +700,13 @@
                      tr.dataset.product = encodeURIComponent(item.name);
                      const isPinned = currentPins.includes(item.name);
                      const pinIconClass = isPinned ? 'fas fa-star pin-icon pinned' : 'far fa-star pin-icon';
-                     const itemHrid = item.hrid || (gameData.itemDetailMap && Object.keys(gameData.itemDetailMap).find(hrid => gameData.itemDetailMap[hrid].name === item.name));
+                     const itemHrid = item.hrid || (gameData.itemDetailMap && Object.keys(gameData.itemDetailMap).find(hrid => gameData.itemDetailMap[hrid]?.name === item.name));
                      const itemDetail = itemHrid && gameData.itemDetailMap && gameData.itemDetailMap[itemHrid];
                      const isEnhanceable = itemDetail && Array.isArray(itemDetail.enhancementCosts) && itemDetail.enhancementCosts.length > 0;
                      const currentSimLevel = simulatedLevels[item.name]?.level || 0;
                      const displayAsk = currentSimLevel > 0 ? formatPriceSimulated(simulatedLevels[item.name]?.cost) : formatPrice(item.ask);
                      const displayBuy = currentSimLevel > 0 ? formatPriceSimulated(simulatedLevels[item.name]?.cost) : formatPrice(item.buy);
-                     const safeIdSuffix = (itemHrid || item.name).replace(/[\s/]/g, '_');
+                     const safeIdSuffix = (itemHrid || item.name).replace(/[\s/]/g, '_'); // Create a safe ID suffix
 
                      tr.innerHTML = `
                          <td class="pin-cell"><i class="${pinIconClass}" data-item-name="${item.name}" title="${isPinned ? 'Unpin' : 'Pin'} Item"></i></td>
@@ -599,22 +737,26 @@
                  });
              }
              renderPagination(totalPages);
-        }
+         }
         function renderPagination(totalPages) {
              pageInfoEl.textContent = `Page ${currentPage} of ${totalPages || 1}`;
              prevButton.disabled = currentPage <= 1;
              nextButton.disabled = currentPage >= totalPages;
-             paginationEl.style.display = totalPages > 1 ? 'flex' : 'none';
-        }
+             paginationEl.style.display = totalPages > 1 ? 'flex' : 'none'; // Use flex for layout
+         }
 
-        // --- Charting (Added Horizontal Line Logic) ---
+        // --- Charting (Added Horizontal Line Logic & Theme Awareness) ---
         function displayChart(productName, clickedTrElement) {
+             hideMessage(); // Clear messages when showing a chart
              chartPlaceholder.style.display = 'none';
              chartPlotContainer.classList.remove('hidden');
              chartControlsArea.style.display = 'flex';
+
+             // Highlight selected row
              const currentTableRows = tableBodyEl.querySelectorAll('tr');
              selectedTableRow = null;
              currentTableRows.forEach(row => { row.classList.remove('selected-item'); if (row.dataset.product && decodeURIComponent(row.dataset.product) === productName) { row.classList.add('selected-item'); selectedTableRow = row; } });
+
              currentChartProduct = productName;
              let productHistoryData;
              if (allMarketData && allMarketData[productName]) { productHistoryData = allMarketData[productName]; }
@@ -626,6 +768,8 @@
                  chartPlaceholder.textContent = `No price history data available for ${productName}.`; chartPlaceholder.style.display = 'flex';
                  return;
              }
+
+             // Filter data based on time range
              let filteredBuy = productHistoryData.buy || []; let filteredAsk = productHistoryData.ask || [];
              const now = new Date(); let startDate; let timeUnit = 'day';
              if (currentChartTimeRange === '24h') { startDate = new Date(now.getTime() - (24 * 3600 * 1000)); timeUnit = 'hour'; }
@@ -641,34 +785,135 @@
                   chartPlaceholder.textContent = `No data available for ${productName} in the selected time range (${currentChartTimeRange}).`; chartPlaceholder.style.display = 'flex';
                   return;
              }
+
+             // Parse data points
              const parsePoints = (points) => points.map(p => { const price = (typeof p.price === 'number' && isFinite(p.price)) ? p.price : null; const timestamp = (typeof p.timestamp === 'number' && isFinite(p.timestamp)) ? new Date(p.timestamp * 1000) : null; if (timestamp === null) { console.warn("Invalid timestamp:", p); return null; } return { x: timestamp, y: price }; }).filter(p => p !== null);
              const buyData = parsePoints(filteredBuy); const askData = parsePoints(filteredAsk);
+
              if(scaleToggleButton) { scaleToggleButton.textContent = currentYScaleType === 'logarithmic' ? 'Switch to Linear Scale' : 'Switch to Log Scale'; }
 
+             // Get current theme for colors
+             const isDarkMode = document.documentElement.hasAttribute('data-theme');
+             const primaryTextColor = isDarkMode ? '#c9d1d9' : '#24292f';
+             const secondaryTextColor = isDarkMode ? '#8b949e' : '#57606a';
+             const gridColor = isDarkMode ? '#30363d' : '#d0d7de';
+             const askColor = isDarkMode ? '#f85149' : '#cf222e'; // --negative-color
+             const buyColor = isDarkMode ? '#58a6ff' : '#0969da'; // --accent-color
+             const simLineColor = isDarkMode ? 'rgba(63, 185, 80, 0.8)' : 'rgba(75, 192, 192, 0.8)'; // --positive-color (dark) vs teal (light)
+             const simLabelBgColor = simLineColor;
+             const simLabelColor = isDarkMode ? '#0d1117' : '#ffffff'; // Contrast with label bg
+
              const chartData = {
-                 datasets: [ { label: 'Ask', data: askData, borderColor: '#cf222e', backgroundColor: 'rgba(207, 34, 46, 0.1)', tension: 0, pointRadius: 2, pointHoverRadius: 5, spanGaps: false, borderWidth: 1.5 }, { label: 'Buy', data: buyData, borderColor: '#0969da', backgroundColor: 'rgba(9, 105, 218, 0.1)', tension: 0, pointRadius: 2, pointHoverRadius: 5, spanGaps: false, borderWidth: 1.5 } ] };
-             const simulatedLevel = simulatedLevels[productName]?.level || 0; const simulatedCost = simulatedLevels[productName]?.cost;
-             const annotation = { id: 'simulatedCostLine', type: 'line', display: simulatedLevel > 0 && typeof simulatedCost === 'number' && isFinite(simulatedCost), borderColor: 'rgba(75, 192, 192, 0.8)', borderWidth: 2, borderDash: [6, 6], label: { content: `Sim Cost (+${simulatedLevel}): ${formatPrice(simulatedCost)}`, display: true, position: 'end', backgroundColor: 'rgba(75, 192, 192, 0.8)', color: 'white', font: { size: 10 }, padding: 3, borderRadius: 3 }, scaleID: 'y', value: simulatedCost };
+                 datasets: [
+                     { label: 'Ask', data: askData, borderColor: askColor, backgroundColor: askColor + '1A', tension: 0, pointRadius: 2, pointHoverRadius: 5, spanGaps: false, borderWidth: 1.5 },
+                     { label: 'Buy', data: buyData, borderColor: buyColor, backgroundColor: buyColor + '1A', tension: 0, pointRadius: 2, pointHoverRadius: 5, spanGaps: false, borderWidth: 1.5 }
+                 ]
+             };
+
+             // Annotation for simulated cost
+             const simulatedLevel = simulatedLevels[productName]?.level || 0;
+             const simulatedCost = simulatedLevels[productName]?.cost;
+             const annotation = {
+                 id: 'simulatedCostLine',
+                 type: 'line',
+                 display: simulatedLevel > 0 && typeof simulatedCost === 'number' && isFinite(simulatedCost),
+                 borderColor: simLineColor,
+                 borderWidth: 2,
+                 borderDash: [6, 6],
+                 label: {
+                     content: `Sim Cost (+${simulatedLevel}): ${formatPrice(simulatedCost)}`,
+                     display: true,
+                     position: 'end',
+                     backgroundColor: simLabelBgColor,
+                     color: simLabelColor,
+                     font: { size: 10 },
+                     padding: 3,
+                     borderRadius: 3
+                 },
+                 scaleID: 'y',
+                 value: simulatedCost
+             };
+
              if (currentChart) { currentChart.destroy(); }
+
              try {
-                 currentChart = new Chart(chartCanvas, { type: 'line', data: chartData, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: `${productName} (${currentChartTimeRange})`, font: { size: 15, weight: '600' }, padding: { bottom: 15 }, color: '#24292f' }, legend: { position: 'top', labels: { font: { size: 12 }, color: '#24292f' } }, tooltip: { mode: 'index', intersect: false, bodySpacing: 5, titleSpacing: 6, padding: 10, boxPadding: 4 }, annotation: { annotations: { simulatedCostLine: annotation } } }, scales: { x: { type: 'time', time: { unit: timeUnit, tooltipFormat: 'PPp', displayFormats: { hour: 'h:mm a', day: 'MMM d', week: 'MMM d yy' } }, title: { display: false }, grid: { display: false }, ticks: { font: { size: 11 }, color: '#57606a', autoSkip: true, maxRotation: 0, minRotation: 0, maxTicksLimit: 8 } }, y: { type: currentYScaleType, min: currentYScaleType === 'logarithmic' ? 1 : undefined, grace: '10%', title: { display: true, text: `Price (${currentYScaleType === 'logarithmic' ? 'Log' : 'Linear'} Scale)`, font: { size: 12 }, color: '#57606a' }, grid: { color: '#d0d7de' }, ticks: { font: { size: 11 }, color: '#57606a', callback: currentYScaleType === 'logarithmic' ? function(value) { if (value <= 0) return null; if (value < 1000) return value.toLocaleString(); if (value >= 1e9) return (value / 1e9).toFixed(1) + 'B'; if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M'; if (value >= 1e3) return (value / 1e3).toFixed(1) + 'k'; const log10 = Math.log10(value); if (Math.abs(log10 - Math.round(log10)) < 0.01) { return value.toLocaleString(); } return null; } : function(value) { return value.toLocaleString(); } } } }, interaction: { mode: 'index', axis: 'x', intersect: false }, animation: { duration: 0 } } });
-             } catch(e) { console.error("Error creating Chart.js instance:", e); chartPlotContainer.classList.add('hidden'); chartControlsArea.style.display = 'none'; chartPlaceholder.textContent = 'Error rendering chart.'; chartPlaceholder.style.display = 'flex'; }
-        }
+                 currentChart = new Chart(chartCanvas, {
+                     type: 'line',
+                     data: chartData,
+                     options: {
+                         responsive: true,
+                         maintainAspectRatio: false,
+                         plugins: {
+                             title: { display: true, text: `${productName} (${currentChartTimeRange})`, font: { size: 15, weight: '600' }, padding: { bottom: 15 }, color: primaryTextColor },
+                             legend: { position: 'top', labels: { font: { size: 12 }, color: primaryTextColor } },
+                             tooltip: { mode: 'index', intersect: false, bodySpacing: 5, titleSpacing: 6, padding: 10, boxPadding: 4 },
+                             annotation: { annotations: { simulatedCostLine: annotation } }
+                         },
+                         scales: {
+                             x: {
+                                 type: 'time',
+                                 time: { unit: timeUnit, tooltipFormat: 'PPp', displayFormats: { hour: 'h:mm a', day: 'MMM d', week: 'MMM d yy' } },
+                                 title: { display: false },
+                                 grid: { display: false },
+                                 ticks: { font: { size: 11 }, color: secondaryTextColor, autoSkip: true, maxRotation: 0, minRotation: 0, maxTicksLimit: 8 }
+                             },
+                             y: {
+                                 type: currentYScaleType,
+                                 min: currentYScaleType === 'logarithmic' ? 1 : undefined, // Log scale needs min > 0
+                                 grace: '10%', // Add padding above/below data
+                                 title: { display: true, text: `Price (${currentYScaleType === 'logarithmic' ? 'Log' : 'Linear'} Scale)`, font: { size: 12 }, color: secondaryTextColor },
+                                 grid: { color: gridColor },
+                                 ticks: {
+                                     font: { size: 11 },
+                                     color: secondaryTextColor,
+                                     // Improved Log scale callback for better readability
+                                     callback: currentYScaleType === 'logarithmic'
+                                         ? function(value, index, ticks) {
+                                             if (value <= 0) return null;
+                                             const log10 = Math.log10(value);
+                                             // Show labels for powers of 10 or the first/last tick if needed
+                                             if (Math.abs(log10 - Math.round(log10)) < 0.01 || index === 0 || index === ticks.length - 1) {
+                                                 if (value >= 1e9) return (value / 1e9).toFixed(0) + 'B';
+                                                 if (value >= 1e6) return (value / 1e6).toFixed(0) + 'M';
+                                                 if (value >= 1e3) return (value / 1e3).toFixed(0) + 'k';
+                                                 return value.toLocaleString();
+                                             }
+                                             return null; // Hide intermediate labels
+                                         }
+                                         : function(value) { return value.toLocaleString(); } // Standard formatting for linear
+                                 }
+                             }
+                         },
+                         interaction: { mode: 'index', axis: 'x', intersect: false },
+                         animation: { duration: 0 } // Disable animation for faster updates
+                     }
+                 });
+             } catch(e) {
+                 console.error("Error creating Chart.js instance:", e);
+                 showMessage(`Error rendering chart for ${productName}.`, 'error');
+                 chartPlotContainer.classList.add('hidden');
+                 chartControlsArea.style.display = 'none';
+                 chartPlaceholder.textContent = 'Error rendering chart.';
+                 chartPlaceholder.style.display = 'flex';
+             }
+         }
 
         // --- Enhancement Simulation Logic ---
         const defaultPlayerStats = { // Hardcoded default stats
-            enhancing_level: 100, observatory_level: 4, enhancer_level: 10,
-            use_enchanted: true, enchanted_level: 5, use_enhancer_top: false,
-            enhancer_top_level: 0, use_enhancer_bot: false, enhancer_bot_level: 0,
-            use_guzzling: true, guzzling_level: 0, tea_enhancing: false,
-            tea_super_enhancing: false, tea_ultra_enhancing: true, tea_blessed: true,
-            tea_wisdom: false, priceAskBidRatio: 1.0, hourly_rate: 0
+             enhancing_level: 100, observatory_level: 4, enhancer_level: 10,
+             use_enchanted: true, enchanted_level: 5, use_enhancer_top: false,
+             enhancer_top_level: 0, use_enhancer_bot: false, enhancer_bot_level: 0,
+             use_guzzling: true, guzzling_level: 0, tea_enhancing: false,
+             tea_super_enhancing: false, tea_ultra_enhancing: true, tea_blessed: true,
+             tea_wisdom: false, priceAskBidRatio: 1.0, hourly_rate: 0
         };
         const enhance_bonus = [ 1, 1.02, 1.042, 1.066, 1.092, 1.12, 1.15, 1.182, 1.216, 1.252, 1.29, 1.33, 1.372, 1.416, 1.462, 1.51, 1.56, 1.612, 1.666, 1.722, 1.78 ];
         const success_rate = [ 50, 45, 45, 40, 40, 40, 35, 35, 35, 35, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 25, 25, 25, 25, 25, 20, 20, 20, 20, 20 ]; // Extended to +30
 
         function handleLevelChange(event) {
              event.stopPropagation();
+             hideMessage(); // Clear previous messages
+
              const btn = event.currentTarget;
              const itemName = btn.dataset.itemName;
              const itemHrid = btn.dataset.hrid;
@@ -677,14 +922,15 @@
              let newLevel = currentSimData.level + change;
              newLevel = Math.max(0, Math.min(newLevel, 30)); // Clamp level
 
-             const displaySpanId = `level-display-${(itemHrid || itemName).replace(/[\s/]/g, '_')}`;
+             const safeIdSuffix = (itemHrid || itemName).replace(/[\s/]/g, '_');
+             const displaySpanId = `level-display-${safeIdSuffix}`;
              const displaySpan = document.getElementById(displaySpanId);
              if (displaySpan) displaySpan.textContent = newLevel >= 0 ? `+${newLevel}` : '+0';
 
              const row = btn.closest('tr');
              if (row) {
-                 row.querySelector('.enh-level-btn[data-change="-1"]').disabled = (newLevel <= 0);
-                 row.querySelector('.enh-level-btn[data-change="1"]').disabled = (newLevel >= 30);
+                 row.querySelector(`.enh-level-btn[data-change="-1"]`).disabled = (newLevel <= 0);
+                 row.querySelector(`.enh-level-btn[data-change="1"]`).disabled = (newLevel >= 30);
              }
 
              if (newLevel === 0) {
@@ -696,14 +942,21 @@
 
              if (!itemHrid || !gameData.itemDetailMap || !gameData.itemDetailMap[itemHrid]) {
                  console.error(`Cannot simulate: Item details not found for ${itemName} (HRID: ${itemHrid})`);
-                 alert(`Error: Item details not found for ${itemName}. Cannot calculate cost.`);
+                 // Use message area instead of alert
+                 showMessage(`Error: Item details not found for ${itemName}. Cannot calculate cost.`, 'error');
                  if (displaySpan) displaySpan.textContent = currentSimData.level >= 0 ? `+${currentSimData.level}` : '+0'; // Revert display
+                 if (row) { // Re-enable buttons if error occurs before async operation
+                    row.querySelector(`.enh-level-btn[data-change="-1"]`).disabled = (currentSimData.level <= 0);
+                    row.querySelector(`.enh-level-btn[data-change="1"]`).disabled = (currentSimData.level >= 30);
+                 }
                  return;
              }
 
              const inputData = { ...defaultPlayerStats, item_hrid: itemHrid, stop_at: newLevel };
 
+             // Disable buttons during calculation
              if (row) row.querySelectorAll('.enh-level-btn').forEach(b => b.disabled = true);
+             if (displaySpan) displaySpan.textContent = '...'; // Indicate calculation
 
              // Use setTimeout to avoid blocking UI during calculation
              setTimeout(async () => {
@@ -717,36 +970,58 @@
                      } else { throw new Error("Calculation returned invalid result (cost missing or NaN)."); }
                  } catch (error) {
                      console.error(`Error during enhancement simulation for ${itemName}:`, error);
-                     alert(`Error calculating cost for ${itemName}: ${error.message}`);
-                     if (displaySpan) displaySpan.textContent = currentSimData.level >= 0 ? `+${currentSimData.level}` : '+0';
-                     delete simulatedLevels[itemName];
+                     // Use message area instead of alert
+                     showMessage(`Error calculating cost for +${newLevel} ${itemName}: ${error.message}`, 'error');
+                     if (displaySpan) displaySpan.textContent = currentSimData.level >= 0 ? `+${currentSimData.level}` : '+0'; // Revert display on error
+                     delete simulatedLevels[itemName]; // Remove potentially bad data
+                      // Re-render row with original market price if calculation failed
+                     updateTableRowCost(itemName, 0, null); // Pass level 0 to trigger market price display
                  } finally {
+                     // Re-enable buttons after calculation attempt
                      if (row) {
-                         row.querySelector('.enh-level-btn[data-change="-1"]').disabled = (newLevel <= 0);
-                         row.querySelector('.enh-level-btn[data-change="1"]').disabled = (newLevel >= 30);
+                         // Ensure level display is correct even after error
+                         const finalLevel = simulatedLevels[itemName]?.level || 0;
+                         if (displaySpan) displaySpan.textContent = finalLevel >= 0 ? `+${finalLevel}` : '+0';
+                         row.querySelector(`.enh-level-btn[data-change="-1"]`).disabled = (finalLevel <= 0);
+                         row.querySelector(`.enh-level-btn[data-change="1"]`).disabled = (finalLevel >= 30);
                      }
                  }
-             }, 10);
-        }
+             }, 10); // Small delay to allow UI update (disabling buttons)
+         }
 
         function updateTableRowCost(itemName, level, cost) {
-            const encodedName = encodeURIComponent(itemName);
-            const row = tableBodyEl.querySelector(`tr[data-product="${encodedName}"]`);
-            if (row) {
-                const askCell = row.querySelector('td:nth-child(4)'); // Ask
-                const buyCell = row.querySelector('td:nth-child(5)'); // Buy
-                const formattedCost = formatPriceSimulated(cost);
-                if (askCell) askCell.innerHTML = formattedCost;
-                if (buyCell) buyCell.innerHTML = formattedCost;
-            }
-        }
+             const encodedName = encodeURIComponent(itemName);
+             const row = tableBodyEl.querySelector(`tr[data-product="${encodedName}"]`);
+             if (row) {
+                 const askCell = row.querySelector('td.ask-cell'); // Use specific class
+                 const buyCell = row.querySelector('td.buy-cell'); // Use specific class
+
+                 if (level > 0 && cost !== null) {
+                     // Display simulated cost
+                     const formattedCost = formatPriceSimulated(cost);
+                     if (askCell) askCell.innerHTML = formattedCost;
+                     if (buyCell) buyCell.innerHTML = formattedCost;
+                 } else {
+                     // Display market price (level is 0 or cost is null)
+                     const marketItem = marketSummary.find(item => item.name === itemName);
+                     if (marketItem) {
+                         if (askCell) askCell.innerHTML = formatPrice(marketItem.ask);
+                         if (buyCell) buyCell.innerHTML = formatPrice(marketItem.buy);
+                     } else {
+                         // Fallback if market item not found (shouldn't happen often)
+                         if (askCell) askCell.innerHTML = formatPrice(null);
+                         if (buyCell) buyCell.innerHTML = formatPrice(null);
+                     }
+                 }
+             }
+         }
 
         // --- Integrated Calculator Logic (Adapted from main.txt) ---
         // IMPORTANT: This logic is complex and adapted. Thorough testing is recommended.
         function Enhancelate(input_data, protect_at) {
             const itemDetail = gameData.itemDetailMap[input_data.item_hrid];
             if (!itemDetail) { console.error("Enhancelate: Item detail not found for", input_data.item_hrid); return null; }
-            const itemLevel = itemDetail.itemLevel;
+            const itemLevel = itemDetail.itemLevel || 1; // Default item level if missing
 
             // Calculate guzzling bonus
             let guzzling_bonus = 1;
@@ -777,50 +1052,82 @@
 
             if (targetLevel <= 0 || targetLevel > 30) { console.error("Target level out of bounds (1-30):", targetLevel); return null; }
 
+            // P is the transition matrix (targetLevel+1 x targetLevel+1)
             let P = math.zeros(targetLevel + 1, targetLevel + 1, 'sparse');
 
             for (let i = 0; i < targetLevel; i++) { // From level +i (index i)
-                const success_chance_base = (success_rate[i] || success_rate[success_rate.length - 1]) / 100.0; // Use last rate if index out of bounds
-                const success_chance_mod = Math.min(1.0, success_chance_base * total_bonus);
-                const failure_chance = 1.0 - success_chance_mod;
-                const destination_on_fail = (i + 1 >= protect_at) ? i : 0;
+                 const success_chance_base = (success_rate[i] || success_rate[success_rate.length - 1]) / 100.0; // Use last rate if index out of bounds
+                 const success_chance_mod = Math.min(1.0, success_chance_base * total_bonus);
+                 const failure_chance = 1.0 - success_chance_mod;
+                 // If level i+1 is protected (i.e., i+1 >= protect_at), destination on fail is i, otherwise 0
+                 const destination_on_fail = ((i + 1) >= protect_at) ? i : 0;
 
-                if (input_data.tea_blessed && (i + 2) <= targetLevel) {
-                    const blessed_chance = success_chance_mod * 0.01 * guzzling_bonus;
-                    const normal_success_chance = success_chance_mod * (1 - 0.01 * guzzling_bonus);
-                    P.set([i, i + 2], blessed_chance);
-                    P.set([i, i + 1], normal_success_chance);
-                } else {
-                    P.set([i, i + 1], success_chance_mod);
-                }
-                 P.set([i, destination_on_fail], math.add(P.get([i, destination_on_fail]) || 0, failure_chance));
+                 if (input_data.tea_blessed && (i + 2) <= targetLevel) { // Blessed can jump +2
+                     const blessed_chance = success_chance_mod * 0.01 * guzzling_bonus;
+                     const normal_success_chance = success_chance_mod * (1 - 0.01 * guzzling_bonus);
+                     P.set([i, i + 2], blessed_chance); // Transition i -> i+2
+                     P.set([i, i + 1], normal_success_chance); // Transition i -> i+1
+                 } else {
+                     P.set([i, i + 1], success_chance_mod); // Transition i -> i+1
+                 }
+                  // Add failure probability to the destination state (i or 0)
+                  P.set([i, destination_on_fail], math.add(P.get([i, destination_on_fail]) || 0, failure_chance));
             }
-            P.set([targetLevel, targetLevel], 1.0);
+            P.set([targetLevel, targetLevel], 1.0); // Target level is absorbing state
 
             try {
-                let Q = P.subset(math.index(math.range(0, targetLevel), math.range(0, targetLevel)));
-                let I = math.identity(targetLevel, 'sparse');
-                let N = math.lusolve(math.subtract(I, Q), I);
+                // Extract the transient states matrix Q (levels 0 to targetLevel-1)
+                let Q_subset_result = P.subset(math.index(math.range(0, targetLevel), math.range(0, targetLevel)));
 
-                const attemptsArray = N.subset(math.index(0, math.range(0, targetLevel)));
-                const attempts = math.sum(attemptsArray);
+                // --- ** START FIX for targetLevel=1 & dense matrix ** ---
+                let Q_dense;
+                // Check if subset result is a number (happens when targetLevel is 1)
+                if (targetLevel === 1 && typeof Q_subset_result === 'number') {
+                    // If targetLevel is 1, subset returns a number. Wrap it in a nested array to create a 1x1 matrix.
+                    Q_dense = math.matrix([[Q_subset_result]], 'dense');
+                    console.log("Handled targetLevel=1 case for Q_dense");
+                } else {
+                    // For targetLevel > 1, subset should return a Matrix. Convert it to dense.
+                    Q_dense = math.matrix(Q_subset_result, 'dense');
+                }
+                // Create dense Identity matrix
+                let I_dense = math.identity(targetLevel, 'dense'); // Use dense identity directly
+                let A_dense = math.subtract(I_dense, Q_dense); // A = I - Q
+                // --- ** END FIX ** ---
 
+                // --- ** START FIX: Use math.inv instead of lusolve ** ---
+                // Calculate the fundamental matrix N = (I - Q)^-1 using matrix inversion
+                // N = A^-1
+                console.log("Calculating N = inv(A_dense)..."); // Add log before inv
+                let N_dense = math.inv(A_dense);
+                // --- ** END FIX ** ---
+
+                // Convert N back to a standard math.js matrix object
+                let N = math.matrix(N_dense);
+
+                // Expected number of attempts = sum of the first row of N
+                const attemptsArray = N.subset(math.index(0, math.range(0, targetLevel))); // Get first row
+                const attempts = math.sum(attemptsArray); // Sum the elements of the first row
+
+                // Calculate expected number of protections used
                 let protects = 0;
                 if (protect_at <= targetLevel) {
                      for (let i = protect_at - 1; i < targetLevel; i++) {
                          const expected_visits_to_state_i = N.get([0, i]);
-                         const destination_on_fail_corrected = (i + 1 >= protect_at) ? i : 0;
-                         const failure_transition_prob = P.get([i, destination_on_fail_corrected]);
-                         protects += expected_visits_to_state_i * failure_transition_prob;
+                         const success_chance_base_i = (success_rate[i] || success_rate[success_rate.length - 1]) / 100.0;
+                         const success_chance_mod_i = Math.min(1.0, success_chance_base_i * total_bonus);
+                         const failure_chance_i = 1.0 - success_chance_mod_i;
+                         protects += expected_visits_to_state_i * failure_chance_i;
                      }
                 }
 
+
                  // --- Time Calculation ---
                  const calc_speed = function (item_hrid, level) {
-                    const item = gameData.itemDetailMap[item_hrid];
-                    if (!item || !item.equipmentDetail?.noncombatStats?.enhancingSpeed) return 0;
-                    const bonus = (level >= 0 && level < enhance_bonus.length) ? enhance_bonus[level] : 1;
-                    return Number((item.equipmentDetail.noncombatStats.enhancingSpeed * 100 * bonus).toFixed(2));
+                     const item = gameData.itemDetailMap[item_hrid];
+                     if (!item || !item.equipmentDetail?.noncombatStats?.enhancingSpeed) return 0;
+                     const bonus = (level >= 0 && level < enhance_bonus.length) ? enhance_bonus[level] : 1;
+                     return Number((item.equipmentDetail.noncombatStats.enhancingSpeed * 100 * bonus).toFixed(2));
                  };
                  const item_bonus = (input_data.use_enchanted ? calc_speed("/items/enchanted_gloves", input_data.enchanted_level) : 0.0) +
                                     (input_data.use_enhancer_top ? calc_speed("/items/enhancers_top", input_data.enhancer_top_level) : 0.0) +
@@ -828,7 +1135,7 @@
                  const tea_speed_bonus = (input_data.tea_enhancing ? 3 : (input_data.tea_super_enhancing ? 6 : (input_data.tea_ultra_enhancing ? 8 : 0))) * guzzling_bonus;
                  const timeBonusPercent = (input_data.enhancing_level > itemLevel ? ((effective_level + input_data.observatory_level - itemLevel) + item_bonus + tea_speed_bonus) : (input_data.observatory_level + item_bonus + tea_speed_bonus));
                  const timeMultiplier = 1 + timeBonusPercent / 100;
-                 const baseTime = 12;
+                 const baseTime = 12; // Base time per enhancement action
                  const perActionTimeSec = baseTime / timeMultiplier;
                  const totalActionTimeSec = perActionTimeSec * attempts;
 
@@ -839,131 +1146,306 @@
                     totalActionTimeStr: timeReadable(totalActionTimeSec)
                 };
             } catch (error) {
-                console.error("Markov chain calculation error:", error);
-                return null;
+                // Add more detailed logging in case of error
+                console.error(`Markov chain calculation error (targetLevel=${targetLevel}, protect_at=${protect_at}):`, error);
+                // Log matrix A if inversion or solve fails
+                if (error.message && (error.message.toLowerCase().includes("matrix is singular") || error.message.toLowerCase().includes("cannot calculate inverse"))) {
+                     try {
+                        let I_debug = math.identity(targetLevel, 'dense');
+                        let Q_subset_debug = P.subset(math.index(math.range(0, targetLevel), math.range(0, targetLevel)));
+                        let Q_debug;
+                         if (targetLevel === 1 && typeof Q_subset_debug === 'number') {
+                            Q_debug = math.matrix([[Q_subset_debug]], 'dense');
+                         } else {
+                            Q_debug = math.matrix(Q_subset_debug, 'dense');
+                         }
+                        let A_debug = math.subtract(I_debug, Q_debug);
+                        console.error("Matrix A (I-Q) that failed inversion:", A_debug.valueOf());
+                    } catch (logError) {
+                        console.error("Error during matrix logging for singular/inv error:", logError);
+                    }
+                    throw new Error("Calculation failed: Matrix is singular or non-invertible.");
+                }
+                 // Add specific check for dimension mismatch
+                 if (error.message && error.message.toLowerCase().includes("dimension mismatch")) {
+                    console.error("Dimension mismatch details:", { targetLevel: targetLevel, protect_at: protect_at });
+                 }
+                 // Check for the specific error reported by the user
+                 if (error.message && error.message.toLowerCase().includes("unexpected type of argument in function matrix")) {
+                     console.error("Error creating matrix, likely from Q_subset_result. Value:", Q_subset_result); // Log the problematic value
+                 }
+                throw error; // Re-throw other errors
             }
         }
 
         function getCosts(hrid, priceAskBidRatio) {
              const itemDetailObj = gameData.itemDetailMap[hrid];
              if (!itemDetailObj) return null;
-             const baseCost = getRealisticBaseItemPrice(hrid, priceAskBidRatio);
-             if (baseCost < 0) { console.warn(`Could not determine base cost for ${hrid}`); }
 
+             // Base cost: Use market price (ask/bid average based on ratio) or vendor price if unmarketable
+             const baseCost = getRealisticBaseItemPrice(hrid, priceAskBidRatio);
+             if (baseCost < 0) { console.warn(`Could not determine base cost for ${hrid}, using 0.`); }
+
+             // Protection cost: Find the cheapest protection item (including the item itself)
              let minProtectionPrice = Infinity; let minProtectionHrid = null;
-             let protect_item_hrids = ["/items/mirror_of_protection"];
-             if(itemDetailObj.protectionItemHrids && Array.isArray(itemDetailObj.protectionItemHrids)) { protect_item_hrids = protect_item_hrids.concat(itemDetailObj.protectionItemHrids); }
-             protect_item_hrids.push(hrid); protect_item_hrids = [...new Set(protect_item_hrids)];
+             let protect_item_hrids = ["/items/mirror_of_protection"]; // Default mirror
+             if(itemDetailObj.protectionItemHrids && Array.isArray(itemDetailObj.protectionItemHrids)) {
+                 protect_item_hrids = protect_item_hrids.concat(itemDetailObj.protectionItemHrids);
+             }
+             protect_item_hrids.push(hrid); // Can always use the item itself for protection
+             protect_item_hrids = [...new Set(protect_item_hrids)]; // Unique HRIDs
+
              protect_item_hrids.forEach((protection_hrid) => {
                  const this_cost = getRealisticBaseItemPrice(protection_hrid, priceAskBidRatio);
-                 if (this_cost >= 0 && this_cost < minProtectionPrice) { minProtectionPrice = this_cost; minProtectionHrid = protection_hrid; }
+                 // Ensure cost is valid (non-negative) before comparing
+                 if (this_cost >= 0 && this_cost < minProtectionPrice) {
+                     minProtectionPrice = this_cost;
+                     minProtectionHrid = protection_hrid;
+                 }
              });
-             if (minProtectionHrid === null) { minProtectionPrice = 0; }
+             // If no valid protection item found (e.g., all unmarketable/no vendor price), cost is effectively 0
+             if (minProtectionHrid === null) {
+                 minProtectionPrice = 0;
+                 console.warn(`No valid protection item price found for ${hrid}, using 0 protection cost.`);
+             }
 
+
+             // Per-action cost: Sum of costs of enhancement materials
              const needMap = {}; let totalNeedPrice = 0;
              if (itemDetailObj.enhancementCosts && Array.isArray(itemDetailObj.enhancementCosts)) {
                   itemDetailObj.enhancementCosts.forEach(need => {
+                      // Use market price or vendor price for materials
                       const price = getItemMarketPrice(need.itemHrid, priceAskBidRatio);
-                      totalNeedPrice += price * need.count;
-                      if (need.itemHrid !== "/items/coin") { const materialName = gameData.itemDetailMap[need.itemHrid]?.name || need.itemHrid; needMap[materialName] = price; }
+                      if (price < 0) {
+                          console.warn(`Could not determine cost for material ${need.itemHrid}, assuming 0.`);
+                          totalNeedPrice += 0; // Add 0 if price is unknown
+                      } else {
+                          totalNeedPrice += price * need.count;
+                      }
+                      // Store material price for potential display (exclude coins)
+                      if (need.itemHrid !== "/items/coin") {
+                          const materialName = gameData.itemDetailMap[need.itemHrid]?.name || need.itemHrid;
+                          needMap[materialName] = price >= 0 ? price : 'N/A';
+                      }
                   });
              } else { console.warn(`No enhancementCosts defined for ${hrid}`); }
-             return { baseCost: Math.max(0, baseCost), minProtectionCost: minProtectionPrice === Infinity ? 0 : minProtectionPrice, perActionCost: totalNeedPrice, choiceOfProtection: minProtectionHrid, needMap: needMap };
+
+             return {
+                 baseCost: Math.max(0, baseCost), // Ensure base cost is non-negative
+                 minProtectionCost: minProtectionPrice === Infinity ? 0 : minProtectionPrice, // Handle case where no protection found
+                 perActionCost: totalNeedPrice,
+                 choiceOfProtection: minProtectionHrid,
+                 needMap: needMap
+             };
+         }
+
+        // Gets the 'realistic' price, preferring market avg, then vendor price
+        function getRealisticBaseItemPrice(hrid, priceAskBidRatio) {
+            const marketPrice = getItemMarketPrice(hrid, priceAskBidRatio);
+            if (marketPrice >= 0) { // Found a valid market price (or 0 if unlisted)
+                return marketPrice;
+            }
+            // If market price is negative (error/unmarketable with no vendor price), return -1 to signal issue
+            return -1;
         }
 
-        function getRealisticBaseItemPrice(hrid, priceAskBidRatio) { return getItemMarketPrice(hrid, priceAskBidRatio); }
+        // Gets market price (ask/bid avg) or vendor price if not on market/no orders
         function getItemMarketPrice(hrid, priceAskBidRatio) {
+             if (hrid === "/items/coin") return 1; // Coins are always 1
+
              const fullName = gameData.itemDetailMap[hrid]?.name;
-             if (!fullName) return 0;
+             if (!fullName) return -1; // Cannot find item name, return error signal
+
              const itemMarketInfo = marketSummary.find(item => item.name === fullName);
-             if (!itemMarketInfo) { if (hrid === "/items/coin") return 1; return 0; }
-             const ask = itemMarketInfo.ask > 0 ? itemMarketInfo.ask : (itemMarketInfo.buy > 0 ? itemMarketInfo.buy : 0);
-             const bid = itemMarketInfo.buy > 0 ? itemMarketInfo.buy : (itemMarketInfo.ask > 0 ? itemMarketInfo.ask : 0);
-             if (ask <= 0 && bid <= 0) return 0;
-             return ask * priceAskBidRatio + bid * (1 - priceAskBidRatio);
-        }
+             const itemDetailInfo = gameData.itemDetailMap[hrid];
+             const vendorPrice = itemDetailInfo?.vendorPrice; // Get vendor price from game data
+
+             if (itemMarketInfo) {
+                 // Item is on the market summary
+                 const ask = typeof itemMarketInfo.ask === 'number' ? itemMarketInfo.ask : null;
+                 const buy = typeof itemMarketInfo.buy === 'number' ? itemMarketInfo.buy : null;
+
+                 if (ask !== null && buy !== null) {
+                     // Both ask and buy exist, calculate weighted average
+                     return ask * priceAskBidRatio + buy * (1 - priceAskBidRatio);
+                 } else if (ask !== null) {
+                     // Only ask exists
+                     return ask;
+                 } else if (buy !== null) {
+                     // Only buy exists
+                     return buy;
+                 }
+                 // No ask or buy orders, fall through to check vendor price
+             }
+
+             // Item not on market summary OR no orders, check vendor price
+             if (typeof vendorPrice === 'number' && vendorPrice > 0) {
+                 return vendorPrice;
+             }
+
+             // No market data and no vendor price (or vendor price is 0)
+             // Consider this item effectively price 0 unless it's the base item being enhanced
+             // For materials, 0 is okay. For base item, getCosts handles it.
+             // Check if the hrid belongs to the item being enhanced in the current context
+             // We might need to pass input_data to getItemMarketPrice or check globally, which is messy.
+             // A simpler approach: if no price found, return -1 to signal an issue.
+             // getCosts can then decide how to handle -1 (e.g., treat as 0 for materials, error for base item).
+             return -1; // Signal that no price could be determined
+         }
+
 
         async function findBestEnhanceStrat(input_data) {
-             let bestTotalCost = Infinity; let bestResult = null;
-             for (let protect_at = 2; protect_at <= input_data.stop_at + 1; protect_at++) {
-                 const current_protect_at = Math.min(protect_at, input_data.stop_at);
-                 const simResult = Enhancelate(input_data, current_protect_at);
-                 if (!simResult) { continue; }
-                 const costs = getCosts(input_data.item_hrid, input_data.priceAskBidRatio);
-                 if (!costs) { continue; }
-                 const actual_protect_count = (protect_at > input_data.stop_at) ? 0 : simResult.protect_count;
-                 const actual_protection_cost = (protect_at > input_data.stop_at) ? 0 : costs.minProtectionCost;
-                 const baseC = typeof costs.baseCost === 'number' ? costs.baseCost : 0;
-                 const protC = typeof actual_protection_cost === 'number' ? actual_protection_cost : 0;
-                 const protN = typeof actual_protect_count === 'number' ? actual_protect_count : 0;
-                 const actionC = typeof costs.perActionCost === 'number' ? costs.perActionCost : 0;
-                 const actionsN = typeof simResult.actions === 'number' ? simResult.actions : 0;
-                 const totalCost = baseC + (protC * protN) + (actionC * actionsN);
-                 if (totalCost < bestTotalCost) {
-                     bestTotalCost = totalCost;
-                     bestResult = { protect_at: protect_at > input_data.stop_at ? Infinity : current_protect_at, protect_count: actual_protect_count, simResult: simResult, costs: costs, totalCost: totalCost, protect_at_display: protect_at > input_data.stop_at ? "Never" : `+${current_protect_at}` };
-                 }
-             }
-             console.log("Best strategy found:", bestResult);
-             return bestResult;
+            let bestTotalCost = Infinity; let bestResult = null;
+            let calculationError = null; // Store the first error encountered
+
+            // Iterate through possible protection levels + "Never" protect
+            for (let protect_at = 2; protect_at <= input_data.stop_at + 1; protect_at++) {
+                // protect_at = stop_at + 1 signifies "Never protect"
+                const current_protect_at = Math.min(protect_at, input_data.stop_at + 1); // Use actual level or stop_at+1
+
+                try {
+                    const simResult = Enhancelate(input_data, current_protect_at);
+                    if (!simResult) {
+                         console.warn(`Enhancelate returned null for protect_at=${current_protect_at}`);
+                         continue; // Skip if simulation failed
+                    }
+
+                    const costs = getCosts(input_data.item_hrid, input_data.priceAskBidRatio);
+                    if (!costs) {
+                        console.warn(`getCosts returned null for ${input_data.item_hrid}`);
+                        // If we can't get costs for the base item, we can't proceed with this strategy
+                        // Store error if it's the first one encountered
+                        if (!calculationError) {
+                           calculationError = new Error(`Failed to get cost data for item ${input_data.item_hrid}`);
+                        }
+                        continue;
+                    }
+
+                    // Determine actual protection usage based on loop variable
+                    const useProtection = (protect_at <= input_data.stop_at);
+                    const actual_protect_count = useProtection ? simResult.protect_count : 0;
+                    const actual_protection_cost = useProtection ? costs.minProtectionCost : 0;
+
+                    // Validate costs and results are numbers before calculation
+                    const baseC = typeof costs.baseCost === 'number' ? costs.baseCost : 0;
+                    const protC = typeof actual_protection_cost === 'number' ? actual_protection_cost : 0;
+                    const protN = typeof actual_protect_count === 'number' ? actual_protect_count : 0;
+                    const actionC = typeof costs.perActionCost === 'number' ? costs.perActionCost : 0;
+                    const actionsN = typeof simResult.actions === 'number' ? simResult.actions : 0;
+
+                    if (isNaN(baseC) || isNaN(protC) || isNaN(protN) || isNaN(actionC) || isNaN(actionsN)) {
+                        console.warn(`NaN detected in cost calculation for protect_at=${current_protect_at}`);
+                        // Store error if it's the first one encountered
+                         if (!calculationError) {
+                           calculationError = new Error(`NaN value encountered during cost calculation for protect_at=${current_protect_at}`);
+                        }
+                        continue; // Skip if any component is NaN
+                    }
+
+                    const totalCost = baseC + (protC * protN) + (actionC * actionsN);
+
+                    if (totalCost < bestTotalCost) {
+                        bestTotalCost = totalCost;
+                        bestResult = {
+                            protect_at: useProtection ? current_protect_at : Infinity, // Store Infinity for "Never"
+                            protect_count: actual_protect_count,
+                            simResult: simResult,
+                            costs: costs,
+                            totalCost: totalCost,
+                            protect_at_display: useProtection ? `+${current_protect_at}` : "Never"
+                        };
+                    }
+                } catch (error) {
+                    // Store the first error encountered during the loop
+                    if (!calculationError) {
+                        calculationError = error;
+                    }
+                    console.error(`Error in findBestEnhanceStrat loop (protect_at=${current_protect_at}):`, error);
+                    // Continue loop to see if other strategies work, but report the error later
+                }
+            } // End of loop
+
+            // If an error occurred during the loop and no best result was found, throw the error
+            if (calculationError && !bestResult) {
+                throw calculationError;
+            }
+
+            // Log and return the best result found (or null if none worked)
+            console.log("Best strategy found:", bestResult);
+             // If bestTotalCost is still Infinity, it means no valid strategy was found
+            if (bestTotalCost === Infinity && !bestResult) {
+                // Throw the stored error, or a generic one if none was stored
+                throw calculationError || new Error("Could not find a valid enhancement strategy.");
+            }
+            return bestResult;
         }
 
+
          // ** ADDED: Function to load sample data on error **
-        function loadSampleDataForTesting() {
-             console.log("Loading SAMPLE data due to fetch error...");
-             const nowSec = Math.floor(Date.now() / 1000);
-             const sampleTimestamp1 = nowSec - 36 * 3600; const sampleTimestamp2 = nowSec - 12 * 3600; const sampleTimestamp3 = nowSec - 1 * 3600;
-             const sampleHistoryData = {
-                 "Test Item Alpha": { "buy": [ { "timestamp": sampleTimestamp1, "price": 140 }, { "timestamp": sampleTimestamp2, "price": 142 }, { "timestamp": sampleTimestamp3, "price": 150 } ], "ask": [ { "timestamp": sampleTimestamp1, "price": 155 }, { "timestamp": sampleTimestamp2, "price": 162 }, { "timestamp": sampleTimestamp3, "price": 160 } ] },
-                 "Test Item Beta": { "buy": [ { "timestamp": nowSec - 48 * 3600, "price": 2100 }, { "timestamp": nowSec - 24 * 3600, "price": 2050 }, { "timestamp": nowSec - 1 * 3600, "price": 2000 } ], "ask": [ { "timestamp": nowSec - 48 * 3600, "price": 2200 }, { "timestamp": nowSec - 24 * 3600, "price": null }, { "timestamp": nowSec - 1 * 3600, "price": null } ] },
-                 "Cheese Sword": { "buy": [ { "timestamp": sampleTimestamp1, "price": 1800 }, { "timestamp": sampleTimestamp3, "price": 1900 } ], "ask": [ { "timestamp": sampleTimestamp1, "price": 2800 }, { "timestamp": sampleTimestamp3, "price": 2900 } ] }
-             };
-             const sampleSummaryData = [
-                 { name: "Test Item Alpha", category: "Test Cat A", buy: 150, ask: 160, vendor: 10, trend: 5.5, hrid: "/items/test_item_alpha" },
-                 { name: "Test Item Beta", category: "Test Cat B", buy: 2000, ask: null, vendor: 500, trend: -2.1, hrid: "/items/test_item_beta" },
-                 { name: "Cheese Sword", category: "Equipment / Main Hand", buy: 1900, ask: 2900, vendor: 1000, trend: 1.5, hrid: "/items/cheese_sword" }
-             ];
-             const sampleGameData = {
-                 itemDetailMap: {
-                     "/items/cheese_sword": { name: "Cheese Sword", itemLevel: 10, enhancementCosts: [ { itemHrid: "/items/coin", count: 1000 }, { itemHrid: "/items/cheesesmithing_essence", count: 1 } ], protectionItemHrids: null },
-                     "/items/cheesesmithing_essence": { name: "Cheesesmithing Essence", itemLevel: 1, enhancementCosts: [] },
-                     "/items/coin": { name: "Coin", itemLevel: 1, enhancementCosts: [] },
-                     "/items/test_item_alpha": { name: "Test Item Alpha", itemLevel: 1, enhancementCosts: [] },
-                     "/items/test_item_beta": { name: "Test Item Beta", itemLevel: 1, enhancementCosts: [] }
-                 }
-             };
-             marketSummary = sampleSummaryData; allMarketData = sampleHistoryData; gameData = sampleGameData;
-             pinnedItems = getPinnedItems(); applyFiltersAndSort();
-             loadingMessageEl.style.display = 'none'; tableWrapperEl.classList.remove('hidden'); paginationEl.style.display = 'flex';
-             errorMessageEl.textContent += " Using sample data."; // Append to existing error message
-             errorMessageEl.classList.remove('hidden'); // Ensure error message is visible
-             displayChart("Test Item Alpha", null); // Show sample chart
-        }
+         function loadSampleDataForTesting() {
+              console.log("Loading SAMPLE data due to fetch error...");
+              const nowSec = Math.floor(Date.now() / 1000);
+              const sampleTimestamp1 = nowSec - 36 * 3600; const sampleTimestamp2 = nowSec - 12 * 3600; const sampleTimestamp3 = nowSec - 1 * 3600;
+              const sampleHistoryData = {
+                  "Test Item Alpha": { "buy": [ { "timestamp": sampleTimestamp1, "price": 140 }, { "timestamp": sampleTimestamp2, "price": 142 }, { "timestamp": sampleTimestamp3, "price": 150 } ], "ask": [ { "timestamp": sampleTimestamp1, "price": 155 }, { "timestamp": sampleTimestamp2, "price": 162 }, { "timestamp": sampleTimestamp3, "price": 160 } ] },
+                  "Test Item Beta": { "buy": [ { "timestamp": nowSec - 48 * 3600, "price": 2100 }, { "timestamp": nowSec - 24 * 3600, "price": 2050 }, { "timestamp": nowSec - 1 * 3600, "price": 2000 } ], "ask": [ { "timestamp": nowSec - 48 * 3600, "price": 2200 }, { "timestamp": nowSec - 24 * 3600, "price": null }, { "timestamp": nowSec - 1 * 3600, "price": null } ] },
+                  "Cheese Sword": { "buy": [ { "timestamp": sampleTimestamp1, "price": 1800 }, { "timestamp": sampleTimestamp3, "price": 1900 } ], "ask": [ { "timestamp": sampleTimestamp1, "price": 2800 }, { "timestamp": sampleTimestamp3, "price": 2900 } ] }
+              };
+              const sampleSummaryData = [
+                  { name: "Test Item Alpha", category: "Test Cat A", buy: 150, ask: 160, vendor: 10, trend: 5.5, hrid: "/items/test_item_alpha" },
+                  { name: "Test Item Beta", category: "Test Cat B", buy: 2000, ask: null, vendor: 500, trend: -2.1, hrid: "/items/test_item_beta" },
+                  { name: "Cheese Sword", category: "Equipment / Main Hand", buy: 1900, ask: 2900, vendor: 1000, trend: 1.5, hrid: "/items/cheese_sword" }
+              ];
+              const sampleGameData = {
+                  itemDetailMap: {
+                      "/items/cheese_sword": { name: "Cheese Sword", itemLevel: 10, vendorPrice: 1000, enhancementCosts: [ { itemHrid: "/items/coin", count: 1000 }, { itemHrid: "/items/cheesesmithing_essence", count: 1 } ], protectionItemHrids: null },
+                      "/items/cheesesmithing_essence": { name: "Cheesesmithing Essence", itemLevel: 1, vendorPrice: 50, enhancementCosts: [] },
+                      "/items/coin": { name: "Coin", itemLevel: 1, vendorPrice: 1, enhancementCosts: [] },
+                      "/items/test_item_alpha": { name: "Test Item Alpha", itemLevel: 1, vendorPrice: 10, enhancementCosts: [] },
+                      "/items/test_item_beta": { name: "Test Item Beta", itemLevel: 1, vendorPrice: 500, enhancementCosts: [] },
+                      "/items/mirror_of_protection": { name: "Mirror of Protection", itemLevel: 1, vendorPrice: 10000, enhancementCosts: [] } // Add mirror for testing
+                  }
+              };
+              marketSummary = sampleSummaryData; allMarketData = sampleHistoryData; gameData = sampleGameData;
+              pinnedItems = getPinnedItems();
+              populateCategoryFilter(); // Populate categories from sample data
+              applyFiltersAndSort();
+              loadingMessageEl.style.display = 'none'; tableWrapperEl.classList.remove('hidden'); paginationEl.style.display = 'flex';
+              // Message area already shows the error
+              lastUpdateEl.textContent = 'Using Sample Data'; // Update footer status
+              displayChart("Test Item Alpha", null); // Show sample chart
+          }
 
 
         // --- Event Handlers ---
         function handleProductClick(event) {
-             if (event.target.classList.contains('pin-icon') || event.target.classList.contains('enh-level-btn')) { return; } // Ignore clicks on pin/level buttons
+             if (event.target.classList.contains('pin-icon') || event.target.closest('.enh-level-control')) { return; } // Ignore clicks on pin/level controls
              const clickedLink = event.currentTarget;
              const clickedTr = clickedLink.closest('tr');
-             if (!clickedTr) return;
+             if (!clickedTr || !clickedTr.dataset.product) return; // Ensure row and product data exist
              const productName = decodeURIComponent(clickedTr.dataset.product);
              displayChart(productName, clickedTr);
-        }
+         }
         let searchTimeout;
         searchInput.addEventListener('input', (event) => { clearTimeout(searchTimeout); searchTimeout = setTimeout(() => { currentSearch = event.target.value; applyFiltersAndSort(); }, 300); });
         categoryFilterEl.addEventListener('change', (event) => { currentCategoryFilter = event.target.value; applyFiltersAndSort(); });
         sortOptionsEl.addEventListener('click', (event) => {
             if (event.target.tagName === 'BUTTON' && event.target.dataset.sort) {
                 const newSort = event.target.dataset.sort;
-                if (newSort === currentSort) { if (currentSort === 'name_asc') currentSort = 'name_desc'; else if (currentSort === 'name_desc') currentSort = 'name_asc'; }
-                else { currentSort = newSort; }
-                sortOptionsEl.querySelectorAll('button').forEach(btn => { btn.classList.toggle('current-sort', btn.dataset.sort === currentSort); });
+                // Toggle direction only for name sort
+                if (newSort === currentSort) {
+                     if (currentSort === 'name_asc') currentSort = 'name_desc';
+                     else if (currentSort === 'name_desc') currentSort = 'name_asc';
+                     // Add similar toggles for other columns if desired
+                } else {
+                    currentSort = newSort;
+                }
+                sortOptionsEl.querySelectorAll('button').forEach(btn => { btn.classList.toggle('current-sort', btn.dataset.sort === currentSort || (currentSort === 'name_desc' && btn.dataset.sort === 'name_asc')); }); // Highlight base name sort too
                 applyFiltersAndSort();
             }
         });
-        prevButton.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderCurrentPage(); } });
-        nextButton.addEventListener('click', () => { const totalPages = Math.ceil(filteredAndSortedSummary.length / itemsPerPage); if (currentPage < totalPages) { currentPage++; renderCurrentPage(); } });
+        prevButton.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderCurrentPage(); tableWrapperEl.scrollTop = 0; } }); // Scroll to top on page change
+        nextButton.addEventListener('click', () => { const totalPages = Math.ceil(filteredAndSortedSummary.length / itemsPerPage); if (currentPage < totalPages) { currentPage++; renderCurrentPage(); tableWrapperEl.scrollTop = 0; } }); // Scroll to top
         chartTimeControlsEl.addEventListener('click', (event) => {
             if (event.target.tagName === 'BUTTON' && event.target.dataset.range) {
                 const newRange = event.target.dataset.range;
@@ -981,8 +1463,6 @@
                 if (currentChartProduct) { displayChart(currentChartProduct, selectedTableRow); }
             });
         } else { console.error("Scale toggle button not found!"); }
-        // Removed test/live data button listeners
-
 
         // --- Initial Load ---
         document.addEventListener('DOMContentLoaded', () => {
