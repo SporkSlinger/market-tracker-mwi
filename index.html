@@ -64,6 +64,11 @@
             --message-bg-info: rgba(9, 105, 218, 0.1);
             --message-border-info: var(--info-color);
             --message-text-info: var(--info-color);
+            --settings-overlay-bg: rgba(0, 0, 0, 0.4);
+            --settings-panel-bg: var(--card-bg-color);
+            --settings-panel-shadow: 0 8px 24px rgba(140,149,159,.2);
+            --sim-details-bg: #f1f8ff; /* Light blue background */
+            --sim-details-border: #c8e1ff; /* Lighter blue border */
         }
 
         html[data-theme="dark"] {
@@ -114,6 +119,11 @@
             --message-bg-info: rgba(88, 166, 255, 0.15);
             --message-border-info: var(--info-color);
             --message-text-info: var(--info-color);
+            --settings-overlay-bg: rgba(0, 0, 0, 0.6);
+            --settings-panel-bg: var(--card-bg-color);
+            --settings-panel-shadow: 0 8px 24px rgba(1,4,9,.8);
+            --sim-details-bg: #1c2128; /* Darker background */
+            --sim-details-border: #30363d; /* Darker border */
         }
 
         /* --- General Styles (Using Variables) --- */
@@ -133,8 +143,8 @@
             text-align: center; margin-bottom: 15px; /* Reduced margin */
             display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
         }
-        /* Style for the theme toggle button */
-        #theme-toggle-btn {
+        /* Style for action buttons (theme, settings) */
+        .action-button {
             padding: 6px 16px; font-size: 0.9em; font-weight: 500;
             background-color: var(--button-bg-color); color: var(--text-color-primary);
             border: 1px solid var(--button-border-color); border-radius: 6px;
@@ -142,7 +152,7 @@
             transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
             display: inline-flex; align-items: center; gap: 6px;
         }
-        #theme-toggle-btn:hover { background-color: var(--button-hover-bg-color); }
+        .action-button:hover { background-color: var(--button-hover-bg-color); }
         /* Icon visibility styles */
         #theme-toggle-btn .fa-sun { display: none; }
         #theme-toggle-btn .fa-moon { display: inline-block; }
@@ -199,7 +209,7 @@
             border-color: var(--input-focus-border-color); outline: 0;
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.075), 0 0 0 0.25rem var(--input-focus-shadow-color);
         }
-        input[type="checkbox"] { border-radius: 0.25rem; border-color: var(--input-border-color); }
+        input[type="checkbox"], input[type="radio"] { margin-right: 0.3rem; vertical-align: middle; }
         .search-form input[type="text"] { min-width: 200px; }
         .category-filter select { min-width: 180px; }
 
@@ -275,6 +285,26 @@
         .chart-plot { flex-grow: 1; position: relative; min-height: 320px; }
         .chart-plot canvas { max-width: 100%; max-height: 380px; }
 
+        /* Simulation Details Panel */
+        #sim-details-panel {
+            background-color: var(--sim-details-bg);
+            border: 1px solid var(--sim-details-border);
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+        #sim-details-panel h4 {
+            margin-top: 0; margin-bottom: 10px; font-size: 1.1em;
+            font-weight: 600; color: var(--text-color-primary);
+            border-bottom: 1px solid var(--border-color); padding-bottom: 5px;
+        }
+        #sim-details-panel p { margin: 0 0 5px 0; }
+        #sim-details-panel strong { font-weight: 600; color: var(--text-color-primary); }
+        #sim-details-panel ul { margin: 5px 0 10px 20px; padding: 0; }
+        #sim-details-panel li { margin-bottom: 3px; }
+
         /* Pagination */
         .pagination { text-align: center; margin-top: 20px; padding-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .pagination button { padding: 7px 14px; background-color: var(--button-bg-color); border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); color: var(--accent-color); border-radius: 6px; transition: background-color 0.1s, border-color 0.1s; cursor: pointer; font-weight: 500; font-size: 0.9em; }
@@ -302,6 +332,8 @@
              .table-wrapper { max-height: 60vh; }
              h1 { font-size: 1.5em; }
              .chart-controls-container { flex-direction: column; gap: 10px; }
+             .settings-panel { width: 95%; padding: 20px; }
+             .settings-grid { grid-template-columns: 1fr; } /* Stack grid items on small screens */
          }
     </style>
 </head>
@@ -310,11 +342,15 @@
     <div class="container">
         <h1>MWI Market Trends</h1>
         <div class="title-button-container" >
-             <button id="theme-toggle-btn" title="Toggle Theme">
+             <button id="theme-toggle-btn" class="action-button" title="Toggle Theme">
                  <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
                  <span class="toggle-text" style="margin-left: 6px;">Toggle Theme</span>
              </button>
-             </div>
+             <button id="settings-btn" class="action-button" title="Simulation Settings">
+                 <i class="fas fa-cog"></i>
+                 <span style="margin-left: 6px;">Settings</span>
+             </button>
+        </div>
         <div class="feedback-link-container">
             <a href="https://github.com/SporkSlinger/market-tracker-mwi/issues" target="_blank" rel="noopener noreferrer">Report an Issue or Suggest a Feature</a>
         </div>
@@ -390,6 +426,8 @@
                      <div class="chart-plot hidden">
                          <canvas id="single-chart-canvas"></canvas>
                      </div>
+                     <div id="sim-details-panel" class="hidden">
+                         </div>
                 </div>
             </div>
         </div>
@@ -399,6 +437,65 @@
             <span class="status">Data Fetched: <span id="last-update">N/A</span></span> |
             <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
         </footer>
+
+        <div id="settings-overlay" class="settings-overlay hidden">
+            <div id="settings-panel" class="settings-panel">
+                <h2>Simulation Settings</h2>
+
+                <div class="settings-grid">
+                    <div>
+                        <label for="setting-enhancing-level">Enhancing Level:</label>
+                        <input type="number" id="setting-enhancing-level" min="0" max="110" step="1">
+                    </div>
+                    <div>
+                        <label for="setting-observatory-level">Observatory Level:</label>
+                        <input type="number" id="setting-observatory-level" min="0" max="10" step="1">
+                    </div>
+                     <div>
+                        <label for="setting-enhancer-level">Enhancer Tool Level:</label>
+                        <input type="number" id="setting-enhancer-level" min="0" max="20" step="1">
+                    </div>
+                    <div>
+                        <label for="setting-enchanted-level">Enchanted Gloves Level:</label>
+                        <div class="input-group">
+                            <input type="checkbox" id="setting-use-enchanted">
+                            <input type="number" id="setting-enchanted-level" min="0" max="5" step="1">
+                        </div>
+                    </div>
+                     <div>
+                        <label for="setting-protect-at">Start Protection At Level:</label>
+                        <input type="number" id="setting-protect-at" min="2" max="31" step="1">
+                        <small>(Enter 31+ for Never)</small>
+                    </div>
+                </div>
+
+                 <div class="settings-section">
+                    <h3>Teas</h3>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" id="setting-tea-enhancing"> Enhancing</label>
+                        <label><input type="checkbox" id="setting-tea-super-enhancing"> Super Enhancing</label>
+                        <label><input type="checkbox" id="setting-tea-ultra-enhancing"> Ultra Enhancing</label>
+                        <label><input type="checkbox" id="setting-tea-blessed"> Blessed</label>
+                        <label><input type="checkbox" id="setting-tea-wisdom"> Wisdom</label>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Pricing</h3>
+                     <div class="radio-group">
+                        <label><input type="radio" name="price-ratio" id="price-ratio-buy" value="0.0"> Use Buy/Bid Price</label>
+                        <label><input type="radio" name="price-ratio" id="price-ratio-ask" value="1.0"> Use Ask Price</label>
+                        <label><input type="radio" name="price-ratio" id="price-ratio-avg" value="0.5"> Use Average</label>
+                    </div>
+                </div>
+
+                <div class="settings-actions">
+                    <button id="settings-cancel-btn" class="action-button">Cancel</button>
+                    <button id="settings-save-btn" class="action-button save-btn">Save</button>
+                </div>
+            </div>
+        </div>
+
     </div> <script>
         // --- Global State ---
         let allMarketData = {}; // History data { "Product": { buy: [...], ask: [...] } }
@@ -418,8 +515,23 @@
         let pinnedItems = [];
         const PINNED_ITEMS_KEY = 'mwiPinnedItems';
         const MAX_PINNED_ITEMS = 10;
-        let simulatedLevels = {}; // Store simulated levels { itemName: { level: number, cost: number | null } }
+        let simulatedLevels = {}; // Store simulated levels { itemName: { level: number, result: object | null } }
         let messageTimeout = null; // Timeout ID for clearing messages
+
+        // --- Default Simulation Settings ---
+        const defaultSimSettings = {
+             enhancing_level: 100, observatory_level: 4, enhancer_level: 10,
+             use_enchanted: true, enchanted_level: 5, use_enhancer_top: false,
+             enhancer_top_level: 0, use_enhancer_bot: false, enhancer_bot_level: 0,
+             use_guzzling: true, guzzling_level: 0, tea_enhancing: false,
+             tea_super_enhancing: false, tea_ultra_enhancing: true, tea_blessed: true,
+             tea_wisdom: false,
+             priceAskBidRatio: 0.0, // Defaulting to Buy/Bid as requested
+             protect_at: 5, // Default protection level as requested
+             hourly_rate: 0
+        };
+        let currentSimSettings = { ...defaultSimSettings }; // Mutable settings object
+        const SIM_SETTINGS_KEY = 'mwiSimSettings';
 
         // --- DOM Elements ---
         const tableBodyEl = document.getElementById('item-table-body');
@@ -441,6 +553,29 @@
         const messageAreaEl = document.getElementById('message-area'); // Message display area
         const themeToggleButton = document.getElementById('theme-toggle-btn');
         const lastUpdateEl = document.getElementById('last-update');
+        // Settings Panel Elements
+        const settingsButton = document.getElementById('settings-btn');
+        const settingsOverlay = document.getElementById('settings-overlay');
+        const settingsPanel = document.getElementById('settings-panel');
+        const settingsSaveButton = document.getElementById('settings-save-btn');
+        const settingsCancelButton = document.getElementById('settings-cancel-btn');
+        const simDetailsPanel = document.getElementById('sim-details-panel'); // Simulation details display area
+        // Settings Form Inputs
+        const settingEnhancingLevel = document.getElementById('setting-enhancing-level');
+        const settingObservatoryLevel = document.getElementById('setting-observatory-level');
+        const settingEnhancerLevel = document.getElementById('setting-enhancer-level');
+        const settingUseEnchanted = document.getElementById('setting-use-enchanted');
+        const settingEnchantedLevel = document.getElementById('setting-enchanted-level');
+        const settingTeaEnhancing = document.getElementById('setting-tea-enhancing');
+        const settingTeaSuperEnhancing = document.getElementById('setting-tea-super-enhancing');
+        const settingTeaUltraEnhancing = document.getElementById('setting-tea-ultra-enhancing');
+        const settingTeaBlessed = document.getElementById('setting-tea-blessed');
+        const settingTeaWisdom = document.getElementById('setting-tea-wisdom');
+        const priceRatioBuy = document.getElementById('price-ratio-buy');
+        const priceRatioAsk = document.getElementById('price-ratio-ask');
+        const priceRatioAvg = document.getElementById('price-ratio-avg');
+        const settingProtectAt = document.getElementById('setting-protect-at');
+
 
         // --- SVG Icons for Trends ---
         const trendUpIcon = `<svg class="trend-icon" aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"><path fill="currentColor" d="M8.707 2.293a1 1 0 0 0-1.414 0l-4 4a1 1 0 1 0 1.414 1.414L8 4.414l3.293 3.293a1 1 0 0 0 1.414-1.414l-4-4Z"></path></svg>`;
@@ -574,6 +709,135 @@
         if (themeToggleButton) { themeToggleButton.addEventListener('click', toggleTheme); }
         else { console.error("Theme toggle button (#theme-toggle-btn) not found!"); }
 
+        // --- Settings Panel Logic ---
+        function openSettingsPanel() {
+            populateSettingsForm(); // Load current settings into form
+            settingsOverlay.classList.remove('hidden');
+            settingsOverlay.classList.add('visible');
+        }
+        function closeSettingsPanel() {
+            settingsOverlay.classList.remove('visible');
+            settingsOverlay.classList.add('hidden');
+        }
+        function populateSettingsForm() {
+            settingEnhancingLevel.value = currentSimSettings.enhancing_level;
+            settingObservatoryLevel.value = currentSimSettings.observatory_level;
+            settingEnhancerLevel.value = currentSimSettings.enhancer_level;
+            settingUseEnchanted.checked = currentSimSettings.use_enchanted;
+            settingEnchantedLevel.value = currentSimSettings.enchanted_level;
+            settingEnchantedLevel.disabled = !currentSimSettings.use_enchanted; // Disable level if checkbox unchecked
+            settingTeaEnhancing.checked = currentSimSettings.tea_enhancing;
+            settingTeaSuperEnhancing.checked = currentSimSettings.tea_super_enhancing;
+            settingTeaUltraEnhancing.checked = currentSimSettings.tea_ultra_enhancing;
+            settingTeaBlessed.checked = currentSimSettings.tea_blessed;
+            settingTeaWisdom.checked = currentSimSettings.tea_wisdom;
+            settingProtectAt.value = currentSimSettings.protect_at > 30 ? 31 : currentSimSettings.protect_at; // Show 31+ for "Never"
+
+            // Set price ratio radio button
+            if (currentSimSettings.priceAskBidRatio === 0.0) priceRatioBuy.checked = true;
+            else if (currentSimSettings.priceAskBidRatio === 1.0) priceRatioAsk.checked = true;
+            else if (currentSimSettings.priceAskBidRatio === 0.5) priceRatioAvg.checked = true;
+            else priceRatioBuy.checked = true; // Default to buy if invalid value
+        }
+        function saveSettings() {
+            const newSettings = { ...currentSimSettings }; // Start with current settings
+
+            // Read and validate numerical values
+            newSettings.enhancing_level = parseInt(settingEnhancingLevel.value, 10) || 0;
+            newSettings.observatory_level = parseInt(settingObservatoryLevel.value, 10) || 0;
+            newSettings.enhancer_level = parseInt(settingEnhancerLevel.value, 10) || 0;
+            newSettings.enchanted_level = parseInt(settingEnchantedLevel.value, 10) || 0;
+            newSettings.protect_at = parseInt(settingProtectAt.value, 10) || 5; // Default to 5 if invalid
+
+            // Read boolean values
+            newSettings.use_enchanted = settingUseEnchanted.checked;
+            newSettings.tea_enhancing = settingTeaEnhancing.checked;
+            newSettings.tea_super_enhancing = settingTeaSuperEnhancing.checked;
+            newSettings.tea_ultra_enhancing = settingTeaUltraEnhancing.checked;
+            newSettings.tea_blessed = settingTeaBlessed.checked;
+            newSettings.tea_wisdom = settingTeaWisdom.checked;
+
+            // Read price ratio
+            if (priceRatioBuy.checked) newSettings.priceAskBidRatio = 0.0;
+            else if (priceRatioAsk.checked) newSettings.priceAskBidRatio = 1.0;
+            else if (priceRatioAvg.checked) newSettings.priceAskBidRatio = 0.5;
+
+            // Update global settings and save to localStorage
+            currentSimSettings = newSettings;
+            localStorage.setItem(SIM_SETTINGS_KEY, JSON.stringify(currentSimSettings));
+            console.log("Simulation settings saved:", currentSimSettings);
+            closeSettingsPanel();
+            showMessage("Settings saved. Recalculating costs...", 'info', 3000);
+            // Recalculate costs after a short delay to allow UI to update
+            setTimeout(recalculateAllSimCosts, 50);
+        }
+
+        function loadSettings() {
+             const saved = localStorage.getItem(SIM_SETTINGS_KEY);
+             if (saved) {
+                 try {
+                     const parsed = JSON.parse(saved);
+                     // Merge saved settings with defaults to ensure all keys exist
+                     currentSimSettings = { ...defaultSimSettings, ...parsed };
+                     console.log("Simulation settings loaded from localStorage:", currentSimSettings);
+                 } catch (e) {
+                     console.error("Error parsing saved settings, using defaults.", e);
+                     currentSimSettings = { ...defaultSimSettings };
+                 }
+             } else {
+                 currentSimSettings = { ...defaultSimSettings };
+                 console.log("No saved settings found, using defaults.");
+             }
+             // Apply the loaded (or default) settings to the form initially
+             populateSettingsForm();
+        }
+
+        // Recalculate all currently displayed simulation costs
+        async function recalculateAllSimCosts() {
+            console.log("Recalculating simulation costs...");
+            const itemsToRecalculate = Object.keys(simulatedLevels);
+            if (itemsToRecalculate.length === 0) {
+                console.log("No simulated costs to recalculate.");
+                return;
+            }
+
+            // Use Promise.all to run calculations concurrently (optional, might be heavy)
+            // For simplicity, running sequentially here:
+            for (const itemName of itemsToRecalculate) {
+                const level = simulatedLevels[itemName].level;
+                const itemHrid = marketSummary.find(item => item.name === itemName)?.hrid ||
+                               (gameData.itemDetailMap && Object.keys(gameData.itemDetailMap).find(hrid => gameData.itemDetailMap[hrid]?.name === itemName));
+
+                if (itemHrid && level > 0) {
+                    const inputData = { ...currentSimSettings, item_hrid: itemHrid, stop_at: level };
+                    try {
+                        // Use calculateEnhanceStrat instead of findBestEnhanceStrat
+                        const result = await calculateEnhanceStrat(inputData, itemName);
+                        if (result && typeof result.totalCost === 'number') {
+                            simulatedLevels[itemName].result = result; // Store full result
+                        } else {
+                             console.warn(`Recalculation failed for ${itemName} +${level}`);
+                             delete simulatedLevels[itemName]; // Remove if calculation fails
+                        }
+                    } catch (error) {
+                         console.error(`Error recalculating cost for ${itemName} +${level}:`, error);
+                         delete simulatedLevels[itemName]; // Remove on error
+                    }
+                } else {
+                     delete simulatedLevels[itemName]; // Remove if invalid state
+                }
+            }
+
+            console.log("Recalculation complete.");
+            renderCurrentPage(); // Re-render the table with updated costs
+            // Update chart and details panel if the selected item was recalculated
+            if (currentChartProduct) {
+                 displayChart(currentChartProduct, selectedTableRow); // Re-render chart
+                 displaySimulationDetails(currentChartProduct); // Re-render details
+            }
+        }
+
+
         // --- Data Fetching (Fetches Summary, History, and Game Data) ---
         async function loadData() {
             // Reset UI state
@@ -581,6 +845,7 @@
             if(currentChart) { currentChart.destroy(); currentChart = null; }
             chartPlotContainer.classList.add('hidden'); chartControlsArea.style.display = 'none';
             chartPlaceholder.style.display = 'flex'; chartPlaceholder.textContent = 'Select an item name from the table to view its chart.';
+            simDetailsPanel.classList.add('hidden'); // Hide details panel
             currentChartProduct = null; if(selectedTableRow) selectedTableRow.classList.remove('selected-item'); selectedTableRow = null;
             loadingMessageEl.style.display = 'block';
             tableWrapperEl.classList.add('hidden'); paginationEl.style.display = 'none';
@@ -682,6 +947,8 @@
         function renderCurrentPage() {
              tableBodyEl.innerHTML = '';
              if (selectedTableRow) { selectedTableRow.classList.remove('selected-item'); selectedTableRow = null; }
+             hideSimulationDetails(); // Hide details when table re-renders
+
              const currentPins = getPinnedItems();
              const totalItems = filteredAndSortedSummary.length;
              const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -705,8 +972,10 @@
                      const itemDetail = itemHrid && gameData.itemDetailMap && gameData.itemDetailMap[itemHrid];
                      const isEnhanceable = itemDetail && Array.isArray(itemDetail.enhancementCosts) && itemDetail.enhancementCosts.length > 0;
                      const currentSimLevel = simulatedLevels[item.name]?.level || 0;
-                     const displayAsk = currentSimLevel > 0 ? formatPriceSimulated(simulatedLevels[item.name]?.cost) : formatPrice(item.ask);
-                     const displayBuy = currentSimLevel > 0 ? formatPriceSimulated(simulatedLevels[item.name]?.cost) : formatPrice(item.buy);
+                     // Use the stored result's totalCost if available
+                     const simCost = simulatedLevels[item.name]?.result?.totalCost;
+                     const displayAsk = currentSimLevel > 0 ? formatPriceSimulated(simCost) : formatPrice(item.ask);
+                     const displayBuy = currentSimLevel > 0 ? formatPriceSimulated(simCost) : formatPrice(item.buy);
                      const safeIdSuffix = (itemHrid || item.name).replace(/[\s/]/g, '_'); // Create a safe ID suffix
 
                      tr.innerHTML = `
@@ -734,7 +1003,11 @@
                          tr.querySelectorAll('.enh-level-btn').forEach(btn => btn.addEventListener('click', handleLevelChange));
                      }
                      tableBodyEl.appendChild(tr);
-                     if (item.name === currentChartProduct) { tr.classList.add('selected-item'); selectedTableRow = tr; }
+                     if (item.name === currentChartProduct) {
+                         tr.classList.add('selected-item');
+                         selectedTableRow = tr;
+                         displaySimulationDetails(item.name); // Show details if item is selected
+                     }
                  });
              }
              renderPagination(totalPages);
@@ -767,6 +1040,7 @@
                  if (currentChart) { currentChart.destroy(); currentChart = null; }
                  chartPlotContainer.classList.add('hidden'); chartControlsArea.style.display = 'none';
                  chartPlaceholder.textContent = `No price history data available for ${productName}.`; chartPlaceholder.style.display = 'flex';
+                 hideSimulationDetails(); // Hide sim details if no chart data
                  return;
              }
 
@@ -784,6 +1058,7 @@
                   if (currentChart) { currentChart.destroy(); currentChart = null; }
                   chartPlotContainer.classList.add('hidden'); chartControlsArea.style.display = 'none';
                   chartPlaceholder.textContent = `No data available for ${productName} in the selected time range (${currentChartTimeRange}).`; chartPlaceholder.style.display = 'flex';
+                   hideSimulationDetails(); // Hide sim details if no chart data
                   return;
              }
 
@@ -813,7 +1088,7 @@
 
              // Annotation for simulated cost
              const simulatedLevel = simulatedLevels[productName]?.level || 0;
-             const simulatedCost = simulatedLevels[productName]?.cost;
+             const simulatedCost = simulatedLevels[productName]?.result?.totalCost; // Get from stored result
              const annotation = {
                  id: 'simulatedCostLine',
                  type: 'line',
@@ -897,20 +1172,57 @@
                  chartPlaceholder.textContent = 'Error rendering chart.';
                  chartPlaceholder.style.display = 'flex';
              }
+
+             // Display simulation details if available
+             displaySimulationDetails(productName);
          }
 
+        // --- Simulation Details Display ---
+        function displaySimulationDetails(itemName) {
+            const simData = simulatedLevels[itemName];
+            if (simData && simData.result && simDetailsPanel) {
+                const result = simData.result;
+                const costs = result.costs;
+                const simResult = result.simResult;
+
+                let materialsHtml = '<ul>';
+                if (costs.needMap && Object.keys(costs.needMap).length > 0) {
+                    for (const matName in costs.needMap) {
+                        materialsHtml += `<li>${matName}: ${formatPrice(costs.needMap[matName])}</li>`;
+                    }
+                } else {
+                    materialsHtml += '<li>N/A</li>';
+                }
+                materialsHtml += '</ul>';
+
+                simDetailsPanel.innerHTML = `
+                    <h4>Simulation Details (+${simData.level} ${itemName})</h4>
+                    <p><strong>Total Estimated Cost:</strong> ${formatPrice(Math.round(result.totalCost))}</p>
+                    <p><strong>Estimated Time:</strong> ${simResult.totalActionTimeStr || 'N/A'}</p>
+                    <p><strong>Protection Strategy:</strong> Start at ${result.protect_at_display}</p>
+                    <p><strong>Base Item Cost Used:</strong> ${formatPrice(costs.baseCost)}</p>
+                    <p><strong>Protection Item Cost Used:</strong> ${formatPrice(costs.minProtectionCost)} (per item)</p>
+                    <p><strong>Material Cost Used (per attempt):</strong> ${formatPrice(costs.perActionCost)}</p>
+                    <p><strong>Materials:</strong></p>
+                    ${materialsHtml}
+                    <p><small>(Attempts: ${simResult.actions?.toFixed(2)}, Protections: ${result.protect_count?.toFixed(2)})</small></p>
+                `;
+                simDetailsPanel.classList.remove('hidden');
+            } else {
+                hideSimulationDetails();
+            }
+        }
+
+        function hideSimulationDetails() {
+            if (simDetailsPanel) {
+                simDetailsPanel.innerHTML = '';
+                simDetailsPanel.classList.add('hidden');
+            }
+        }
+
         // --- Enhancement Simulation Logic ---
-        // Updated defaultPlayerStats based on user requirements
-        const defaultPlayerStats = {
-             enhancing_level: 100, observatory_level: 4, enhancer_level: 10,
-             use_enchanted: true, enchanted_level: 5, use_enhancer_top: false,
-             enhancer_top_level: 0, use_enhancer_bot: false, enhancer_bot_level: 0,
-             use_guzzling: true, guzzling_level: 0, tea_enhancing: false,
-             tea_super_enhancing: false, tea_ultra_enhancing: true, tea_blessed: true,
-             tea_wisdom: false,
-             priceAskBidRatio: 0.0, // Changed from 1.0 to 0.0 to prioritize Buy/Bid price
-             hourly_rate: 0
-        };
+        // Settings are now loaded into currentSimSettings from localStorage or defaults
+
         const enhance_bonus = [ 1, 1.02, 1.042, 1.066, 1.092, 1.12, 1.15, 1.182, 1.216, 1.252, 1.29, 1.33, 1.372, 1.416, 1.462, 1.51, 1.56, 1.612, 1.666, 1.722, 1.78 ];
         const success_rate = [ 50, 45, 45, 40, 40, 40, 35, 35, 35, 35, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 25, 25, 25, 25, 25, 20, 20, 20, 20, 20 ]; // Extended to +30
 
@@ -922,7 +1234,7 @@
              const itemName = btn.dataset.itemName;
              const itemHrid = btn.dataset.hrid;
              const change = parseInt(btn.dataset.change, 10);
-             const currentSimData = simulatedLevels[itemName] || { level: 0, cost: null };
+             const currentSimData = simulatedLevels[itemName] || { level: 0, result: null }; // Store result now
              let newLevel = currentSimData.level + change;
              newLevel = Math.max(0, Math.min(newLevel, 30)); // Clamp level
 
@@ -940,13 +1252,15 @@
              if (newLevel === 0) {
                  delete simulatedLevels[itemName];
                  renderCurrentPage(); // Re-render to show market prices
-                 if (currentChartProduct === itemName) { displayChart(itemName, selectedTableRow); }
+                 if (currentChartProduct === itemName) {
+                     displayChart(itemName, selectedTableRow); // Update chart
+                     hideSimulationDetails(); // Hide details panel
+                 }
                  return;
              }
 
              if (!itemHrid || !gameData.itemDetailMap || !gameData.itemDetailMap[itemHrid]) {
                  console.error(`Cannot simulate: Item details not found for ${itemName} (HRID: ${itemHrid})`);
-                 // Use message area instead of alert
                  showMessage(`Error: Item details not found for ${itemName}. Cannot calculate cost.`, 'error');
                  if (displaySpan) displaySpan.textContent = currentSimData.level >= 0 ? `+${currentSimData.level}` : '+0'; // Revert display
                  if (row) { // Re-enable buttons if error occurs before async operation
@@ -956,7 +1270,8 @@
                  return;
              }
 
-             const inputData = { ...defaultPlayerStats, item_hrid: itemHrid, stop_at: newLevel };
+             // Use currentSimSettings instead of defaultPlayerStats
+             const inputData = { ...currentSimSettings, item_hrid: itemHrid, stop_at: newLevel };
 
              // Disable buttons during calculation
              if (row) row.querySelectorAll('.enh-level-btn').forEach(b => b.disabled = true);
@@ -965,26 +1280,28 @@
              // Use setTimeout to avoid blocking UI during calculation
              setTimeout(async () => {
                  try {
-                     // Call renamed function
-                     const bestStrat = await findBestEnhanceStrat(inputData, itemName); // Pass itemName for logging
-                     if (bestStrat && typeof bestStrat.totalCost === 'number') {
-                         const cost = Math.round(bestStrat.totalCost);
-                         simulatedLevels[itemName] = { level: newLevel, cost: cost };
-                         updateTableRowCost(itemName, newLevel, cost);
-                         if (currentChartProduct === itemName) { displayChart(itemName, selectedTableRow); }
+                     // Use calculateEnhanceStrat instead of findBestEnhanceStrat
+                     const result = await calculateEnhanceStrat(inputData, itemName); // Pass itemName for logging
+                     if (result && typeof result.totalCost === 'number') {
+                         simulatedLevels[itemName] = { level: newLevel, result: result }; // Store full result
+                         updateTableRowCost(itemName, newLevel, result.totalCost); // Update table with cost
+                         if (currentChartProduct === itemName) {
+                             displayChart(itemName, selectedTableRow); // Update chart
+                             displaySimulationDetails(itemName); // Update details panel
+                         }
                      } else { throw new Error("Calculation returned invalid result (cost missing or NaN)."); }
                  } catch (error) {
                      console.error(`Error during enhancement simulation for ${itemName}:`, error);
-                     // Use message area instead of alert
                      showMessage(`Error calculating cost for +${newLevel} ${itemName}: ${error.message}`, 'error');
                      if (displaySpan) displaySpan.textContent = currentSimData.level >= 0 ? `+${currentSimData.level}` : '+0'; // Revert display on error
                      delete simulatedLevels[itemName]; // Remove potentially bad data
-                      // Re-render row with original market price if calculation failed
-                     updateTableRowCost(itemName, 0, null); // Pass level 0 to trigger market price display
+                     updateTableRowCost(itemName, 0, null); // Revert to market price display
+                     if (currentChartProduct === itemName) {
+                         hideSimulationDetails(); // Hide details if calculation failed
+                     }
                  } finally {
                      // Re-enable buttons after calculation attempt
                      if (row) {
-                         // Ensure level display is correct even after error
                          const finalLevel = simulatedLevels[itemName]?.level || 0;
                          if (displaySpan) displaySpan.textContent = finalLevel >= 0 ? `+${finalLevel}` : '+0';
                          row.querySelector(`.enh-level-btn[data-change="-1"]`).disabled = (finalLevel <= 0);
@@ -1001,13 +1318,13 @@
                  const askCell = row.querySelector('td.ask-cell'); // Use specific class
                  const buyCell = row.querySelector('td.buy-cell'); // Use specific class
 
-                 if (level > 0 && cost !== null) {
+                 if (level > 0 && cost !== null && isFinite(cost)) { // Check cost is valid number
                      // Display simulated cost
-                     const formattedCost = formatPriceSimulated(cost);
+                     const formattedCost = formatPriceSimulated(Math.round(cost)); // Round here for display
                      if (askCell) askCell.innerHTML = formattedCost;
                      if (buyCell) buyCell.innerHTML = formattedCost;
                  } else {
-                     // Display market price (level is 0 or cost is null)
+                     // Display market price (level is 0 or cost is null/invalid)
                      const marketItem = marketSummary.find(item => item.name === itemName);
                      if (marketItem) {
                          if (askCell) askCell.innerHTML = formatPrice(marketItem.ask);
@@ -1299,127 +1616,92 @@
          }
 
 
-        // --- ** START DEBUG LOGGING MODIFICATION ** ---
-        async function findBestEnhanceStrat(input_data, itemNameForLogging) { // Added itemNameForLogging
-            let bestTotalCost = Infinity; let bestResult = null;
-            let calculationError = null; // Store the first error encountered
+        // --- ** START MODIFICATION: Calculate strategy for a fixed protection level ** ---
+        // Renamed from findBestEnhanceStrat
+        async function calculateEnhanceStrat(input_data, itemNameForLogging) {
+            let calculationResult = null;
+            let calculationError = null;
 
-            // Check if we should log for this specific item/level
+            // Use the protection level from currentSimSettings
+            const protect_at_setting = currentSimSettings.protect_at || 5; // Default to 5 if not set
+            // Determine the actual protect_at value for the simulation
+            // protect_at_setting > stop_at means "Never protect"
+            const current_protect_at = Math.min(protect_at_setting, input_data.stop_at + 1);
+            const protect_at_display = protect_at_setting > input_data.stop_at ? "Never" : `+${protect_at_setting}`;
+
             const isDebuggingTarget = (itemNameForLogging === "Arcane Fire Staff" && input_data.stop_at === 5);
-            if (isDebuggingTarget) {
-                console.groupCollapsed(`Debugging findBestEnhanceStrat for ${itemNameForLogging} +${input_data.stop_at}`); // Use groupCollapsed
-                console.log("Input Data:", JSON.parse(JSON.stringify(input_data))); // Log a copy
+             if (isDebuggingTarget) {
+                console.groupCollapsed(`Debugging calculateEnhanceStrat for ${itemNameForLogging} +${input_data.stop_at} (Protect At: ${protect_at_display})`);
+                console.log("Input Data:", JSON.parse(JSON.stringify(input_data)));
             }
 
-            // Iterate through possible protection levels + "Never" protect
-            for (let protect_at = 2; protect_at <= input_data.stop_at + 1; protect_at++) {
-                // protect_at = stop_at + 1 signifies "Never protect"
-                const current_protect_at = Math.min(protect_at, input_data.stop_at + 1); // Use actual level or stop_at+1
-                const protect_at_display = protect_at > input_data.stop_at ? "Never" : `+${current_protect_at}`;
-
-                if (isDebuggingTarget) {
-                    console.log(`--- Testing protect_at: ${protect_at_display} ---`);
+            try {
+                // Call simulation function for the fixed protection level
+                const simResult = simulateEnhancement(input_data, current_protect_at);
+                if (!simResult) {
+                    throw new Error(`simulateEnhancement returned null for protect_at=${protect_at_display}`);
+                }
+                 if (isDebuggingTarget) {
+                    console.log(`Sim Result (protect_at=${protect_at_display}):`, JSON.parse(JSON.stringify(simResult)));
                 }
 
-                try {
-                    // Call simulation function
-                    const simResult = simulateEnhancement(input_data, current_protect_at);
-                    if (!simResult) {
-                         console.warn(`simulateEnhancement returned null for protect_at=${protect_at_display}`);
-                         if (isDebuggingTarget) console.log(`Sim Result: null`);
-                         continue; // Skip if simulation failed
-                    }
-                    if (isDebuggingTarget) {
-                        console.log(`Sim Result (protect_at=${protect_at_display}):`, JSON.parse(JSON.stringify(simResult)));
-                    }
-
-                    const costs = getCosts(input_data.item_hrid, input_data.priceAskBidRatio);
-                    if (!costs) {
-                        console.warn(`getCosts returned null for ${input_data.item_hrid}`);
-                        if (isDebuggingTarget) console.log(`Costs: null`);
-                        // If we can't get costs for the base item, we can't proceed with this strategy
-                        // Store error if it's the first one encountered
-                        if (!calculationError) {
-                           calculationError = new Error(`Failed to get cost data for item ${input_data.item_hrid}`);
-                        }
-                        continue;
-                    }
-                     if (isDebuggingTarget) {
-                        console.log(`Costs (protect_at=${protect_at_display}):`, JSON.parse(JSON.stringify(costs)));
-                    }
-
-                    // Determine actual protection usage based on loop variable
-                    const useProtection = (protect_at <= input_data.stop_at);
-                    const actual_protect_count = useProtection ? simResult.protect_count : 0;
-                    const actual_protection_cost = useProtection ? costs.minProtectionCost : 0;
-
-                    // Validate costs and results are numbers before calculation
-                    const baseC = typeof costs.baseCost === 'number' ? costs.baseCost : 0;
-                    const protC = typeof actual_protection_cost === 'number' ? actual_protection_cost : 0;
-                    const protN = typeof actual_protect_count === 'number' ? actual_protect_count : 0;
-                    const actionC = typeof costs.perActionCost === 'number' ? costs.perActionCost : 0;
-                    const actionsN = typeof simResult.actions === 'number' ? simResult.actions : 0;
-
-                    if (isNaN(baseC) || isNaN(protC) || isNaN(protN) || isNaN(actionC) || isNaN(actionsN)) {
-                        console.warn(`NaN detected in cost calculation for protect_at=${protect_at_display}`);
-                        if (isDebuggingTarget) {
-                             console.log(`NaN Values: baseC=${baseC}, protC=${protC}, protN=${protN}, actionC=${actionC}, actionsN=${actionsN}`);
-                        }
-                        // Store error if it's the first one encountered
-                         if (!calculationError) {
-                           calculationError = new Error(`NaN value encountered during cost calculation for protect_at=${protect_at_display}`);
-                        }
-                        continue; // Skip if any component is NaN
-                    }
-
-                    const totalCost = baseC + (protC * protN) + (actionC * actionsN);
-                     if (isDebuggingTarget) {
-                        console.log(`Total Cost (protect_at=${protect_at_display}): ${totalCost.toLocaleString()} (base: ${baseC.toLocaleString()}, prot: ${protC.toLocaleString()}*${protN.toFixed(3)}, action: ${actionC.toLocaleString()}*${actionsN.toFixed(3)})`);
-                    }
-
-                    if (totalCost < bestTotalCost) {
-                        bestTotalCost = totalCost;
-                        bestResult = {
-                            protect_at: useProtection ? current_protect_at : Infinity, // Store Infinity for "Never"
-                            protect_count: actual_protect_count,
-                            simResult: simResult,
-                            costs: costs,
-                            totalCost: totalCost,
-                            protect_at_display: protect_at_display
-                        };
-                         if (isDebuggingTarget) {
-                            console.log(`>>> New best strategy found: protect_at=${protect_at_display}, cost=${totalCost.toLocaleString()}`);
-                        }
-                    }
-                } catch (error) {
-                    // Store the first error encountered during the loop
-                    if (!calculationError) {
-                        calculationError = error;
-                    }
-                    console.error(`Error in findBestEnhanceStrat loop (protect_at=${protect_at_display}):`, error);
-                    // Continue loop to see if other strategies work, but report the error later
+                const costs = getCosts(input_data.item_hrid, input_data.priceAskBidRatio);
+                if (!costs) {
+                    throw new Error(`Failed to get cost data for item ${input_data.item_hrid}`);
                 }
-            } // End of loop
+                 if (isDebuggingTarget) {
+                    console.log(`Costs (protect_at=${protect_at_display}):`, JSON.parse(JSON.stringify(costs)));
+                }
 
-            // If an error occurred during the loop and no best result was found, throw the error
-            if (calculationError && !bestResult) {
-                if (isDebuggingTarget) console.groupEnd(); // Close debug group on error
+                // Determine actual protection usage based on the fixed strategy
+                const useProtection = (protect_at_setting <= input_data.stop_at);
+                const actual_protect_count = useProtection ? simResult.protect_count : 0;
+                const actual_protection_cost = useProtection ? costs.minProtectionCost : 0;
+
+                // Validate costs and results are numbers before calculation
+                const baseC = typeof costs.baseCost === 'number' ? costs.baseCost : 0;
+                const protC = typeof actual_protection_cost === 'number' ? actual_protection_cost : 0;
+                const protN = typeof actual_protect_count === 'number' ? actual_protect_count : 0;
+                const actionC = typeof costs.perActionCost === 'number' ? costs.perActionCost : 0;
+                const actionsN = typeof simResult.actions === 'number' ? simResult.actions : 0;
+
+                if (isNaN(baseC) || isNaN(protC) || isNaN(protN) || isNaN(actionC) || isNaN(actionsN)) {
+                     if (isDebuggingTarget) {
+                        console.log(`NaN Values: baseC=${baseC}, protC=${protC}, protN=${protN}, actionC=${actionC}, actionsN=${actionsN}`);
+                    }
+                    throw new Error(`NaN value encountered during cost calculation for protect_at=${protect_at_display}`);
+                }
+
+                const totalCost = baseC + (protC * protN) + (actionC * actionsN);
+                 if (isDebuggingTarget) {
+                    console.log(`Total Cost (protect_at=${protect_at_display}): ${totalCost.toLocaleString()} (base: ${baseC.toLocaleString()}, prot: ${protC.toLocaleString()}*${protN.toFixed(3)}, action: ${actionC.toLocaleString()}*${actionsN.toFixed(3)})`);
+                }
+
+                calculationResult = {
+                    protect_at: useProtection ? current_protect_at : Infinity, // Store actual level used or Infinity
+                    protect_count: actual_protect_count,
+                    simResult: simResult,
+                    costs: costs,
+                    totalCost: totalCost,
+                    protect_at_display: protect_at_display // Store the user setting display
+                };
+
+            } catch (error) {
+                calculationError = error;
+                console.error(`Error in calculateEnhanceStrat (protect_at=${protect_at_display}):`, error);
+            }
+
+            if (calculationError && !calculationResult) {
+                 if (isDebuggingTarget) console.groupEnd();
                 throw calculationError;
             }
 
-            // Log and return the best result found (or null if none worked)
-            console.log(`Best strategy found for ${itemNameForLogging} +${input_data.stop_at}:`, bestResult ? JSON.parse(JSON.stringify(bestResult)) : null); // Log copy
-             // If bestTotalCost is still Infinity, it means no valid strategy was found
-            if (bestTotalCost === Infinity && !bestResult) {
-                if (isDebuggingTarget) console.groupEnd(); // Close debug group on error
-                // Throw the stored error, or a generic one if none was stored
-                throw calculationError || new Error("Could not find a valid enhancement strategy.");
-            }
+            console.log(`Calculated strategy for ${itemNameForLogging} +${input_data.stop_at} (Protect At: ${protect_at_display}):`, calculationResult ? JSON.parse(JSON.stringify(calculationResult)) : null);
 
-            if (isDebuggingTarget) console.groupEnd(); // Close debug group on success
-            return bestResult;
+            if (isDebuggingTarget) console.groupEnd();
+            return calculationResult; // Return the result for the fixed strategy
         }
-        // --- ** END DEBUG LOGGING MODIFICATION ** ---
+        // --- ** END MODIFICATION ** ---
 
 
          // ** ADDED: Function to load sample data on error **
@@ -1505,10 +1787,36 @@
             });
         } else { console.error("Scale toggle button not found!"); }
 
+        // Settings Panel Event Listeners
+        if (settingsButton) {
+            settingsButton.addEventListener('click', openSettingsPanel);
+        }
+        if (settingsOverlay) {
+            // Close on overlay click
+            settingsOverlay.addEventListener('click', (event) => {
+                if (event.target === settingsOverlay) {
+                    closeSettingsPanel();
+                }
+            });
+        }
+        if (settingsSaveButton) {
+            settingsSaveButton.addEventListener('click', saveSettings);
+        }
+        if (settingsCancelButton) {
+            settingsCancelButton.addEventListener('click', closeSettingsPanel);
+        }
+        // Disable level input if checkbox is unchecked
+        if (settingUseEnchanted && settingEnchantedLevel) {
+            settingUseEnchanted.addEventListener('change', () => {
+                settingEnchantedLevel.disabled = !settingUseEnchanted.checked;
+            });
+        }
+
         // --- Initial Load ---
         document.addEventListener('DOMContentLoaded', () => {
             initTheme(); // Initialize theme based on localStorage/preference
-            loadData(); // Load data
+            loadSettings(); // Load simulation settings from localStorage or use defaults
+            loadData(); // Load market/game data
         });
 
     </script>
