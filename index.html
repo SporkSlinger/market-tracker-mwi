@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MWI Market Trends & Enhancer Sim</title>
+    <title>MWI Market Trends & Simulator</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.min.js"></script>
@@ -589,10 +589,11 @@
             try {
                 pinnedItems = getPinnedItems(); console.log("Loaded pinned items:", pinnedItems);
                 // Fetch all data concurrently
+                // Updated URL comment below
                 const [summaryRes, historyRes, gameDataRes] = await Promise.all([
                     fetch('./data/market_summary.json?t=' + Date.now()), // Cache bust
                     fetch('./data/market_history.json?t=' + Date.now()), // Cache bust
-                    fetch('https://doh-nuts.github.io/Enhancelator/init_client_info.json?t=' + Date.now()) // Cache bust
+                    fetch('https://doh-nuts.github.io/Enhancelator/init_client_info.json?t=' + Date.now()) // Cache bust - Original source for game data
                 ]);
 
                 // Process Summary
@@ -899,13 +900,16 @@
          }
 
         // --- Enhancement Simulation Logic ---
-        const defaultPlayerStats = { // Hardcoded default stats
+        // Updated defaultPlayerStats based on user requirements
+        const defaultPlayerStats = {
              enhancing_level: 100, observatory_level: 4, enhancer_level: 10,
              use_enchanted: true, enchanted_level: 5, use_enhancer_top: false,
              enhancer_top_level: 0, use_enhancer_bot: false, enhancer_bot_level: 0,
              use_guzzling: true, guzzling_level: 0, tea_enhancing: false,
              tea_super_enhancing: false, tea_ultra_enhancing: true, tea_blessed: true,
-             tea_wisdom: false, priceAskBidRatio: 1.0, hourly_rate: 0
+             tea_wisdom: false,
+             priceAskBidRatio: 0.0, // Changed from 1.0 to 0.0 to prioritize Buy/Bid price
+             hourly_rate: 0
         };
         const enhance_bonus = [ 1, 1.02, 1.042, 1.066, 1.092, 1.12, 1.15, 1.182, 1.216, 1.252, 1.29, 1.33, 1.372, 1.416, 1.462, 1.51, 1.56, 1.612, 1.666, 1.722, 1.78 ];
         const success_rate = [ 50, 45, 45, 40, 40, 40, 35, 35, 35, 35, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 25, 25, 25, 25, 25, 20, 20, 20, 20, 20 ]; // Extended to +30
@@ -961,7 +965,8 @@
              // Use setTimeout to avoid blocking UI during calculation
              setTimeout(async () => {
                  try {
-                     const bestStrat = await findBestEnhanceStrat(inputData); // Use adapted function
+                     // Call renamed function
+                     const bestStrat = await findBestEnhanceStrat(inputData, itemName); // Pass itemName for logging
                      if (bestStrat && typeof bestStrat.totalCost === 'number') {
                          const cost = Math.round(bestStrat.totalCost);
                          simulatedLevels[itemName] = { level: newLevel, cost: cost };
@@ -1016,11 +1021,11 @@
              }
          }
 
-        // --- Integrated Calculator Logic (Adapted from main.txt) ---
-        // IMPORTANT: This logic is complex and adapted. Thorough testing is recommended.
-        function Enhancelate(input_data, protect_at) {
+        // --- Integrated Calculator Logic (Adapted and RENAMED) ---
+        // Renamed from Enhancelate to simulateEnhancement
+        function simulateEnhancement(input_data, protect_at) {
             const itemDetail = gameData.itemDetailMap[input_data.item_hrid];
-            if (!itemDetail) { console.error("Enhancelate: Item detail not found for", input_data.item_hrid); return null; }
+            if (!itemDetail) { console.error("simulateEnhancement: Item detail not found for", input_data.item_hrid); return null; }
             const itemLevel = itemDetail.itemLevel || 1; // Default item level if missing
 
             // Calculate guzzling bonus
@@ -1085,7 +1090,7 @@
                 if (targetLevel === 1 && typeof Q_subset_result === 'number') {
                     // If targetLevel is 1, subset returns a number. Wrap it in a nested array to create a 1x1 matrix.
                     Q_dense = math.matrix([[Q_subset_result]], 'dense');
-                    console.log("Handled targetLevel=1 case for Q_dense");
+                    // console.log("Handled targetLevel=1 case for Q_dense"); // Keep commented unless debugging
                 } else {
                     // For targetLevel > 1, subset should return a Matrix. Convert it to dense.
                     Q_dense = math.matrix(Q_subset_result, 'dense');
@@ -1098,7 +1103,7 @@
                 // --- ** START FIX: Use math.inv instead of lusolve ** ---
                 // Calculate the fundamental matrix N = (I - Q)^-1 using matrix inversion
                 // N = A^-1
-                console.log("Calculating N = inv(A_dense)..."); // Add log before inv
+                // console.log("Calculating N = inv(A_dense)..."); // Keep commented unless debugging
                 let N_dense = math.inv(A_dense);
                 // --- ** END FIX ** ---
 
@@ -1270,10 +1275,10 @@
                      return ask * priceAskBidRatio + buy * (1 - priceAskBidRatio);
                  } else if (ask !== null) {
                      // Only ask exists
-                     return ask;
+                     return ask * priceAskBidRatio + ask * (1 - priceAskBidRatio); // Effectively just ask
                  } else if (buy !== null) {
                      // Only buy exists
-                     return buy;
+                     return buy * priceAskBidRatio + buy * (1 - priceAskBidRatio); // Effectively just buy
                  }
                  // No ask or buy orders, fall through to check vendor price
              }
@@ -1294,31 +1299,53 @@
          }
 
 
-        async function findBestEnhanceStrat(input_data) {
+        // --- ** START DEBUG LOGGING MODIFICATION ** ---
+        async function findBestEnhanceStrat(input_data, itemNameForLogging) { // Added itemNameForLogging
             let bestTotalCost = Infinity; let bestResult = null;
             let calculationError = null; // Store the first error encountered
+
+            // Check if we should log for this specific item/level
+            const isDebuggingTarget = (itemNameForLogging === "Arcane Fire Staff" && input_data.stop_at === 5);
+            if (isDebuggingTarget) {
+                console.groupCollapsed(`Debugging findBestEnhanceStrat for ${itemNameForLogging} +${input_data.stop_at}`); // Use groupCollapsed
+                console.log("Input Data:", JSON.parse(JSON.stringify(input_data))); // Log a copy
+            }
 
             // Iterate through possible protection levels + "Never" protect
             for (let protect_at = 2; protect_at <= input_data.stop_at + 1; protect_at++) {
                 // protect_at = stop_at + 1 signifies "Never protect"
                 const current_protect_at = Math.min(protect_at, input_data.stop_at + 1); // Use actual level or stop_at+1
+                const protect_at_display = protect_at > input_data.stop_at ? "Never" : `+${current_protect_at}`;
+
+                if (isDebuggingTarget) {
+                    console.log(`--- Testing protect_at: ${protect_at_display} ---`);
+                }
 
                 try {
-                    const simResult = Enhancelate(input_data, current_protect_at);
+                    // Call simulation function
+                    const simResult = simulateEnhancement(input_data, current_protect_at);
                     if (!simResult) {
-                         console.warn(`Enhancelate returned null for protect_at=${current_protect_at}`);
+                         console.warn(`simulateEnhancement returned null for protect_at=${protect_at_display}`);
+                         if (isDebuggingTarget) console.log(`Sim Result: null`);
                          continue; // Skip if simulation failed
+                    }
+                    if (isDebuggingTarget) {
+                        console.log(`Sim Result (protect_at=${protect_at_display}):`, JSON.parse(JSON.stringify(simResult)));
                     }
 
                     const costs = getCosts(input_data.item_hrid, input_data.priceAskBidRatio);
                     if (!costs) {
                         console.warn(`getCosts returned null for ${input_data.item_hrid}`);
+                        if (isDebuggingTarget) console.log(`Costs: null`);
                         // If we can't get costs for the base item, we can't proceed with this strategy
                         // Store error if it's the first one encountered
                         if (!calculationError) {
                            calculationError = new Error(`Failed to get cost data for item ${input_data.item_hrid}`);
                         }
                         continue;
+                    }
+                     if (isDebuggingTarget) {
+                        console.log(`Costs (protect_at=${protect_at_display}):`, JSON.parse(JSON.stringify(costs)));
                     }
 
                     // Determine actual protection usage based on loop variable
@@ -1334,15 +1361,21 @@
                     const actionsN = typeof simResult.actions === 'number' ? simResult.actions : 0;
 
                     if (isNaN(baseC) || isNaN(protC) || isNaN(protN) || isNaN(actionC) || isNaN(actionsN)) {
-                        console.warn(`NaN detected in cost calculation for protect_at=${current_protect_at}`);
+                        console.warn(`NaN detected in cost calculation for protect_at=${protect_at_display}`);
+                        if (isDebuggingTarget) {
+                             console.log(`NaN Values: baseC=${baseC}, protC=${protC}, protN=${protN}, actionC=${actionC}, actionsN=${actionsN}`);
+                        }
                         // Store error if it's the first one encountered
                          if (!calculationError) {
-                           calculationError = new Error(`NaN value encountered during cost calculation for protect_at=${current_protect_at}`);
+                           calculationError = new Error(`NaN value encountered during cost calculation for protect_at=${protect_at_display}`);
                         }
                         continue; // Skip if any component is NaN
                     }
 
                     const totalCost = baseC + (protC * protN) + (actionC * actionsN);
+                     if (isDebuggingTarget) {
+                        console.log(`Total Cost (protect_at=${protect_at_display}): ${totalCost.toLocaleString()} (base: ${baseC.toLocaleString()}, prot: ${protC.toLocaleString()}*${protN.toFixed(3)}, action: ${actionC.toLocaleString()}*${actionsN.toFixed(3)})`);
+                    }
 
                     if (totalCost < bestTotalCost) {
                         bestTotalCost = totalCost;
@@ -1352,33 +1385,41 @@
                             simResult: simResult,
                             costs: costs,
                             totalCost: totalCost,
-                            protect_at_display: useProtection ? `+${current_protect_at}` : "Never"
+                            protect_at_display: protect_at_display
                         };
+                         if (isDebuggingTarget) {
+                            console.log(`>>> New best strategy found: protect_at=${protect_at_display}, cost=${totalCost.toLocaleString()}`);
+                        }
                     }
                 } catch (error) {
                     // Store the first error encountered during the loop
                     if (!calculationError) {
                         calculationError = error;
                     }
-                    console.error(`Error in findBestEnhanceStrat loop (protect_at=${current_protect_at}):`, error);
+                    console.error(`Error in findBestEnhanceStrat loop (protect_at=${protect_at_display}):`, error);
                     // Continue loop to see if other strategies work, but report the error later
                 }
             } // End of loop
 
             // If an error occurred during the loop and no best result was found, throw the error
             if (calculationError && !bestResult) {
+                if (isDebuggingTarget) console.groupEnd(); // Close debug group on error
                 throw calculationError;
             }
 
             // Log and return the best result found (or null if none worked)
-            console.log("Best strategy found:", bestResult);
+            console.log(`Best strategy found for ${itemNameForLogging} +${input_data.stop_at}:`, bestResult ? JSON.parse(JSON.stringify(bestResult)) : null); // Log copy
              // If bestTotalCost is still Infinity, it means no valid strategy was found
             if (bestTotalCost === Infinity && !bestResult) {
+                if (isDebuggingTarget) console.groupEnd(); // Close debug group on error
                 // Throw the stored error, or a generic one if none was stored
                 throw calculationError || new Error("Could not find a valid enhancement strategy.");
             }
+
+            if (isDebuggingTarget) console.groupEnd(); // Close debug group on success
             return bestResult;
         }
+        // --- ** END DEBUG LOGGING MODIFICATION ** ---
 
 
          // ** ADDED: Function to load sample data on error **
