@@ -2,10 +2,10 @@
 <html lang="en"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MWI Market Trends</title>
+    <title>MWI Market Trends & Enhancer Sim</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@^4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.min.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js" integrity="sha512-Hn1w6YiiFw6p6S2lXv6yKeqTk0PLVzeCwWY9n32beuPjQ5HLcvz5l2QsP+KilEr1ws37rCTw3bZpvfvVIG6BFw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -45,16 +45,11 @@
             --na-value-color: #cdd4de;
             --vendor-price-color: var(--text-color-secondary);
             --chart-placeholder-color: #b0b8c2;
-            --chart-title-color: var(--text-color-primary);
-            --chart-legend-color: var(--text-color-primary);
-            --chart-tick-color: var(--text-color-secondary);
-            --chart-grid-color: var(--border-color);
-            --chart-buy-color: var(--accent-color); /* Use accent for buy */
-            --chart-ask-color: var(--negative-color); /* Use negative for ask */
-            --chart-tooltip-bg: rgba(0, 0, 0, 0.8);
-            --chart-tooltip-text-color: #ffffff;
+            /* Chart element colors are hardcoded in JS options */
             --pin-color: #d0d7de; /* Color for unpinned star */
             --pin-color-active: #ffab00; /* Color for pinned star (gold) */
+            --calc-border-color: #e1e4e8; /* Specific border for calc sections */
+            --simulated-cost-color: #57606a; /* Color for simulated cost text */
         }
 
         html[data-theme="dark"] {
@@ -89,16 +84,11 @@
             --na-value-color: #484f58;
             --vendor-price-color: var(--text-color-secondary);
             --chart-placeholder-color: #6e7681;
-            --chart-title-color: var(--text-color-primary);
-            --chart-legend-color: var(--text-color-primary);
-            --chart-tick-color: var(--text-color-secondary);
-            --chart-grid-color: #21262d;
-            --chart-buy-color: var(--accent-color); /* Use accent for buy */
-            --chart-ask-color: var(--negative-color); /* Use negative for ask */
-            --chart-tooltip-bg: rgba(201, 209, 217, 0.9);
-            --chart-tooltip-text-color: #0d1117;
+            /* Chart element colors are hardcoded in JS options */
             --pin-color: #484f58; /* Dark mode unpinned star */
             --pin-color-active: #f1e05a; /* Dark mode pinned star (lighter gold) */
+            --calc-border-color: #30363d;
+            --simulated-cost-color: #8b949e; /* Dark mode simulated cost text */
         }
 
         /* --- General Styles (Using Variables) --- */
@@ -108,32 +98,26 @@
             background-color: var(--bg-color); color: var(--text-color-primary);
             line-height: 1.5; font-size: 14px;
             transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-            /* Removed padding-bottom */
         }
         .container { max-width: 1600px; margin: 25px auto; padding: 0 25px; }
         h1 { text-align: center; color: var(--text-color-primary); margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.8em; letter-spacing: -0.5px; }
+        h2 { text-align: center; color: var(--text-color-secondary); margin-top: 1rem; margin-bottom: 1.5rem; font-weight: 500; font-size: 1.3em; }
 
         /* Container for the buttons under title */
         .title-button-container {
-            text-align: center; /* Center the buttons */
-            margin-bottom: 25px; /* Space below buttons */
-            display: flex; /* Use flexbox */
-            justify-content: center; /* Center items horizontally */
-            gap: 10px; /* Add space between buttons */
-            flex-wrap: wrap; /* Allow wrapping on small screens */
+            text-align: center; margin-bottom: 25px; display: flex;
+            justify-content: center; gap: 10px; flex-wrap: wrap;
         }
         /* Style for the theme toggle button */
-        #theme-toggle-btn, #show-test-graph-btn, #show-live-data-btn { /* Apply to all buttons */
+        #theme-toggle-btn {
             padding: 6px 16px; font-size: 0.9em; font-weight: 500;
             background-color: var(--button-bg-color); color: var(--text-color-primary);
             border: 1px solid var(--button-border-color); border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-            display: inline-flex; /* Align icon and text */
-            align-items: center;
-            gap: 6px; /* Space between icon and text */
+            display: inline-flex; align-items: center; gap: 6px;
         }
-        #theme-toggle-btn:hover, #show-test-graph-btn:hover, #show-live-data-btn:hover { background-color: var(--button-hover-bg-color); }
+        #theme-toggle-btn:hover { background-color: var(--button-hover-bg-color); }
         /* Icon visibility styles */
         #theme-toggle-btn .fa-sun { display: none; }
         #theme-toggle-btn .fa-moon { display: inline-block; }
@@ -146,8 +130,21 @@
         .feedback-link-container a:hover { color: var(--link-color); border-color: var(--link-color); }
         .controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 16px 20px; margin-bottom: 30px; gap: 15px; background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
         .controls-left, .controls-right { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-        .search-form input[type="text"], .category-filter select { padding: 8px 12px; border: 1px solid var(--input-border-color); border-radius: 6px; min-width: 200px; font-size: 0.95em; background-color: var(--input-bg-color); box-shadow: inset 0 1px 0 rgba(27,31,36,0.075); transition: border-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out; color: var(--text-color-primary);}
-        .search-form input[type="text"]:focus, .category-filter select:focus { border-color: var(--input-focus-border-color); box-shadow: inset 0 1px 0 rgba(27,31,36,0.075), 0 0 0 3px var(--input-focus-shadow-color); outline: none; }
+        label { display: block; margin-bottom: 0.25rem; font-size: 0.875rem; font-weight: 500; color: var(--text-color-secondary); }
+        input[type="text"], input[type="number"], select {
+            display: block; width: 100%; padding: 0.5rem 0.75rem; font-size: 0.875rem;
+            line-height: 1.5; color: var(--text-color-primary); background-color: var(--input-bg-color);
+            background-clip: padding-box; border: 1px solid var(--input-border-color);
+            appearance: none; border-radius: 0.375rem;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.075);
+            transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            color: var(--text-color-primary); background-color: var(--input-bg-color);
+            border-color: var(--input-focus-border-color); outline: 0;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.075), 0 0 0 0.25rem var(--input-focus-shadow-color);
+        }
+        input[type="checkbox"] { border-radius: 0.25rem; border-color: var(--input-border-color); }
         .sort-options span { font-weight: 600; color: var(--text-color-secondary); margin-right: 4px; font-size: 0.9em; }
         .sort-options button { padding: 5px 12px; background-color: var(--button-bg-color); color: var(--text-color-primary); border-radius: 6px; font-size: 0.9em; transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out; border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); cursor: pointer; font-weight: 500; line-height: 20px; }
         .sort-options button:hover { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
@@ -159,24 +156,32 @@
         #item-table { width: 100%; border-collapse: collapse; }
         #item-table th, #item-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; vertical-align: middle; font-size: 0.95em; }
         #item-table th { background-color: var(--table-header-bg); font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted-text-color); position: sticky; top: 0; z-index: 1; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;}
-        #item-table th.pin-header { width: 40px; text-align: center; padding: 10px 5px;} /* Style for pin header */
-        #item-table td.pin-cell { text-align: center; padding: 10px 5px;} /* Style for pin cell */
+        #item-table th.pin-header { width: 40px; text-align: center; padding: 10px 5px;}
+        #item-table td.pin-cell { text-align: center; padding: 10px 5px;}
         .pin-icon { cursor: pointer; color: var(--pin-color); font-size: 1.1em; transition: color 0.15s ease-in-out; }
         .pin-icon.pinned { color: var(--pin-color-active); }
         .pin-icon:hover { opacity: 0.7; }
+        /* Styles for Enhancer Level Controls in Table */
+        .enh-level-control { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; margin-left: 8px; vertical-align: middle;}
+        .enh-level-btn { padding: 1px 4px; font-size: 0.8em; line-height: 1; cursor: pointer; border: 1px solid var(--button-border-color); background-color: var(--button-bg-color); border-radius: 4px; color: var(--text-color-secondary); }
+        .enh-level-btn:hover:not(:disabled) { background-color: var(--button-hover-bg-color); }
+        .enh-level-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .enh-level-display { font-size: 0.9em; min-width: 2.5em; text-align: center; font-family: var(--code-font); color: var(--text-color-secondary); padding: 0 2px; }
+
 
         #item-table tbody tr { transition: background-color 0.15s ease; }
         #item-table tbody tr:nth-child(even) { background-color: var(--table-row-even-bg); }
         #item-table tbody tr:hover { background-color: var(--table-row-hover-bg); }
         #item-table tbody tr.selected-item { background-color: var(--table-row-selected-bg); font-weight: 500; }
-        #item-table td { color: var(--text-color-primary); } /* Added */
-        #item-table td:nth-child(2) { font-weight: 500; cursor: pointer; color: var(--link-color); max-width: 220px; overflow: hidden; text-overflow: ellipsis; } /* Adjust column index for name */
-        #item-table td:nth-child(2):hover { text-decoration: underline; color: var(--link-hover-color); } /* Adjust column index */
-        #item-table td:nth-child(3) { font-size: 0.9em; color: var(--muted-text-color); max-width: 160px; overflow: hidden; text-overflow: ellipsis; } /* Adjust column index */
-        /* Adjusted nth-child for swapped Ask/Buy */
-        #item-table td:nth-child(n+5) { text-align: right; font-family: var(--code-font); font-size: 0.95em; } /* Vendor/Trend */
+        #item-table td { color: var(--text-color-primary); }
+        #item-table td:nth-child(2) { font-weight: 500; /* Name */ }
+        #item-table td:nth-child(2) .item-name-link { color: var(--link-color); cursor: pointer; text-decoration: none; }
+        #item-table td:nth-child(2) .item-name-link:hover { text-decoration: underline; color: var(--link-hover-color); }
+        #item-table td:nth-child(3) { font-size: 0.9em; color: var(--muted-text-color); max-width: 160px; overflow: hidden; text-overflow: ellipsis; } /* Category */
+        #item-table td:nth-child(n+5) { text-align: right; font-family: var(--code-font); font-size: 0.95em; } /* Buy/Vendor/Trend */
         #item-table td:nth-child(4) { text-align: right; font-family: var(--code-font); font-size: 0.95em; } /* Ask */
-        #item-table td:nth-child(5) { text-align: right; font-family: var(--code-font); font-size: 0.95em; } /* Buy */
+        /* Simulated Cost Style */
+        .simulated-cost { font-style: italic; opacity: 0.8; color: var(--simulated-cost-color); }
 
 
         .trend-value-container { display: flex; align-items: center; justify-content: flex-end; gap: 3px; }
@@ -216,6 +221,7 @@
         footer { text-align: center; margin-top: 60px; padding: 25px 0; font-size: 0.8em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
         footer span, footer a { margin: 0 8px; color: var(--muted-text-color); text-decoration: none; }
         footer a:hover { text-decoration: underline; color: var(--link-hover-color); }
+
          @media (max-width: 768px) {
             .controls { flex-direction: column; align-items: stretch; }
             .controls-left, .controls-right { width: 100%; justify-content: center; }
@@ -226,11 +232,8 @@
             h1 { font-size: 1.5em; }
             /* Removed fixed button container styles */
             .chart-controls-container { flex-direction: column; gap: 10px; }
+            /* Removed calculator styles as form is removed */
         }
-
-        /* Removed dark mode override block - styles now use CSS variables */
-
-        /* Removed fixed theme toggle button styles */
 
     </style>
 </head>
@@ -240,13 +243,10 @@
         <h1>MWI Market Trends</h1>
         <div class="title-button-container" >
              <button id="theme-toggle-btn" title="Toggle Theme">
-                 <i class="fas fa-moon"></i>
-                 <i class="fas fa-sun"></i>
+                 <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
                  <span class="toggle-text" style="margin-left: 6px;">Toggle Theme</span>
              </button>
-             <button id="show-test-graph-btn" title="Show Test Graph">Show Test Graph</button>
-             <button id="show-live-data-btn" title="Show Live Data">Show Live Data</button>
-        </div>
+             </div>
         <div class="feedback-link-container">
             <a href="https://github.com/SporkSlinger/market-tracker-mwi/issues" target="_blank" rel="noopener noreferrer">Report an Issue or Suggest a Feature</a>
         </div>
@@ -377,19 +377,19 @@
             </div>
         </div>
 
-    </div>
+        <footer>
+            <span>Made by Sporky with AI</span> |
+            <span class="status">Data Generated: <span id="last-update">2025-04-13 04:47:43</span></span> |
+            <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
+        </footer>
 
-    <footer>
-        <span>Made by Sporky with AI</span> |
-        <span class="status">Data Generated: <span id="last-update">2025-04-13 04:21:51</span></span> |
-        <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
-    </footer>
 
-     <script>
-        // --- Global State (Original + Scale Type + Pinned Items) ---
-        let allMarketData = {}; // Expecting nested object: { "Product": { buy: [...], ask: [...] } }
-        let marketSummary = []; // Array of { name, category, buy, ask, vendor, trend }
-        let filteredAndSortedSummary = []; // Items currently displayed in table
+    <script>
+        // --- Global State ---
+        let allMarketData = {}; // History data { "Product": { buy: [...], ask: [...] } }
+        let marketSummary = []; // Summary data [ { name, category, buy, ask, vendor, trend }, ... ]
+        let gameData = { itemDetailMap: {} }; // To store init_client_info.json data
+        let filteredAndSortedSummary = [];
         let currentChart = null;
         let currentPage = 1;
         const itemsPerPage = 20;
@@ -400,11 +400,12 @@
         let currentChartProduct = null;
         let currentChartTimeRange = '30d';
         let currentYScaleType = 'logarithmic';
-        let pinnedItems = []; // Array to hold names of pinned items
-        const PINNED_ITEMS_KEY = 'mwiPinnedItems'; // localStorage key
-        const MAX_PINNED_ITEMS = 10; // Max number of items user can pin
+        let pinnedItems = [];
+        const PINNED_ITEMS_KEY = 'mwiPinnedItems';
+        const MAX_PINNED_ITEMS = 10;
+        let simulatedLevels = {}; // Store simulated levels { itemName: { level: number, cost: number | null } }
 
-        // --- DOM Elements (Original + New Buttons) ---
+        // --- DOM Elements ---
         const tableBodyEl = document.getElementById('item-table-body');
         const tableWrapperEl = document.querySelector('.table-wrapper');
         const paginationEl = document.getElementById('pagination');
@@ -418,23 +419,25 @@
         const chartPlotContainer = document.querySelector('.chart-plot');
         const chartPlaceholder = document.getElementById('chart-placeholder');
         const chartTimeControlsEl = document.getElementById('chart-time-controls');
-        const chartControlsArea = document.getElementById('chart-controls-area'); // Container for all chart controls
-        const scaleToggleButton = document.getElementById('scale-toggle-btn'); // Scale toggle button
+        const chartControlsArea = document.getElementById('chart-controls-area');
+        const scaleToggleButton = document.getElementById('scale-toggle-btn');
         const loadingMessageEl = document.getElementById('loading-message');
         const errorMessageEl = document.getElementById('error-message');
-        const themeToggleButton = document.getElementById('theme-toggle-btn'); // Renamed reference for new toggle button
-        const showTestGraphBtn = document.getElementById('show-test-graph-btn'); // Added test graph button
-        const showLiveDataBtn = document.getElementById('show-live-data-btn'); // Added live data button
+        const themeToggleButton = document.getElementById('theme-toggle-btn');
+        // Removed calculator form/results references
 
-
-        // --- SVG Icons for Trends (Original) ---
+        // --- SVG Icons for Trends ---
         const trendUpIcon = `<svg class="trend-icon" aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"><path fill="currentColor" d="M8.707 2.293a1 1 0 0 0-1.414 0l-4 4a1 1 0 1 0 1.414 1.414L8 4.414l3.293 3.293a1 1 0 0 0 1.414-1.414l-4-4Z"></path></svg>`;
         const trendDownIcon = `<svg class="trend-icon" aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"><path fill="currentColor" d="M7.293 13.707a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0-1.414-1.414L8 11.586 4.707 8.293a1 1 0 0 0-1.414 1.414l4 4Z"></path></svg>`;
 
-        // --- Utility Functions (Original) ---
+        // --- Utility Functions ---
         function formatPrice(price) {
             if (price === null || price === undefined || isNaN(price)) return '<span class="na-value">--</span>';
             return price.toLocaleString();
+        }
+         function formatPriceSimulated(price) {
+            if (price === null || price === undefined || isNaN(price)) return '<span class="na-value">--</span>';
+            return '<span class="simulated-cost">' + price.toLocaleString() + '</span>';
         }
         function formatTrend(trend) {
             if (trend === null || trend === undefined || isNaN(trend)) return '<span class="na-value">--</span>';
@@ -442,570 +445,595 @@
             const trendClass = trend > 0 ? 'trend-positive' : trend < 0 ? 'trend-negative' : '';
             return `<span class="trend-value-container ${trendClass}">${arrow}<span>${trend.toFixed(2)}%</span></span>`;
         }
+        function timeReadable(sec) {
+             if (sec === null || sec === undefined || isNaN(sec) || sec < 0) return "N/A";
+             if (sec === Infinity) return "∞";
+             const days = Math.floor(sec / 86400);
+             const hours = Math.floor((sec % 86400) / 3600);
+             const minutes = Math.floor((sec % 3600) / 60);
+             const seconds = Math.floor(sec % 60);
+             let parts = [];
+             if (days > 0) parts.push(days + "d");
+             if (hours > 0) parts.push(hours + "h");
+             if (minutes > 0) parts.push(minutes + "m");
+             if (seconds > 0 || parts.length === 0) parts.push(seconds + "s");
+             return parts.join(" ");
+         }
+         function isEnhanceableItem(item) {
+             const itemHrid = item.hrid || (gameData.itemDetailMap && Object.keys(gameData.itemDetailMap).find(hrid => gameData.itemDetailMap[hrid].name === item.name));
+             const itemDetail = itemHrid && gameData.itemDetailMap && gameData.itemDetailMap[itemHrid];
+             // Check if enhancementCosts exists and is a non-empty array
+             return itemDetail && Array.isArray(itemDetail.enhancementCosts) && itemDetail.enhancementCosts.length > 0;
+         }
+
 
         // --- Pinning Logic ---
         function getPinnedItems() {
             const stored = localStorage.getItem(PINNED_ITEMS_KEY);
-            try {
-                const parsed = JSON.parse(stored);
-                return Array.isArray(parsed) ? parsed : [];
-            } catch (e) {
-                return [];
-            }
+            try { const parsed = JSON.parse(stored); return Array.isArray(parsed) ? parsed : []; }
+            catch (e) { return []; }
         }
-
-        function savePinnedItems(items) {
-            localStorage.setItem(PINNED_ITEMS_KEY, JSON.stringify(items));
-        }
-
+        function savePinnedItems(items) { localStorage.setItem(PINNED_ITEMS_KEY, JSON.stringify(items)); }
         function togglePin(itemName) {
-            let currentPins = getPinnedItems();
-            const index = currentPins.indexOf(itemName);
-
-            if (index > -1) {
-                // Item is currently pinned, unpin it
-                currentPins.splice(index, 1);
-                console.log(`Unpinned: ${itemName}`);
-            } else {
-                // Item is not pinned, pin it (if limit not reached)
-                if (currentPins.length >= MAX_PINNED_ITEMS) {
-                    alert(`You can only pin up to ${MAX_PINNED_ITEMS} items.`); // Simple alert for limit
-                    return; // Do nothing if limit reached
-                }
+            let currentPins = getPinnedItems(); const index = currentPins.indexOf(itemName);
+            if (index > -1) { currentPins.splice(index, 1); }
+            else {
+                if (currentPins.length >= MAX_PINNED_ITEMS) { alert(`You can only pin up to ${MAX_PINNED_ITEMS} items.`); return; }
                 currentPins.push(itemName);
-                console.log(`Pinned: ${itemName}`);
             }
-
-            savePinnedItems(currentPins);
-            pinnedItems = currentPins; // Update global state
-            applyFiltersAndSort(); // Re-sort and re-render the table
+            savePinnedItems(currentPins); pinnedItems = currentPins; applyFiltersAndSort();
         }
-
          function handlePinClick(event) {
-             // Prevent click from triggering row selection/chart display if clicking the icon itself
-             event.stopPropagation();
-             const icon = event.currentTarget; // The icon element
-             const itemName = icon.dataset.itemName;
-             if (itemName) {
-                 togglePin(itemName);
-             } else {
-                 console.error("Could not find item name for pinning.");
-             }
+             event.stopPropagation(); const icon = event.currentTarget; const itemName = icon.dataset.itemName;
+             if (itemName) { togglePin(itemName); } else { console.error("Could not find item name for pinning."); }
          }
 
 
         // --- Theme Switching Logic (Simplified - No Chart Update) ---
         const THEME_KEY = 'mwi-market-theme';
         function applyTheme(theme) {
-            // ONLY sets the attribute and saves to localStorage
-            console.log(`Applying theme: ${theme}`); // Keep log for basic check
-            if (theme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            } else {
-                document.documentElement.removeAttribute('data-theme');
-            }
+            console.log(`Applying theme: ${theme}`);
+            if (theme === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); }
+            else { document.documentElement.removeAttribute('data-theme'); }
             localStorage.setItem(THEME_KEY, theme);
-            // NO direct chart manipulation here
         }
-
-        function toggleTheme() { // Simple toggle logic
-            console.log("toggleTheme called"); // Keep log
+        function toggleTheme() {
             const currentTheme = document.documentElement.hasAttribute('data-theme') ? 'dark' : 'light';
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            console.log(`Switching to theme: ${newTheme}`); // Keep log
             applyTheme(newTheme);
         }
-
-        function initTheme() { // Applies theme on load
-            console.log("initTheme called"); // Keep log
+        function initTheme() {
             const savedTheme = localStorage.getItem(THEME_KEY);
             const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-            console.log(`Initializing with theme: ${initialTheme}`); // Keep log
             applyTheme(initialTheme);
         }
-        // Add listener for the theme toggle button
-        if (themeToggleButton) {
-             themeToggleButton.addEventListener('click', toggleTheme);
-        } else {
-             console.error("Theme toggle button (#theme-toggle-btn) not found!");
-        }
-
-        // REMOVED updateChartTheme, getChartColors, getCssVariable
+        if (themeToggleButton) { themeToggleButton.addEventListener('click', toggleTheme); }
+        else { console.error("Theme toggle button (#theme-toggle-btn) not found!"); }
 
 
-        // --- Data Fetching (Restored Live Fetching) ---
+        // --- Data Fetching (Fetches Summary, History, and Game Data) ---
         async function loadData() {
-            // Reset chart view state before loading
+            // Reset UI state
             if(currentChart) { currentChart.destroy(); currentChart = null; }
-            chartPlotContainer.classList.add('hidden');
-            chartControlsArea.style.display = 'none';
-            chartPlaceholder.style.display = 'flex';
-            chartPlaceholder.textContent = 'Select an item name from the table to view its chart.'; // Reset placeholder text
-            currentChartProduct = null;
-            if(selectedTableRow) selectedTableRow.classList.remove('selected-item');
-            selectedTableRow = null;
-
-            // Show loading indicators
-            loadingMessageEl.style.display = 'block';
-            errorMessageEl.classList.add('hidden');
-            tableWrapperEl.classList.add('hidden');
-            paginationEl.style.display = 'none';
+            chartPlotContainer.classList.add('hidden'); chartControlsArea.style.display = 'none';
+            chartPlaceholder.style.display = 'flex'; chartPlaceholder.textContent = 'Select an item name from the table to view its chart.';
+            currentChartProduct = null; if(selectedTableRow) selectedTableRow.classList.remove('selected-item'); selectedTableRow = null;
+            loadingMessageEl.style.display = 'block'; errorMessageEl.classList.add('hidden');
+            tableWrapperEl.classList.add('hidden'); paginationEl.style.display = 'none';
 
             try {
-                // Load pinned items initially
-                pinnedItems = getPinnedItems();
-                console.log("Loaded pinned items:", pinnedItems);
+                pinnedItems = getPinnedItems(); console.log("Loaded pinned items:", pinnedItems);
+                // Fetch all data concurrently
+                const [summaryRes, historyRes, gameDataRes] = await Promise.all([
+                    fetch('./data/market_summary.json?t=' + Date.now()),
+                    fetch('./data/market_history.json?t=' + Date.now()),
+                    fetch('https://doh-nuts.github.io/Enhancelator/init_client_info.json?t=' + Date.now())
+                ]);
 
-                const summaryRes = await fetch('./data/market_summary.json?t=' + Date.now());
+                // Process Summary
                 if (!summaryRes.ok) throw new Error(`Failed to fetch market_summary.json (Status: ${summaryRes.status})`);
                 marketSummary = await summaryRes.json();
 
-                applyFiltersAndSort(); // Process summary data first
+                // Process History
+                if (!historyRes.ok) { console.warn(`Failed to fetch market_history.json (Status: ${historyRes.status}). Charts may not work.`); allMarketData = {}; }
+                else { allMarketData = await historyRes.json(); console.log("Market history data loaded."); }
+
+                 // Process Game Data
+                 if (!gameDataRes.ok) throw new Error(`Failed to fetch init_client_info.json (Status: ${gameDataRes.status})`);
+                 const fullGameData = await gameDataRes.json();
+                 gameData.itemDetailMap = fullGameData.itemDetailMap || {};
+                 console.log("Game data loaded (itemDetailMap).");
+
+                applyFiltersAndSort();
                 loadingMessageEl.style.display = 'none';
                 tableWrapperEl.classList.remove('hidden');
-                paginationEl.style.display = 'flex'; // Show pagination based on results later
-
-                // Fetch history data
-                const historyRes = await fetch('./data/market_history.json?t=' + Date.now());
-                if (!historyRes.ok) {
-                    console.warn(`Failed to fetch market_history.json (Status: ${historyRes.status}). Charts may not work.`);
-                    allMarketData = {}; // Set to empty object if fetch fails
-                } else {
-                    allMarketData = await historyRes.json(); // Assumes nested structure
-                    console.log("Market history data loaded.");
-                }
+                paginationEl.style.display = 'flex';
 
             } catch (error) {
-                console.error("Error loading data:", error); // Keep generic error log
+                 // ** REINSTATED Test Data Fallback **
+                console.error("Error loading live data:", error);
                 loadingMessageEl.style.display = 'none';
-                // Show generic error message for ANY load failure
-                errorMessageEl.textContent = `Error loading market data: ${error.message}. Check console (F12) & data files.`;
+                errorMessageEl.textContent = `Error loading live data: ${error.message}. Displaying SAMPLE data for testing.`;
                 errorMessageEl.classList.remove('hidden');
-                tableWrapperEl.classList.add('hidden'); // Ensure table is hidden on error
-                paginationEl.style.display = 'none'; // Ensure pagination is hidden on error
+                tableWrapperEl.classList.add('hidden');
+                paginationEl.style.display = 'none';
+                loadSampleDataForTesting(); // Call function to load sample data
             }
         }
 
 
         // --- Filtering and Sorting (MODIFIED for Pinning) ---
         function applyFiltersAndSort() {
-            let result = [...marketSummary]; // Use live or sample marketSummary
-            // Apply category filter
-            if (currentCategoryFilter !== 'All') {
-                result = result.filter(item => item.category === currentCategoryFilter);
-            }
-            // Apply search term filter
-            const searchTerm = currentSearch.toLowerCase();
-            if (searchTerm) {
-                result = result.filter(item => item.name.toLowerCase().includes(searchTerm));
-            }
-
-            // Get current pinned items for sorting
-            const currentPins = getPinnedItems();
-
-            // Apply sorting (pinning takes priority)
-            result.sort((a, b) => {
-                const isAPinned = currentPins.includes(a.name);
-                const isBPinned = currentPins.includes(b.name);
-
-                // Rule 1: Pinned items come before unpinned items
-                if (isAPinned && !isBPinned) return -1;
-                if (!isAPinned && isBPinned) return 1;
-
-                // Rule 2: If both are pinned or both unpinned, use selected sort
-                try {
-                    const sortNum = (valA, valB, ascending = true) => {
-                        const numA = valA ?? (ascending ? Infinity : -Infinity);
-                        const numB = valB ?? (ascending ? Infinity : -Infinity);
-                        if (isNaN(numA)) return ascending ? 1 : -1;
-                        if (isNaN(numB)) return ascending ? -1 : 1;
-                        return ascending ? numA - numB : numB - numA;
-                    };
-                    const sortStr = (valA, valB, ascending = true) => {
-                        const strA = (valA ?? '').toLowerCase(); const strB = (valB ?? '').toLowerCase();
-                        const compare = strA.localeCompare(strB);
-                        return ascending ? compare : -compare;
-                    };
-                    switch (currentSort) {
-                        case 'name_desc': return sortStr(a.name, b.name, false);
-                        case 'category_asc': return sortStr(a.category, b.category, true);
-                        case 'buy_desc': return sortNum(a.buy, b.buy, false);
-                        case 'ask_asc': return sortNum(a.ask, b.ask, true);
-                        case 'vendor_desc': return sortNum(a.vendor, b.vendor, false);
-                        case 'trend_inc': return sortNum(a.trend, b.trend, true);
-                        case 'trend_dec': return sortNum(a.trend, b.trend, false);
-                        case 'name_asc': default: return sortStr(a.name, b.name, true);
-                    }
-                } catch (e) { console.error("Sort comparison error:", e); return 0; }
-            });
-
-            filteredAndSortedSummary = result;
-            currentPage = 1; // Reset to first page after filtering/sorting
-            renderCurrentPage(); // Render the table and update pagination
+             let result = [...marketSummary];
+             if (currentCategoryFilter !== 'All') { result = result.filter(item => item.category === currentCategoryFilter); }
+             const searchTerm = currentSearch.toLowerCase();
+             if (searchTerm) { result = result.filter(item => item.name.toLowerCase().includes(searchTerm)); }
+             const currentPins = getPinnedItems();
+             result.sort((a, b) => {
+                 const isAPinned = currentPins.includes(a.name); const isBPinned = currentPins.includes(b.name);
+                 if (isAPinned && !isBPinned) return -1; if (!isAPinned && isBPinned) return 1;
+                 try {
+                     const sortNum = (valA, valB, ascending = true) => { const numA = valA ?? (ascending ? Infinity : -Infinity); const numB = valB ?? (ascending ? Infinity : -Infinity); if (isNaN(numA)) return ascending ? 1 : -1; if (isNaN(numB)) return ascending ? -1 : 1; return ascending ? numA - numB : numB - numA; };
+                     const sortStr = (valA, valB, ascending = true) => { const strA = (valA ?? '').toLowerCase(); const strB = (valB ?? '').toLowerCase(); const compare = strA.localeCompare(strB); return ascending ? compare : -compare; };
+                     switch (currentSort) {
+                         case 'name_desc': return sortStr(a.name, b.name, false);
+                         case 'category_asc': return sortStr(a.category, b.category, true);
+                         case 'ask_asc': return sortNum(a.ask, b.ask, true);
+                         case 'buy_desc': return sortNum(a.buy, b.buy, false);
+                         case 'vendor_desc': return sortNum(a.vendor, b.vendor, false);
+                         case 'trend_inc': return sortNum(a.trend, b.trend, true);
+                         case 'trend_dec': return sortNum(a.trend, b.trend, false);
+                         case 'name_asc': default: return sortStr(a.name, b.name, true);
+                     }
+                 } catch (e) { console.error("Sort comparison error:", e); return 0; }
+             });
+             filteredAndSortedSummary = result; currentPage = 1; renderCurrentPage();
         }
 
-        // --- Rendering (MODIFIED for Pinning) ---
+        // --- Rendering (MODIFIED for Pinning & Enhancer Controls) ---
         function renderCurrentPage() {
-            tableBodyEl.innerHTML = '';
-            // Deselect previous row visually if any (keep this)
-            if (selectedTableRow) {
-                selectedTableRow.classList.remove('selected-item');
-                selectedTableRow = null;
-            }
+             tableBodyEl.innerHTML = '';
+             if (selectedTableRow) { selectedTableRow.classList.remove('selected-item'); selectedTableRow = null; }
+             const currentPins = getPinnedItems();
+             const totalItems = filteredAndSortedSummary.length;
+             const totalPages = Math.ceil(totalItems / itemsPerPage);
+             currentPage = Math.max(1, Math.min(currentPage, totalPages || 1));
+             const startIndex = (currentPage - 1) * itemsPerPage;
+             const endIndex = startIndex + itemsPerPage;
+             const itemsToDisplay = filteredAndSortedSummary.slice(startIndex, endIndex);
 
-            const currentPins = getPinnedItems(); // Get pinned items for styling icons
-
-            const totalItems = filteredAndSortedSummary.length;
-            const totalPages = Math.ceil(totalItems / itemsPerPage);
-            currentPage = Math.max(1, Math.min(currentPage, totalPages || 1));
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const itemsToDisplay = filteredAndSortedSummary.slice(startIndex, endIndex);
-
-            if (itemsToDisplay.length === 0) {
-                 // Adjust message slightly if marketSummary itself is empty (initial state or true empty)
-                 const message = marketSummary.length === 0 ? 'Loading data or no data available.' :
-                                 (currentSearch || currentCategoryFilter !== 'All' ? 'No items match your filters.' : 'No market data available.');
-                 const tr = document.createElement('tr');
-                 const td = document.createElement('td');
-                 td.colSpan = 7; // Adjusted colspan for new pin column
-                 td.textContent = message; td.style.textAlign = 'center';
-                 td.style.padding = '20px'; td.style.color = 'var(--muted-text-color)';
+             if (itemsToDisplay.length === 0) {
+                 const message = marketSummary.length === 0 ? 'Loading data or no data available.' : (currentSearch || currentCategoryFilter !== 'All' ? 'No items match your filters.' : 'No market data available.');
+                 const tr = document.createElement('tr'); const td = document.createElement('td');
+                 td.colSpan = 7; td.textContent = message; td.style.textAlign = 'center'; td.style.padding = '20px'; td.style.color = 'var(--muted-text-color)';
                  tr.appendChild(td); tableBodyEl.appendChild(tr);
-            } else {
-                itemsToDisplay.forEach(item => {
-                    const tr = document.createElement('tr');
-                    tr.dataset.product = encodeURIComponent(item.name); // Keep this for chart click
-                    // tr.style.cursor = 'pointer'; // Cursor applied to name cell now
+             } else {
+                 itemsToDisplay.forEach(item => {
+                     const tr = document.createElement('tr');
+                     tr.dataset.product = encodeURIComponent(item.name);
+                     const isPinned = currentPins.includes(item.name);
+                     const pinIconClass = isPinned ? 'fas fa-star pin-icon pinned' : 'far fa-star pin-icon';
+                     const itemHrid = item.hrid || (gameData.itemDetailMap && Object.keys(gameData.itemDetailMap).find(hrid => gameData.itemDetailMap[hrid].name === item.name));
+                     const itemDetail = itemHrid && gameData.itemDetailMap && gameData.itemDetailMap[itemHrid];
+                     const isEnhanceable = itemDetail && Array.isArray(itemDetail.enhancementCosts) && itemDetail.enhancementCosts.length > 0;
+                     const currentSimLevel = simulatedLevels[item.name]?.level || 0;
+                     const displayAsk = currentSimLevel > 0 ? formatPriceSimulated(simulatedLevels[item.name]?.cost) : formatPrice(item.ask);
+                     const displayBuy = currentSimLevel > 0 ? formatPriceSimulated(simulatedLevels[item.name]?.cost) : formatPrice(item.buy);
+                     const safeIdSuffix = (itemHrid || item.name).replace(/[\s/]/g, '_');
 
-                    const isPinned = currentPins.includes(item.name);
-                    const pinIconClass = isPinned ? 'fas fa-star pin-icon pinned' : 'far fa-star pin-icon';
-
-                    // Create cells, including the new pin cell
-                    // ** Swapped Ask/Buy Order **
-                    tr.innerHTML = `
-                        <td class="pin-cell"><i class="${pinIconClass}" data-item-name="${item.name}" title="${isPinned ? 'Unpin' : 'Pin'} Item"></i></td>
-                        <td><a class="item-name-link">${item.name}</a></td>
-                        <td>${item.category || '<span class="na-value">N/A</span>'}</td>
-                        <td>${formatPrice(item.ask)}</td>
-                        <td>${formatPrice(item.buy)}</td>
-                        <td><span class="vendor-price">${formatPrice(item.vendor)}</span></td>
-                        <td>${formatTrend(item.trend)}</td>
-                    `;
-                    // Add listener to the pin icon
-                    tr.querySelector('.pin-icon').addEventListener('click', handlePinClick);
-                    // Add listener to the item name for showing the chart
-                    tr.querySelector('.item-name-link').addEventListener('click', handleProductClick); // Use handleProductClick for name
-                    tr.querySelector('.item-name-link').style.cursor = 'pointer'; // Make name look clickable
-
-                    tableBodyEl.appendChild(tr);
-                    if (item.name === currentChartProduct) {
-                         tr.classList.add('selected-item');
-                         selectedTableRow = tr;
-                    }
-                });
-            }
-            renderPagination(totalPages);
+                     tr.innerHTML = `
+                         <td class="pin-cell"><i class="${pinIconClass}" data-item-name="${item.name}" title="${isPinned ? 'Unpin' : 'Pin'} Item"></i></td>
+                         <td>
+                             <a class="item-name-link">${item.name}</a>
+                             ${isEnhanceable ? `
+                                 <span class="enh-level-control">
+                                     <button class="enh-level-btn" data-item-name="${item.name}" data-hrid="${itemHrid || ''}" data-change="-1" ${currentSimLevel <= 0 ? 'disabled' : ''}>-</button>
+                                     <span class="enh-level-display" id="level-display-${safeIdSuffix}">${currentSimLevel >= 0 ? '+' + currentSimLevel : '+0'}</span>
+                                     <button class="enh-level-btn" data-item-name="${item.name}" data-hrid="${itemHrid || ''}" data-change="1" ${currentSimLevel >= 30 ? 'disabled' : ''}>+</button>
+                                 </span>
+                             ` : ''}
+                         </td>
+                         <td>${item.category || '<span class="na-value">N/A</span>'}</td>
+                         <td class="ask-cell">${displayAsk}</td>
+                         <td class="buy-cell">${displayBuy}</td>
+                         <td><span class="vendor-price">${formatPrice(item.vendor)}</span></td>
+                         <td>${formatTrend(item.trend)}</td>
+                     `;
+                     tr.querySelector('.pin-icon').addEventListener('click', handlePinClick);
+                     tr.querySelector('.item-name-link').addEventListener('click', handleProductClick);
+                     tr.querySelector('.item-name-link').style.cursor = 'pointer';
+                     if (isEnhanceable) {
+                         tr.querySelectorAll('.enh-level-btn').forEach(btn => btn.addEventListener('click', handleLevelChange));
+                     }
+                     tableBodyEl.appendChild(tr);
+                     if (item.name === currentChartProduct) { tr.classList.add('selected-item'); selectedTableRow = tr; }
+                 });
+             }
+             renderPagination(totalPages);
         }
-
         function renderPagination(totalPages) {
-            pageInfoEl.textContent = `Page ${currentPage} of ${totalPages || 1}`;
-            prevButton.disabled = currentPage <= 1;
-            nextButton.disabled = currentPage >= totalPages;
-            paginationEl.style.display = totalPages > 1 ? 'flex' : 'none';
+             pageInfoEl.textContent = `Page ${currentPage} of ${totalPages || 1}`;
+             prevButton.disabled = currentPage <= 1;
+             nextButton.disabled = currentPage >= totalPages;
+             paginationEl.style.display = totalPages > 1 ? 'flex' : 'none';
         }
 
-        // --- Charting (Reverted to Original Colors, Kept Scale Toggle/Refinements) ---
-        function displayChart(productName, clickedTrElement) { // clickedTrElement might be null if called manually
-            chartPlaceholder.style.display = 'none';
-            chartPlotContainer.classList.remove('hidden');
-            chartControlsArea.style.display = 'flex';
+        // --- Charting (Added Horizontal Line Logic) ---
+        function displayChart(productName, clickedTrElement) {
+             chartPlaceholder.style.display = 'none';
+             chartPlotContainer.classList.remove('hidden');
+             chartControlsArea.style.display = 'flex';
+             const currentTableRows = tableBodyEl.querySelectorAll('tr');
+             selectedTableRow = null;
+             currentTableRows.forEach(row => { row.classList.remove('selected-item'); if (row.dataset.product && decodeURIComponent(row.dataset.product) === productName) { row.classList.add('selected-item'); selectedTableRow = row; } });
+             currentChartProduct = productName;
+             let productHistoryData;
+             if (allMarketData && allMarketData[productName]) { productHistoryData = allMarketData[productName]; }
 
-            // Update selection visuals only if triggered by a click
-            // Find the actual TR element in the current table view to select it
-            const currentTableRows = tableBodyEl.querySelectorAll('tr');
-            selectedTableRow = null; // Reset first
-            currentTableRows.forEach(row => {
-                row.classList.remove('selected-item'); // Deselect all rows
-                // Check if row has the dataset.product before decoding
-                if (row.dataset.product && decodeURIComponent(row.dataset.product) === productName) {
-                    row.classList.add('selected-item'); // Select the matching row
-                    selectedTableRow = row;
-                }
-            });
-            // If triggered manually (no clickedTrElement), selectedTableRow might remain null if item not on current page
-
-            currentChartProduct = productName;
-
-            let productHistoryData;
-             // Use the globally stored (live or sample) data
-            if (allMarketData && allMarketData[productName]) {
-                 productHistoryData = allMarketData[productName];
-            }
-
-            if (!productHistoryData || (!productHistoryData.buy?.length && !productHistoryData.ask?.length)) {
-                console.warn(`No chart data found or provided for ${productName}.`);
-                if (currentChart) { currentChart.destroy(); currentChart = null; }
-                chartPlotContainer.classList.add('hidden');
-                chartControlsArea.style.display = 'none';
-                chartPlaceholder.textContent = `No price history data available for ${productName}.`;
-                chartPlaceholder.style.display = 'flex';
-                return;
-            }
-
-            let filteredBuy = productHistoryData.buy || [];
-            let filteredAsk = productHistoryData.ask || [];
-            const now = new Date();
-            let startDate;
-            let timeUnit = 'day';
-
-            if (currentChartTimeRange === '24h') { startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000)); timeUnit = 'hour'; }
-            else if (currentChartTimeRange === '48h') { startDate = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000)); timeUnit = 'hour'; }
-            else if (currentChartTimeRange === '7d') { startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)); timeUnit = 'day'; }
-
-            if (startDate) {
-                const filterPoints = (points) => points.filter(p => (p.timestamp * 1000) >= startDate.getTime());
-                filteredBuy = filterPoints(filteredBuy);
-                filteredAsk = filterPoints(filteredAsk);
-            }
-
-            if (filteredBuy.length < 1 && filteredAsk.length < 1) {
-                 console.warn(`No chart data in range ${currentChartTimeRange} for ${productName}`);
+             if (!productHistoryData || (!productHistoryData.buy?.length && !productHistoryData.ask?.length)) {
+                 console.warn(`No chart data found or provided for ${productName}.`);
                  if (currentChart) { currentChart.destroy(); currentChart = null; }
-                 chartPlotContainer.classList.add('hidden');
-                 chartControlsArea.style.display = 'none';
-                 chartPlaceholder.textContent = `No data available for ${productName} in the selected time range (${currentChartTimeRange}).`;
-                 chartPlaceholder.style.display = 'flex';
-                 return;
-            }
-
-            // Robust data parsing
-            const parsePoints = (points) => points
-                .map(p => {
-                    const price = (typeof p.price === 'number' && isFinite(p.price)) ? p.price : null;
-                    const timestamp = (typeof p.timestamp === 'number' && isFinite(p.timestamp)) ? new Date(p.timestamp * 1000) : null;
-                    if (timestamp === null) { console.warn("Invalid timestamp:", p); return null; }
-                    return { x: timestamp, y: price };
-                })
-                .filter(p => p !== null);
-
-            const buyData = parsePoints(filteredBuy);
-            const askData = parsePoints(filteredAsk);
-
-            // Update scale toggle button text
-            if(scaleToggleButton) {
-                scaleToggleButton.textContent = currentYScaleType === 'logarithmic' ? 'Switch to Linear Scale' : 'Switch to Log Scale';
-            }
-
-            // ** CORRECTED Dataset Order **
-            const chartData = {
-                datasets: [
-                     // Ask is first for tooltip order
-                    { label: 'Ask', data: askData, borderColor: '#cf222e', backgroundColor: 'rgba(207, 34, 46, 0.1)', tension: 0, pointRadius: 2, pointHoverRadius: 5, spanGaps: false, borderWidth: 1.5 },
-                    // Buy is second
-                    { label: 'Buy', data: buyData, borderColor: '#0969da', backgroundColor: 'rgba(9, 105, 218, 0.1)', tension: 0, pointRadius: 2, pointHoverRadius: 5, spanGaps: false, borderWidth: 1.5 }
-                ]
-            };
-
-            if (currentChart) { currentChart.destroy(); }
-
-            try {
-                // ** REVERTED options colors to original hardcoded values **
-                currentChart = new Chart(chartCanvas, {
-                    type: 'line',
-                    data: chartData,
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: {
-                            title: { display: true, text: `${productName} (${currentChartTimeRange})`, font: { size: 15, weight: '600' }, padding: { bottom: 15 }, color: '#24292f' }, // Hardcoded
-                            legend: { position: 'top', labels: { font: { size: 12 }, color: '#24292f' } }, // Hardcoded
-                            tooltip: { mode: 'index', intersect: false, bodySpacing: 5, titleSpacing: 6, padding: 10, boxPadding: 4 } // Default tooltip
-                        },
-                        scales: {
-                            x: {
-                                type: 'time',
-                                time: { unit: timeUnit, tooltipFormat: 'PPp', displayFormats: { hour: 'h:mm a', day: 'MMM d', week: 'MMM d yy' } },
-                                title: { display: false },
-                                grid: { display: false }, // Keep X grid off
-                                ticks: { font: { size: 11 }, color: '#57606a', autoSkip: true, maxRotation: 0, minRotation: 0, maxTicksLimit: 8 } // Hardcoded
-                            },
-                            y: {
-                                type: currentYScaleType, // Keep dynamic scale type
-                                min: currentYScaleType === 'logarithmic' ? 1 : undefined,
-                                grace: '10%', // Keep grace
-                                title: { display: true, text: `Price (${currentYScaleType === 'logarithmic' ? 'Log' : 'Linear'} Scale)`, font: { size: 12 }, color: '#57606a' }, // Hardcoded
-                                grid: { color: '#d0d7de' }, // Hardcoded
-                                ticks: {
-                                    font: { size: 11 }, color: '#57606a', // Hardcoded
-                                    // Keep refined tick formatting
-                                    callback: currentYScaleType === 'logarithmic'
-                                      ? function(value) {
-                                          if (value <= 0) return null;
-                                          if (value < 1000) return value.toLocaleString();
-                                          if (value >= 1e9) return (value / 1e9).toFixed(1) + 'B';
-                                          if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M';
-                                          if (value >= 1e3) return (value / 1e3).toFixed(1) + 'k';
-                                          const log10 = Math.log10(value);
-                                          if (Math.abs(log10 - Math.round(log10)) < 0.01) { return value.toLocaleString(); }
-                                          return null;
-                                        }
-                                      : function(value) { return value.toLocaleString(); }
-                                }
-                            }
-                        },
-                        interaction: { mode: 'index', axis: 'x', intersect: false },
-                         animation: { duration: 0 }
-                    }
-                });
-            } catch(e) {
-                console.error("Error creating Chart.js instance:", e);
-                chartPlotContainer.classList.add('hidden');
-                chartControlsArea.style.display = 'none';
-                chartPlaceholder.textContent = 'Error rendering chart.';
-                chartPlaceholder.style.display = 'flex';
-            }
-        }
-
-        // ** ADDED: Function to display a test graph **
-        function displayTestGraph() {
-             console.log("Displaying Test Graph...");
-             // Define sample data in the nested format
-             const nowSec = Math.floor(Date.now() / 1000);
-             const sampleTimestamp1 = nowSec - 36 * 3600; // ~36h ago
-             const sampleTimestamp2 = nowSec - 12 * 3600; // ~12h ago
-             const sampleTimestamp3 = nowSec - 1 * 3600;  // ~1h ago
-             const testHistoryData = {
-                 "Test Item Alpha": {
-                     "buy": [
-                         { "timestamp": sampleTimestamp1, "price": 140 },
-                         { "timestamp": sampleTimestamp2, "price": 142 },
-                         { "timestamp": sampleTimestamp3, "price": 150 }
-                     ],
-                     "ask": [
-                         { "timestamp": sampleTimestamp1, "price": 155 },
-                         { "timestamp": sampleTimestamp2, "price": 162 },
-                         { "timestamp": sampleTimestamp3, "price": 160 }
-                     ]
-                 },
-                 "Test Item Beta": {
-                      "buy": [
-                         { "timestamp": nowSec - 48 * 3600, "price": 2100 },
-                         { "timestamp": nowSec - 24 * 3600, "price": 2050 },
-                         { "timestamp": nowSec - 1 * 3600, "price": 2000 }
-                     ],
-                     "ask": [ // Sample with nulls
-                         { "timestamp": nowSec - 48 * 3600, "price": 2200 },
-                         { "timestamp": nowSec - 24 * 3600, "price": null },
-                         { "timestamp": nowSec - 1 * 3600, "price": null }
-                     ]
-                 }
-             };
-             const testSummaryData = [
-                 { name: "Test Item Alpha", category: "Test Cat A", buy: 150, ask: 160, vendor: 10, trend: 5.5 },
-                 { name: "Test Item Beta", category: "Test Cat B", buy: 2000, ask: null, vendor: 500, trend: -2.1 }
-             ];
-
-             // Assign test data and render
-             marketSummary = testSummaryData;
-             allMarketData = testHistoryData;
-             pinnedItems = getPinnedItems(); // Load pins even in test mode
-
-             applyFiltersAndSort(); // Render table with test summary
-             loadingMessageEl.style.display = 'none';
-             tableWrapperEl.classList.remove('hidden');
-             paginationEl.style.display = 'flex';
-
-             // Display chart for the first test item
-             displayChart("Test Item Alpha", null);
-        }
-
-
-        // --- Event Handlers (Original + Scale Toggle + Pinning) ---
-        function handleProductClick(event) {
-            // If the click target is the pin icon, let handlePinClick manage it
-             if (event.target.classList.contains('pin-icon')) {
+                 chartPlotContainer.classList.add('hidden'); chartControlsArea.style.display = 'none';
+                 chartPlaceholder.textContent = `No price history data available for ${productName}.`; chartPlaceholder.style.display = 'flex';
                  return;
              }
-            // Otherwise, proceed with showing the chart
-            const clickedLink = event.currentTarget; // This should be the link now
-            const clickedTr = clickedLink.closest('tr'); // Get the parent TR
-            if (!clickedTr) return; // Should not happen
-            const productName = decodeURIComponent(clickedTr.dataset.product);
-            displayChart(productName, clickedTr);
+             let filteredBuy = productHistoryData.buy || []; let filteredAsk = productHistoryData.ask || [];
+             const now = new Date(); let startDate; let timeUnit = 'day';
+             if (currentChartTimeRange === '24h') { startDate = new Date(now.getTime() - (24 * 3600 * 1000)); timeUnit = 'hour'; }
+             else if (currentChartTimeRange === '48h') { startDate = new Date(now.getTime() - (48 * 3600 * 1000)); timeUnit = 'hour'; }
+             else if (currentChartTimeRange === '7d') { startDate = new Date(now.getTime() - (7 * 24 * 3600 * 1000)); timeUnit = 'day'; }
+             else { startDate = new Date(now.getTime() - (30 * 24 * 3600 * 1000)); timeUnit = 'day'; } // Default 30d
+             if (startDate) { const filterPoints = (points) => points.filter(p => p.timestamp * 1000 >= startDate.getTime()); filteredBuy = filterPoints(filteredBuy); filteredAsk = filterPoints(filteredAsk); }
+
+             if (filteredBuy.length < 1 && filteredAsk.length < 1) {
+                  console.warn(`No chart data in range ${currentChartTimeRange} for ${productName}`);
+                  if (currentChart) { currentChart.destroy(); currentChart = null; }
+                  chartPlotContainer.classList.add('hidden'); chartControlsArea.style.display = 'none';
+                  chartPlaceholder.textContent = `No data available for ${productName} in the selected time range (${currentChartTimeRange}).`; chartPlaceholder.style.display = 'flex';
+                  return;
+             }
+             const parsePoints = (points) => points.map(p => { const price = (typeof p.price === 'number' && isFinite(p.price)) ? p.price : null; const timestamp = (typeof p.timestamp === 'number' && isFinite(p.timestamp)) ? new Date(p.timestamp * 1000) : null; if (timestamp === null) { console.warn("Invalid timestamp:", p); return null; } return { x: timestamp, y: price }; }).filter(p => p !== null);
+             const buyData = parsePoints(filteredBuy); const askData = parsePoints(filteredAsk);
+             if(scaleToggleButton) { scaleToggleButton.textContent = currentYScaleType === 'logarithmic' ? 'Switch to Linear Scale' : 'Switch to Log Scale'; }
+
+             const chartData = {
+                 datasets: [ { label: 'Ask', data: askData, borderColor: '#cf222e', backgroundColor: 'rgba(207, 34, 46, 0.1)', tension: 0, pointRadius: 2, pointHoverRadius: 5, spanGaps: false, borderWidth: 1.5 }, { label: 'Buy', data: buyData, borderColor: '#0969da', backgroundColor: 'rgba(9, 105, 218, 0.1)', tension: 0, pointRadius: 2, pointHoverRadius: 5, spanGaps: false, borderWidth: 1.5 } ] };
+             const simulatedLevel = simulatedLevels[productName]?.level || 0; const simulatedCost = simulatedLevels[productName]?.cost;
+             const annotation = { id: 'simulatedCostLine', type: 'line', display: simulatedLevel > 0 && typeof simulatedCost === 'number' && isFinite(simulatedCost), borderColor: 'rgba(75, 192, 192, 0.8)', borderWidth: 2, borderDash: [6, 6], label: { content: `Sim Cost (+${simulatedLevel}): ${formatPrice(simulatedCost)}`, display: true, position: 'end', backgroundColor: 'rgba(75, 192, 192, 0.8)', color: 'white', font: { size: 10 }, padding: 3, borderRadius: 3 }, scaleID: 'y', value: simulatedCost };
+             if (currentChart) { currentChart.destroy(); }
+             try {
+                 currentChart = new Chart(chartCanvas, { type: 'line', data: chartData, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: `${productName} (${currentChartTimeRange})`, font: { size: 15, weight: '600' }, padding: { bottom: 15 }, color: '#24292f' }, legend: { position: 'top', labels: { font: { size: 12 }, color: '#24292f' } }, tooltip: { mode: 'index', intersect: false, bodySpacing: 5, titleSpacing: 6, padding: 10, boxPadding: 4 }, annotation: { annotations: { simulatedCostLine: annotation } } }, scales: { x: { type: 'time', time: { unit: timeUnit, tooltipFormat: 'PPp', displayFormats: { hour: 'h:mm a', day: 'MMM d', week: 'MMM d yy' } }, title: { display: false }, grid: { display: false }, ticks: { font: { size: 11 }, color: '#57606a', autoSkip: true, maxRotation: 0, minRotation: 0, maxTicksLimit: 8 } }, y: { type: currentYScaleType, min: currentYScaleType === 'logarithmic' ? 1 : undefined, grace: '10%', title: { display: true, text: `Price (${currentYScaleType === 'logarithmic' ? 'Log' : 'Linear'} Scale)`, font: { size: 12 }, color: '#57606a' }, grid: { color: '#d0d7de' }, ticks: { font: { size: 11 }, color: '#57606a', callback: currentYScaleType === 'logarithmic' ? function(value) { if (value <= 0) return null; if (value < 1000) return value.toLocaleString(); if (value >= 1e9) return (value / 1e9).toFixed(1) + 'B'; if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M'; if (value >= 1e3) return (value / 1e3).toFixed(1) + 'k'; const log10 = Math.log10(value); if (Math.abs(log10 - Math.round(log10)) < 0.01) { return value.toLocaleString(); } return null; } : function(value) { return value.toLocaleString(); } } } }, interaction: { mode: 'index', axis: 'x', intersect: false }, animation: { duration: 0 } } });
+             } catch(e) { console.error("Error creating Chart.js instance:", e); chartPlotContainer.classList.add('hidden'); chartControlsArea.style.display = 'none'; chartPlaceholder.textContent = 'Error rendering chart.'; chartPlaceholder.style.display = 'flex'; }
+        }
+
+        // --- Enhancement Simulation Logic ---
+        const defaultPlayerStats = { // Hardcoded default stats
+            enhancing_level: 100, observatory_level: 4, enhancer_level: 10,
+            use_enchanted: true, enchanted_level: 5, use_enhancer_top: false,
+            enhancer_top_level: 0, use_enhancer_bot: false, enhancer_bot_level: 0,
+            use_guzzling: true, guzzling_level: 0, tea_enhancing: false,
+            tea_super_enhancing: false, tea_ultra_enhancing: true, tea_blessed: true,
+            tea_wisdom: false, priceAskBidRatio: 1.0, hourly_rate: 0
+        };
+        const enhance_bonus = [ 1, 1.02, 1.042, 1.066, 1.092, 1.12, 1.15, 1.182, 1.216, 1.252, 1.29, 1.33, 1.372, 1.416, 1.462, 1.51, 1.56, 1.612, 1.666, 1.722, 1.78 ];
+        const success_rate = [ 50, 45, 45, 40, 40, 40, 35, 35, 35, 35, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 25, 25, 25, 25, 25, 20, 20, 20, 20, 20 ]; // Extended to +30
+
+        function handleLevelChange(event) {
+             event.stopPropagation();
+             const btn = event.currentTarget;
+             const itemName = btn.dataset.itemName;
+             const itemHrid = btn.dataset.hrid;
+             const change = parseInt(btn.dataset.change, 10);
+             const currentSimData = simulatedLevels[itemName] || { level: 0, cost: null };
+             let newLevel = currentSimData.level + change;
+             newLevel = Math.max(0, Math.min(newLevel, 30)); // Clamp level
+
+             const displaySpanId = `level-display-${(itemHrid || itemName).replace(/[\s/]/g, '_')}`;
+             const displaySpan = document.getElementById(displaySpanId);
+             if (displaySpan) displaySpan.textContent = newLevel >= 0 ? `+${newLevel}` : '+0';
+
+             const row = btn.closest('tr');
+             if (row) {
+                 row.querySelector('.enh-level-btn[data-change="-1"]').disabled = (newLevel <= 0);
+                 row.querySelector('.enh-level-btn[data-change="1"]').disabled = (newLevel >= 30);
+             }
+
+             if (newLevel === 0) {
+                 delete simulatedLevels[itemName];
+                 renderCurrentPage(); // Re-render to show market prices
+                 if (currentChartProduct === itemName) { displayChart(itemName, selectedTableRow); }
+                 return;
+             }
+
+             if (!itemHrid || !gameData.itemDetailMap || !gameData.itemDetailMap[itemHrid]) {
+                 console.error(`Cannot simulate: Item details not found for ${itemName} (HRID: ${itemHrid})`);
+                 alert(`Error: Item details not found for ${itemName}. Cannot calculate cost.`);
+                 if (displaySpan) displaySpan.textContent = currentSimData.level >= 0 ? `+${currentSimData.level}` : '+0'; // Revert display
+                 return;
+             }
+
+             const inputData = { ...defaultPlayerStats, item_hrid: itemHrid, stop_at: newLevel };
+
+             if (row) row.querySelectorAll('.enh-level-btn').forEach(b => b.disabled = true);
+
+             // Use setTimeout to avoid blocking UI during calculation
+             setTimeout(async () => {
+                 try {
+                     const bestStrat = await findBestEnhanceStrat(inputData); // Use adapted function
+                     if (bestStrat && typeof bestStrat.totalCost === 'number') {
+                         const cost = Math.round(bestStrat.totalCost);
+                         simulatedLevels[itemName] = { level: newLevel, cost: cost };
+                         updateTableRowCost(itemName, newLevel, cost);
+                         if (currentChartProduct === itemName) { displayChart(itemName, selectedTableRow); }
+                     } else { throw new Error("Calculation returned invalid result (cost missing or NaN)."); }
+                 } catch (error) {
+                     console.error(`Error during enhancement simulation for ${itemName}:`, error);
+                     alert(`Error calculating cost for ${itemName}: ${error.message}`);
+                     if (displaySpan) displaySpan.textContent = currentSimData.level >= 0 ? `+${currentSimData.level}` : '+0';
+                     delete simulatedLevels[itemName];
+                 } finally {
+                     if (row) {
+                         row.querySelector('.enh-level-btn[data-change="-1"]').disabled = (newLevel <= 0);
+                         row.querySelector('.enh-level-btn[data-change="1"]').disabled = (newLevel >= 30);
+                     }
+                 }
+             }, 10);
+        }
+
+        function updateTableRowCost(itemName, level, cost) {
+            const encodedName = encodeURIComponent(itemName);
+            const row = tableBodyEl.querySelector(`tr[data-product="${encodedName}"]`);
+            if (row) {
+                const askCell = row.querySelector('td:nth-child(4)'); // Ask
+                const buyCell = row.querySelector('td:nth-child(5)'); // Buy
+                const formattedCost = formatPriceSimulated(cost);
+                if (askCell) askCell.innerHTML = formattedCost;
+                if (buyCell) buyCell.innerHTML = formattedCost;
+            }
+        }
+
+        // --- Integrated Calculator Logic (Adapted from main.txt) ---
+        // IMPORTANT: This logic is complex and adapted. Thorough testing is recommended.
+        function Enhancelate(input_data, protect_at) {
+            const itemDetail = gameData.itemDetailMap[input_data.item_hrid];
+            if (!itemDetail) { console.error("Enhancelate: Item detail not found for", input_data.item_hrid); return null; }
+            const itemLevel = itemDetail.itemLevel;
+
+            // Calculate guzzling bonus
+            let guzzling_bonus = 1;
+            const guzzlingPouchDetail = gameData.itemDetailMap["/items/guzzling_pouch"];
+            if (input_data.use_guzzling && guzzlingPouchDetail?.equipmentDetail?.noncombatStats?.drinkConcentration) {
+                 const pouchLevel = input_data.guzzling_level;
+                 if (pouchLevel >= 0 && pouchLevel < enhance_bonus.length) {
+                     const bonusPercent = guzzlingPouchDetail.equipmentDetail.noncombatStats.drinkConcentration * 100 * enhance_bonus[pouchLevel];
+                     guzzling_bonus = 1 + bonusPercent / 100;
+                 }
+            }
+
+            let teaLevelBonus = 0;
+            if (input_data.tea_ultra_enhancing) teaLevelBonus = 8 * guzzling_bonus;
+            else if (input_data.tea_super_enhancing) teaLevelBonus = 6 * guzzling_bonus;
+            else if (input_data.tea_enhancing) teaLevelBonus = 3 * guzzling_bonus;
+
+            const effective_level = input_data.enhancing_level + teaLevelBonus;
+            const enhancerBonusPercent = input_data.enhancer_level >= 0 && input_data.enhancer_level < enhance_bonus.length ? enhance_bonus[input_data.enhancer_level] * 100 - 100 : 0;
+            let total_bonus;
+            if (effective_level >= itemLevel) { total_bonus = 1 + (0.05 * (effective_level + input_data.observatory_level - itemLevel) + enhancerBonusPercent) / 100; }
+            else { total_bonus = (1 - (0.5 * (1 - (effective_level) / itemLevel))) + ((0.05 * input_data.observatory_level) + enhancerBonusPercent) / 100; }
+            total_bonus = Math.max(0.1, total_bonus);
+
+            const targetLevel = input_data.stop_at;
+            // Ensure success_rate array is long enough
+            while (success_rate.length < targetLevel) { success_rate.push(success_rate[success_rate.length - 1]); } // Extend last rate if needed
+
+            if (targetLevel <= 0 || targetLevel > 30) { console.error("Target level out of bounds (1-30):", targetLevel); return null; }
+
+            let P = math.zeros(targetLevel + 1, targetLevel + 1, 'sparse');
+
+            for (let i = 0; i < targetLevel; i++) { // From level +i (index i)
+                const success_chance_base = (success_rate[i] || success_rate[success_rate.length - 1]) / 100.0; // Use last rate if index out of bounds
+                const success_chance_mod = Math.min(1.0, success_chance_base * total_bonus);
+                const failure_chance = 1.0 - success_chance_mod;
+                const destination_on_fail = (i + 1 >= protect_at) ? i : 0;
+
+                if (input_data.tea_blessed && (i + 2) <= targetLevel) {
+                    const blessed_chance = success_chance_mod * 0.01 * guzzling_bonus;
+                    const normal_success_chance = success_chance_mod * (1 - 0.01 * guzzling_bonus);
+                    P.set([i, i + 2], blessed_chance);
+                    P.set([i, i + 1], normal_success_chance);
+                } else {
+                    P.set([i, i + 1], success_chance_mod);
+                }
+                 P.set([i, destination_on_fail], math.add(P.get([i, destination_on_fail]) || 0, failure_chance));
+            }
+            P.set([targetLevel, targetLevel], 1.0);
+
+            try {
+                let Q = P.subset(math.index(math.range(0, targetLevel), math.range(0, targetLevel)));
+                let I = math.identity(targetLevel, 'sparse');
+                let N = math.lusolve(math.subtract(I, Q), I);
+
+                const attemptsArray = N.subset(math.index(0, math.range(0, targetLevel)));
+                const attempts = math.sum(attemptsArray);
+
+                let protects = 0;
+                if (protect_at <= targetLevel) {
+                     for (let i = protect_at - 1; i < targetLevel; i++) {
+                         const expected_visits_to_state_i = N.get([0, i]);
+                         const destination_on_fail_corrected = (i + 1 >= protect_at) ? i : 0;
+                         const failure_transition_prob = P.get([i, destination_on_fail_corrected]);
+                         protects += expected_visits_to_state_i * failure_transition_prob;
+                     }
+                }
+
+                 // --- Time Calculation ---
+                 const calc_speed = function (item_hrid, level) {
+                    const item = gameData.itemDetailMap[item_hrid];
+                    if (!item || !item.equipmentDetail?.noncombatStats?.enhancingSpeed) return 0;
+                    const bonus = (level >= 0 && level < enhance_bonus.length) ? enhance_bonus[level] : 1;
+                    return Number((item.equipmentDetail.noncombatStats.enhancingSpeed * 100 * bonus).toFixed(2));
+                 };
+                 const item_bonus = (input_data.use_enchanted ? calc_speed("/items/enchanted_gloves", input_data.enchanted_level) : 0.0) +
+                                    (input_data.use_enhancer_top ? calc_speed("/items/enhancers_top", input_data.enhancer_top_level) : 0.0) +
+                                    (input_data.use_enhancer_bot ? calc_speed("/items/enhancers_bottoms", input_data.enhancer_bot_level) : 0.0);
+                 const tea_speed_bonus = (input_data.tea_enhancing ? 3 : (input_data.tea_super_enhancing ? 6 : (input_data.tea_ultra_enhancing ? 8 : 0))) * guzzling_bonus;
+                 const timeBonusPercent = (input_data.enhancing_level > itemLevel ? ((effective_level + input_data.observatory_level - itemLevel) + item_bonus + tea_speed_bonus) : (input_data.observatory_level + item_bonus + tea_speed_bonus));
+                 const timeMultiplier = 1 + timeBonusPercent / 100;
+                 const baseTime = 12;
+                 const perActionTimeSec = baseTime / timeMultiplier;
+                 const totalActionTimeSec = perActionTimeSec * attempts;
+
+                return {
+                    actions: attempts,
+                    protect_count: protects,
+                    totalActionTimeSec: totalActionTimeSec,
+                    totalActionTimeStr: timeReadable(totalActionTimeSec)
+                };
+            } catch (error) {
+                console.error("Markov chain calculation error:", error);
+                return null;
+            }
+        }
+
+        function getCosts(hrid, priceAskBidRatio) {
+             const itemDetailObj = gameData.itemDetailMap[hrid];
+             if (!itemDetailObj) return null;
+             const baseCost = getRealisticBaseItemPrice(hrid, priceAskBidRatio);
+             if (baseCost < 0) { console.warn(`Could not determine base cost for ${hrid}`); }
+
+             let minProtectionPrice = Infinity; let minProtectionHrid = null;
+             let protect_item_hrids = ["/items/mirror_of_protection"];
+             if(itemDetailObj.protectionItemHrids && Array.isArray(itemDetailObj.protectionItemHrids)) { protect_item_hrids = protect_item_hrids.concat(itemDetailObj.protectionItemHrids); }
+             protect_item_hrids.push(hrid); protect_item_hrids = [...new Set(protect_item_hrids)];
+             protect_item_hrids.forEach((protection_hrid) => {
+                 const this_cost = getRealisticBaseItemPrice(protection_hrid, priceAskBidRatio);
+                 if (this_cost >= 0 && this_cost < minProtectionPrice) { minProtectionPrice = this_cost; minProtectionHrid = protection_hrid; }
+             });
+             if (minProtectionHrid === null) { minProtectionPrice = 0; }
+
+             const needMap = {}; let totalNeedPrice = 0;
+             if (itemDetailObj.enhancementCosts && Array.isArray(itemDetailObj.enhancementCosts)) {
+                  itemDetailObj.enhancementCosts.forEach(need => {
+                      const price = getItemMarketPrice(need.itemHrid, priceAskBidRatio);
+                      totalNeedPrice += price * need.count;
+                      if (need.itemHrid !== "/items/coin") { const materialName = gameData.itemDetailMap[need.itemHrid]?.name || need.itemHrid; needMap[materialName] = price; }
+                  });
+             } else { console.warn(`No enhancementCosts defined for ${hrid}`); }
+             return { baseCost: Math.max(0, baseCost), minProtectionCost: minProtectionPrice === Infinity ? 0 : minProtectionPrice, perActionCost: totalNeedPrice, choiceOfProtection: minProtectionHrid, needMap: needMap };
+        }
+
+        function getRealisticBaseItemPrice(hrid, priceAskBidRatio) { return getItemMarketPrice(hrid, priceAskBidRatio); }
+        function getItemMarketPrice(hrid, priceAskBidRatio) {
+             const fullName = gameData.itemDetailMap[hrid]?.name;
+             if (!fullName) return 0;
+             const itemMarketInfo = marketSummary.find(item => item.name === fullName);
+             if (!itemMarketInfo) { if (hrid === "/items/coin") return 1; return 0; }
+             const ask = itemMarketInfo.ask > 0 ? itemMarketInfo.ask : (itemMarketInfo.buy > 0 ? itemMarketInfo.buy : 0);
+             const bid = itemMarketInfo.buy > 0 ? itemMarketInfo.buy : (itemMarketInfo.ask > 0 ? itemMarketInfo.ask : 0);
+             if (ask <= 0 && bid <= 0) return 0;
+             return ask * priceAskBidRatio + bid * (1 - priceAskBidRatio);
+        }
+
+        async function findBestEnhanceStrat(input_data) {
+             let bestTotalCost = Infinity; let bestResult = null;
+             for (let protect_at = 2; protect_at <= input_data.stop_at + 1; protect_at++) {
+                 const current_protect_at = Math.min(protect_at, input_data.stop_at);
+                 const simResult = Enhancelate(input_data, current_protect_at);
+                 if (!simResult) { continue; }
+                 const costs = getCosts(input_data.item_hrid, input_data.priceAskBidRatio);
+                 if (!costs) { continue; }
+                 const actual_protect_count = (protect_at > input_data.stop_at) ? 0 : simResult.protect_count;
+                 const actual_protection_cost = (protect_at > input_data.stop_at) ? 0 : costs.minProtectionCost;
+                 const baseC = typeof costs.baseCost === 'number' ? costs.baseCost : 0;
+                 const protC = typeof actual_protection_cost === 'number' ? actual_protection_cost : 0;
+                 const protN = typeof actual_protect_count === 'number' ? actual_protect_count : 0;
+                 const actionC = typeof costs.perActionCost === 'number' ? costs.perActionCost : 0;
+                 const actionsN = typeof simResult.actions === 'number' ? simResult.actions : 0;
+                 const totalCost = baseC + (protC * protN) + (actionC * actionsN);
+                 if (totalCost < bestTotalCost) {
+                     bestTotalCost = totalCost;
+                     bestResult = { protect_at: protect_at > input_data.stop_at ? Infinity : current_protect_at, protect_count: actual_protect_count, simResult: simResult, costs: costs, totalCost: totalCost, protect_at_display: protect_at > input_data.stop_at ? "Never" : `+${current_protect_at}` };
+                 }
+             }
+             console.log("Best strategy found:", bestResult);
+             return bestResult;
+        }
+
+         // ** ADDED: Function to load sample data on error **
+        function loadSampleDataForTesting() {
+             console.log("Loading SAMPLE data due to fetch error...");
+             const nowSec = Math.floor(Date.now() / 1000);
+             const sampleTimestamp1 = nowSec - 36 * 3600; const sampleTimestamp2 = nowSec - 12 * 3600; const sampleTimestamp3 = nowSec - 1 * 3600;
+             const sampleHistoryData = {
+                 "Test Item Alpha": { "buy": [ { "timestamp": sampleTimestamp1, "price": 140 }, { "timestamp": sampleTimestamp2, "price": 142 }, { "timestamp": sampleTimestamp3, "price": 150 } ], "ask": [ { "timestamp": sampleTimestamp1, "price": 155 }, { "timestamp": sampleTimestamp2, "price": 162 }, { "timestamp": sampleTimestamp3, "price": 160 } ] },
+                 "Test Item Beta": { "buy": [ { "timestamp": nowSec - 48 * 3600, "price": 2100 }, { "timestamp": nowSec - 24 * 3600, "price": 2050 }, { "timestamp": nowSec - 1 * 3600, "price": 2000 } ], "ask": [ { "timestamp": nowSec - 48 * 3600, "price": 2200 }, { "timestamp": nowSec - 24 * 3600, "price": null }, { "timestamp": nowSec - 1 * 3600, "price": null } ] },
+                 "Cheese Sword": { "buy": [ { "timestamp": sampleTimestamp1, "price": 1800 }, { "timestamp": sampleTimestamp3, "price": 1900 } ], "ask": [ { "timestamp": sampleTimestamp1, "price": 2800 }, { "timestamp": sampleTimestamp3, "price": 2900 } ] }
+             };
+             const sampleSummaryData = [
+                 { name: "Test Item Alpha", category: "Test Cat A", buy: 150, ask: 160, vendor: 10, trend: 5.5, hrid: "/items/test_item_alpha" },
+                 { name: "Test Item Beta", category: "Test Cat B", buy: 2000, ask: null, vendor: 500, trend: -2.1, hrid: "/items/test_item_beta" },
+                 { name: "Cheese Sword", category: "Equipment / Main Hand", buy: 1900, ask: 2900, vendor: 1000, trend: 1.5, hrid: "/items/cheese_sword" }
+             ];
+             const sampleGameData = {
+                 itemDetailMap: {
+                     "/items/cheese_sword": { name: "Cheese Sword", itemLevel: 10, enhancementCosts: [ { itemHrid: "/items/coin", count: 1000 }, { itemHrid: "/items/cheesesmithing_essence", count: 1 } ], protectionItemHrids: null },
+                     "/items/cheesesmithing_essence": { name: "Cheesesmithing Essence", itemLevel: 1, enhancementCosts: [] },
+                     "/items/coin": { name: "Coin", itemLevel: 1, enhancementCosts: [] },
+                     "/items/test_item_alpha": { name: "Test Item Alpha", itemLevel: 1, enhancementCosts: [] },
+                     "/items/test_item_beta": { name: "Test Item Beta", itemLevel: 1, enhancementCosts: [] }
+                 }
+             };
+             marketSummary = sampleSummaryData; allMarketData = sampleHistoryData; gameData = sampleGameData;
+             pinnedItems = getPinnedItems(); applyFiltersAndSort();
+             loadingMessageEl.style.display = 'none'; tableWrapperEl.classList.remove('hidden'); paginationEl.style.display = 'flex';
+             errorMessageEl.textContent += " Using sample data."; // Append to existing error message
+             errorMessageEl.classList.remove('hidden'); // Ensure error message is visible
+             displayChart("Test Item Alpha", null); // Show sample chart
+        }
+
+
+        // --- Event Handlers ---
+        function handleProductClick(event) {
+             if (event.target.classList.contains('pin-icon') || event.target.classList.contains('enh-level-btn')) { return; } // Ignore clicks on pin/level buttons
+             const clickedLink = event.currentTarget;
+             const clickedTr = clickedLink.closest('tr');
+             if (!clickedTr) return;
+             const productName = decodeURIComponent(clickedTr.dataset.product);
+             displayChart(productName, clickedTr);
         }
         let searchTimeout;
-        searchInput.addEventListener('input', (event) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                currentSearch = event.target.value;
-                applyFiltersAndSort();
-            }, 300);
-        });
-        categoryFilterEl.addEventListener('change', (event) => {
-             currentCategoryFilter = event.target.value;
-             applyFiltersAndSort();
-        });
+        searchInput.addEventListener('input', (event) => { clearTimeout(searchTimeout); searchTimeout = setTimeout(() => { currentSearch = event.target.value; applyFiltersAndSort(); }, 300); });
+        categoryFilterEl.addEventListener('change', (event) => { currentCategoryFilter = event.target.value; applyFiltersAndSort(); });
         sortOptionsEl.addEventListener('click', (event) => {
             if (event.target.tagName === 'BUTTON' && event.target.dataset.sort) {
                 const newSort = event.target.dataset.sort;
-                if (newSort === currentSort) {
-                    if (currentSort === 'name_asc') currentSort = 'name_desc';
-                    else if (currentSort === 'name_desc') currentSort = 'name_asc';
-                    // Add toggles for other columns if desired, e.g., buy_desc -> buy_asc
-                } else { currentSort = newSort; }
-                sortOptionsEl.querySelectorAll('button').forEach(btn => {
-                    btn.classList.toggle('current-sort', btn.dataset.sort === currentSort);
-                });
+                if (newSort === currentSort) { if (currentSort === 'name_asc') currentSort = 'name_desc'; else if (currentSort === 'name_desc') currentSort = 'name_asc'; }
+                else { currentSort = newSort; }
+                sortOptionsEl.querySelectorAll('button').forEach(btn => { btn.classList.toggle('current-sort', btn.dataset.sort === currentSort); });
                 applyFiltersAndSort();
             }
         });
-        prevButton.addEventListener('click', () => {
-            if (currentPage > 1) { currentPage--; renderCurrentPage(); }
-        });
-        nextButton.addEventListener('click', () => {
-            const totalPages = Math.ceil(filteredAndSortedSummary.length / itemsPerPage);
-            if (currentPage < totalPages) { currentPage++; renderCurrentPage(); }
-        });
+        prevButton.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderCurrentPage(); } });
+        nextButton.addEventListener('click', () => { const totalPages = Math.ceil(filteredAndSortedSummary.length / itemsPerPage); if (currentPage < totalPages) { currentPage++; renderCurrentPage(); } });
         chartTimeControlsEl.addEventListener('click', (event) => {
             if (event.target.tagName === 'BUTTON' && event.target.dataset.range) {
                 const newRange = event.target.dataset.range;
                 if (newRange !== currentChartTimeRange) {
                     currentChartTimeRange = newRange;
-                    chartTimeControlsEl.querySelectorAll('button').forEach(btn => {
-                        btn.classList.toggle('active', btn.dataset.range === newRange);
-                    });
-                    if (currentChartProduct) {
-                        displayChart(currentChartProduct, selectedTableRow); // Re-render chart
-                    }
+                    chartTimeControlsEl.querySelectorAll('button').forEach(btn => { btn.classList.toggle('active', btn.dataset.range === newRange); });
+                    if (currentChartProduct) { displayChart(currentChartProduct, selectedTableRow); }
                 }
             }
         });
-        // Listener for the new scale toggle button
         if (scaleToggleButton) {
             scaleToggleButton.addEventListener('click', () => {
                 currentYScaleType = (currentYScaleType === 'logarithmic') ? 'linear' : 'logarithmic';
                 console.log(`Switched scale to: ${currentYScaleType}`);
-                if (currentChartProduct) {
-                    // Redraw the current chart with the new scale
-                    displayChart(currentChartProduct, selectedTableRow);
-                }
+                if (currentChartProduct) { displayChart(currentChartProduct, selectedTableRow); }
             });
-        } else {
-            console.error("Scale toggle button not found!");
-        }
-        // Listener for the test graph button
-        if (showTestGraphBtn) {
-             showTestGraphBtn.addEventListener('click', displayTestGraph);
-        } else {
-             console.error("Show Test Graph button not found!");
-        }
-        // Listener for the show live data button
-        if (showLiveDataBtn) {
-             showLiveDataBtn.addEventListener('click', loadData); // Re-call loadData
-        } else {
-             console.error("Show Live Data button not found!");
-        }
+        } else { console.error("Scale toggle button not found!"); }
+        // Removed test/live data button listeners
 
 
         // --- Initial Load ---
