@@ -6,17 +6,17 @@
 # - Item names belonging to the current category/subcategory listed below, comma-separated.
 
 Currencies
-Coin, Task Token, Cowbell, Chimerical Token, Sinister Token, Enchanted Token
+Coin, Task Token, Cowbell, Chimerical Token, Sinister Token, Enchanted Token, Pirate Token
 
 Loots
-Bag Of 10 Cowbells, Purple's Gift, Small Artisan's Crate, Small Meteorite Cache, Small Treasure Chest, Medium Artisan's Crate, Medium Meteorite Cache, Medium Treasure Chest, Large Artisan's Crate, Large Meteorite Cache, Large Treasure Chest, Chimerical Chest, Sinister Chest, Enchanted Chest
+Bag Of 10 Cowbells, Purple's Gift, Small Artisan's Crate, Small Meteorite Cache, Small Treasure Chest, Medium Artisan's Crate, Medium Meteorite Cache, Medium Treasure Chest, Large Artisan's Crate, Large Meteorite Cache, Large Treasure Chest, Chimerical Chest, Sinister Chest, Enchanted Chest, Pirate Chest
 
 Resources
 Milk, Verdant Milk, Azure Milk, Burble Milk, Crimson Milk, Rainbow Milk, Holy Milk
 Cheese, Verdant Cheese, Azure Cheese, Burble Cheese, Crimson Cheese, Rainbow Cheese, Holy Cheese
 Log, Birch Log, Cedar Log, Purpleheart Log, Ginkgo Log, Redwood Log, Arcane Log
 Lumber, Birch Lumber, Cedar Lumber, Purpleheart Lumber, Ginkgo Lumber, Redwood Lumber, Arcane Lumber
-Rough Hide, Reptile Hide, Gobo Hide, Beast Hide, Umbral Hide
+Rough Hide, Reptile Hide, Gobo Hide, Beast Hide, Umbral Hide, Kraken Leather
 Rough Leather, Reptile Leather, Gobo Leather, Beast Leather, Umbral Leather
 Cotton, Flax, Bamboo Branch, Cocoon, Radiant Fiber
 Cotton Fabric, Linen Fabric, Bamboo Fabric, Silk Fabric, Radiant Fabric
@@ -26,7 +26,7 @@ Apple, Orange, Plum, Peach, Dragon Fruit, Star Fruit
 Arabica Coffee Bean, Robusta Coffee Bean, Liberica Coffee Bean, Excelsa Coffee Bean, Fieriosa Coffee Bean, Spacia Coffee Bean
 Green Tea Leaf, Black Tea Leaf, Burble Tea Leaf, Moolong Tea Leaf, Red Tea Leaf, Emp Tea Leaf   
 Catalyst Of Coinification, Catalyst Of Decomposition, Catalyst Of Transmutation, Prime Catalyst
-Snake Fang, Shoebill Feather, Snail Shell, Crab Pincer, Turtle Shell, Marine Scale
+Snake Fang, Shoebill Feather, Snail Shell, Crab Pincer, Turtle Shell, Marine Scale, Kraken Fang
 Treant Bark, Centaur Hoof, Luna Wing
 Gobo Rag, Goggles, Magnifying Glass, Eye Of The Watcher
 Icy Cloth, Flaming Cloth, Sorcerer's Sole
@@ -38,7 +38,7 @@ Griffin Leather, Manticore Sting, Jackalope Antler, Dodocamel Plume, Griffin Tal
 Acrobat's Ribbon, Magician's Cloth, Chaotic Chain, Cursed Ball
 Royal Cloth, Knight's Ingot, Bishop's Scroll, Regal Jewel, Sundering Jewel
 Butter Of Proficiency, Thread Of Expertise, Branch Of Insight
-Gluttonous Energy, Guzzling Energy
+Gluttonous Energy, Guzzling Energy, Maelstrom Plating
 Milking Essence, Foraging Essence, Woodcutting Essence, Cheesesmithing Essence, Crafting Essence, Tailoring Essence, Cooking Essence, Brewing Essence, Alchemy Essence, Enhancing Essence
 Swamp Essence, Aqua Essence, Jungle Essence, Gobo Essence, Eyessence, Sorcerer Essence, Bear Essence, Golem Essence, Twilight Essence, Abyssal Essence, Chimerical Essence, Sinister Essence, Enchanted Essence, Pirate Essence
 Star Fragment, Pearl, Amber, Garnet, Jade, Amethyst, Moonstone, Sunstone, Philosopher's Stone
@@ -51,20 +51,20 @@ Cupcake, Blueberry Cake, Blackberry Cake, Strawberry Cake, Mooberry Cake, Marsbe
 Gummy, Apple Gummy, Orange Gummy, Plum Gummy, Peach Gummy, Dragon Fruit Gummy, Star Fruit Gummy
 Yogurt, Apple Yogurt, Orange Yogurt, Plum Yogurt, Peach Yogurt, Dragon Fruit Yogurt, Star Fruit Yogurt
 Milkshake, Verdant Milkshake, Azure Milkshake, Burble Milkshake, Crimson Milkshake, Rainbow Milkshake, Holy Milkshake
-Foraging Tea, Woodcutting Tea, Milking Tea, Cheesesmithing Tea, Crafting Tea, Tailoring Tea, Cooking Tea, Brewing Tea, Alchemy Tea, Enhancing Tea
+Foraging Tea, Woodcutting Tea, Milking Tea, Cheesesmithing Tea, Crafting Tea, Tailoring Tea, Cooking Tea, Brewing Tea, Alchemy Tea, Enhancing Tea, Processing Tea
 Super Foraging Tea, Super Woodcutting Tea, Super Milking Tea, Super Cheesesmithing Tea, Super Crafting Tea, Super Tailoring Tea, Super Cooking Tea, Super Brewing Tea, Super Alchemy Tea, Super Enhancing Tea
 Ultra Foraging Tea, Ultra Woodcutting Tea, Ultra Milking Tea, Ultra Cheesesmithing Tea, Ultra Crafting Tea, Ultra Tailoring Tea, Ultra Cooking Tea, Ultra Brewing Tea, Ultra Alchemy Tea, Ultra Enhancing Tea
 Gathering Tea, Gourmet Tea, Wisdom Tea, Efficiency Tea, Artisan Tea, Catalytic Tea, Blessed Tea
-Stamina Coffee, Defense Coffee, Attack Coffee, Power Coffee, Ranged Coffee, Magic Coffee, Intelligence Coffee
+Stamina Coffee, Defense Coffee, Attack Coffee, Power Coffee, Ranged Coffee, Magic Coffee, Intelligence Coffee, Wisdom Coffee
 Super Stamina Coffee, Super Defense Coffee, Super Attack Coffee, Super Power Coffee, Super Ranged Coffee, Super Magic Coffee, Super Intelligence Coffee
 Ultra Stamina Coffee, Ultra Defense Coffee, Ultra Attack Coffee, Ultra Power Coffee, Ultra Ranged Coffee, Ultra Magic Coffee, Ultra Intelligence Coffee
 Swiftness Coffee, Lucky Coffee, Channeling Coffee, Critical Coffee
 Enhancer Potion Tier 1, Enhancer Potion Tier 2, Enhancer Potion Tier 3, Enhancer Potion Tier 4, Enhancer Potion Tier 5, Enhancer Potion Tier 6, Enhancer Potion Tier 7, Enhancer Potion Tier 8, Enhancer Potion Tier 9, Enhancer Potion Tier 10
 
 Books
-Poke, Impale, Penetrating Strike, Puncture
+Poke, Impale, Penetrating Strike, Puncture, Pierce
 Scratch, Cleave, Maim, Crippling Slash
-Smack, Sweep, Stunning Blow, Fracturing Impact
+Smack, Sweep, Stunning Blow, Fracturing Impact, Shield Bash
 Quick Shot, Aqua Arrow, Flame Arrow, Rain Of Arrows, Silencing Shot, Steady Shot, Pestilent Shot, Penetrating Shot
 Water Strike, Ice Spear, Frost Surge, Mana Spring
 Entangle, Toxic Pollen, Nature's Veil, Life Drain
@@ -75,11 +75,11 @@ Fierce Aura, Aqua Aura, Sylvan Aura, Flame Aura, Speed Aura, Critical Aura, Prom
 
 Keys
 Green Key Fragment, Blue Key Fragment, Purple Key Fragment, Orange Key Fragment, Brown Key Fragment, White Key Fragment, Stone Key Fragment, Dark Key Fragment, Burning Key Fragment
-Swamp Dungeon Key, Aqua Dungeon Key, Jungle Dungeon Key, Gobo Dungeon Key, Eye Dungeon Key, Sorcerer Dungeon Key, Bear Dungeon Key, Golem Dungeon Key, Twilight Dungeon Key, Abyssal Dungeon Key, Chimerical Entry Key, Chimerical Chest Key, Sinister Entry Key, Sinister Chest Key, Enchanted Entry Key, Enchanted Chest Key, Pirate Entry Key, Pirate Chest Key, Chimerical Key, Enchanted Key
+Swamp Dungeon Key, Aqua Dungeon Key, Jungle Dungeon Key, Gobo Dungeon Key, Eye Dungeon Key, Sorcerer Dungeon Key, Bear Dungeon Key, Golem Dungeon Key, Twilight Dungeon Key, Abyssal Dungeon Key, Chimerical Entry Key, Chimerical Chest Key, Sinister Entry Key, Sinister Chest Key, Enchanted Entry Key, Enchanted Chest Key, Pirate Entry Key, Pirate Chest Key, Chimerical Key, Enchanted Key, Sinister Key
 
 Equipment
 Main Hand
-Cheese Sword, Verdant Sword, Azure Sword, Burble Sword, Crimson Sword, Rainbow Sword, Holy Sword, Regal Sword, Werewolf Slasher, Damaged Anchor, Gobo Boomstick, Gobo Shooter, Gobo Slasher, Gobo Smasher, Gobo Stabber
+Cheese Sword, Verdant Sword, Azure Sword, Burble Sword, Crimson Sword, Rainbow Sword, Holy Sword, Regal Sword, Werewolf Slasher, Damaged Anchor, Gobo Boomstick, Gobo Shooter, Gobo Slasher, Gobo Smasher, Gobo Stabber, Kraken Fang, Snake Fang Dirk, Soul Hunter Crossbow, Sundering Crossbow, Vampire Fang Dirk
 Cheese Spear, Verdant Spear, Azure Spear, Burble Spear, Crimson Spear, Rainbow Spear, Holy Spear, Furious Spear, Stalactite Spear
 Cheese Mace, Verdant Mace, Azure Mace, Burble Mace, Crimson Mace, Rainbow Mace, Holy Mace, Chaotic Flail, Granite Bludgeon
 Wooden Crossbow, Birch Crossbow, Cedar Crossbow, Purpleheart Crossbow, Ginkgo Crossbow, Redwood Crossbow, Arcane Crossbow, Vampiric Bow, Cursed Bow
@@ -87,30 +87,30 @@ Wooden Water Staff, Birch Water Staff, Cedar Water Staff, Purpleheart Water Staf
 Wooden Nature Staff, Birch Nature Staff, Cedar Nature Staff, Purpleheart Nature Staff, Ginkgo Nature Staff, Redwood Nature Staff, Arcane Nature Staff, Jackalope Staff, Blooming Trident
 Wooden Fire Staff, Birch Fire Staff, Cedar Fire Staff, Purpleheart Fire Staff, Ginkgo Fire Staff, Redwood Fire Staff, Arcane Fire Staff, Infernal Battlestaff, Blazing Trident
 Off Hand
-Cheese Buckler, Verdant Buckler, Azure Buckler, Burble Buckler, Crimson Buckler, Rainbow Buckler, Holy Buckler, Knight's Defender, Gobo Defender
+Cheese Buckler, Verdant Buckler, Azure Buckler, Burble Buckler, Crimson Buckler, Rainbow Buckler, Holy Buckler, Knight's Defender, Gobo Defender, Knight's Aegis, Treant Shield
 Wooden Shield, Birch Shield, Cedar Shield, Purpleheart Shield, Ginkgo Shield, Redwood Shield, Arcane Shield, Manticore Shield, Vision Shield
 Tome Of Healing, Tome Of The Elements, Bishop's Codex, Watchful Relic
 Head
-Cheese Helmet, Verdant Helmet, Azure Helmet, Burble Helmet, Crimson Helmet, Rainbow Helmet, Holy Helmet, Knight's Helmet, Corsair Crest
+Cheese Helmet, Verdant Helmet, Azure Helmet, Burble Helmet, Crimson Helmet, Rainbow Helmet, Holy Helmet, Knight's Helmet, Corsair Crest, Red Chef's Hat, Snail Shell Helmet
 Rough Hood, Reptile Hood, Gobo Hood, Beast Hood, Umbral Hood, Acrobatic Hood
 Cotton Hat, Linen Hat, Bamboo Hat, Silk Hat, Radiant Hat, Magician's Hat
 Fluffy Red Hat, Red Culinary Hat, Vision Helmet, Corsair Helmet
 Body
-Cheese Plate Body, Verdant Plate Body, Azure Plate Body, Burble Plate Body, Crimson Plate Body, Rainbow Plate Body, Holy Plate Body, Knight's Plate Body, Colossus Plate Body, Demonic Plate Body, Anchorbound Plate Body, Maelstrom Plate Body, Gator Vest
+Cheese Plate Body, Verdant Plate Body, Azure Plate Body, Burble Plate Body, Crimson Plate Body, Rainbow Plate Body, Holy Plate Body, Knight's Plate Body, Colossus Plate Body, Demonic Plate Body, Anchorbound Plate Body, Maelstrom Plate Body, Gator Vest, Kraken Tunic, Marine Tunic, Royal Fire Robe Top, Royal Nature Robe Top, Royal Water Robe Top, Turtle Shell Body
 Rough Tunic, Reptile Tunic, Gobo Tunic, Beast Tunic, Umbral Tunic, Revenant Tunic, Griffin Tunic
 Cotton Robe Top, Linen Robe Top, Bamboo Robe Top, Silk Robe Top, Radiant Robe Top, Luna Robe Top, Icy Robe Top, Flaming Robe Top
 Dairyhand's Top, Forager's Top, Lumberjack's Top, Cheesemaker's Top, Crafter's Top, Tailor's Top, Chef's Top, Brewer's Top, Alchemist's Top, Enhancer's Top
 Legs
-Cheese Plate Legs, Verdant Plate Legs, Azure Plate Legs, Burble Plate Legs, Crimson Plate Legs, Rainbow Plate Legs, Holy Plate Legs, Knight's Plate Legs, Colossus Plate Legs, Demonic Plate Legs, Anchorbound Plate Legs, Maelstrom Plate Legs
+Cheese Plate Legs, Verdant Plate Legs, Azure Plate Legs, Burble Plate Legs, Crimson Plate Legs, Rainbow Plate Legs, Holy Plate Legs, Knight's Plate Legs, Colossus Plate Legs, Demonic Plate Legs, Anchorbound Plate Legs, Maelstrom Plate Legs, Kraken Chaps, Marine Chaps, Royal Fire Robe Bottoms, Royal Nature Robe Bottoms, Royal Water Robe Bottoms, Turtle Shell Legs
 Rough Chaps, Reptile Chaps, Gobo Chaps, Beast Chaps, Umbral Chaps, Revenant Chaps, Griffin Chaps
 Cotton Robe Bottoms, Linen Robe Bottoms, Bamboo Robe Bottoms, Silk Robe Bottoms, Radiant Robe Bottoms, Luna Robe Bottoms, Icy Robe Bottoms, Flaming Robe Bottoms
 Dairyhand's Bottoms, Forager's Bottoms, Lumberjack's Bottoms, Cheesemaker's Bottoms, Crafter's Bottoms, Tailor's Bottoms, Chef's Bottoms, Brewer's Bottoms, Alchemist's Bottoms, Enhancer's Bottoms
 Hands
-Cheese Gauntlets, Verdant Gauntlets, Azure Gauntlets, Burble Gauntlets, Crimson Gauntlets, Rainbow Gauntlets, Holy Gauntlets, Knight's Gauntlets, Pincer Gloves, Panda Gloves, Dodocamel Gauntlets
+Cheese Gauntlets, Verdant Gauntlets, Azure Gauntlets, Burble Gauntlets, Crimson Gauntlets, Rainbow Gauntlets, Holy Gauntlets, Knight's Gauntlets, Pincer Gloves, Panda Gloves, Dodocamel Gauntlets, Magnetic Gloves, Sighted Bracers
 Rough Bracers, Reptile Bracers, Gobo Bracers, Beast Bracers, Umbral Bracers, Marksman Bracers
 Cotton Gloves, Linen Gloves, Bamboo Gloves, Silk Gloves, Radiant Gloves, Chrono Gloves, Enchanted Gloves
 Feet
-Cheese Boots, Verdant Boots, Azure Boots, Burble Boots, Crimson Boots, Rainbow Boots, Holy Boots, Knight's Boots, Turtle Boots, Black Bear Shoes, Centaur Boots, Collector's Boots, Grizzly Bear Shoes
+Cheese Boots, Verdant Boots, Azure Boots, Burble Boots, Crimson Boots, Rainbow Boots, Holy Boots, Knight's Boots, Turtle Boots, Black Bear Shoes, Centaur Boots, Collector's Boots, Grizzly Bear Shoes, Polar Bear Shoes, Shoebill Shoes, Sorcerer Boots
 Rough Boots, Reptile Boots, Gobo Boots, Beast Boots, Umbral Boots, Sighted Boots
 Cotton Boots, Linen Boots, Bamboo Boots, Silk Boots, Radiant Boots, Sorcerer's Sole
 Back
@@ -118,16 +118,16 @@ Sinister Cape, Enchanted Cloak, Chimerical Quiver
 Pouch
 Small Pouch, Medium Pouch, Large Pouch, Giant Pouch, Guzzling Pouch, Gluttonous Pouch
 Two Hand
-Cheese Bulwark, Verdant Bulwark, Azure Bulwark, Burble Bulwark, Crimson Bulwark, Rainbow Bulwark, Holy Bulwark, Knight's Bulwark, Griffin Bulwark
+Cheese Bulwark, Verdant Bulwark, Azure Bulwark, Burble Bulwark, Crimson Bulwark, Rainbow Bulwark, Holy Bulwark, Knight's Bulwark, Griffin Bulwark, Spiked Bulwark
 Wooden Bow, Birch Bow, Cedar Bow, Purpleheart Bow, Ginkgo Bow, Redwood Bow, Arcane Bow
 
 Jewelry
-Necklace Of Efficiency, Necklace Of Experience, Necklace Of Wisdom, Fighter Necklace, Ranger Necklace, Wizard Necklace, Pendant Of Time, Pendant Of Defiance, Pendant Of Rejuvenation
+Necklace Of Efficiency, Necklace Of Experience, Necklace Of Wisdom, Fighter Necklace, Ranger Necklace, Wizard Necklace, Pendant Of Time, Pendant Of Defiance, Pendant Of Rejuvenation, Necklace Of Speed, Philosopher's Necklace
 Earrings Of Gathering, Earrings Of Essence Find, Earrings Of Armor, Earrings Of Regeneration, Earrings Of Resistance, Earrings Of Rare Find, Earrings Of Critical Strike, Philosopher's Earrings, Earrings Of Threat
-Ring Of Gathering, Ring Of Essence Find, Ring Of Armor, Ring Of Regeneration, Ring Of Resistance, Ring Of Rare Find, Ring Of Critical Strike, Philosopher's Ring, Basic Task Ring, Advanced Task Ring, Expert Task Ring
+Ring Of Gathering, Ring Of Essence Find, Ring Of Armor, Ring Of Regeneration, Ring Of Resistance, Ring Of Rare Find, Ring Of Critical Strike, Philosopher's Ring, Basic Task Ring, Advanced Task Ring, Expert Task Ring, Ring Of Threat
 
 Trinket
-Basic Task Badge, Advanced Task Badge, Expert Task Badge, Eye Watch
+Basic Task Badge, Advanced Task Badge, Expert Task Badge, Eye Watch, Marksman Brooch
 
 Tools
 Milking
