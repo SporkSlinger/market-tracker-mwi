@@ -75,11 +75,11 @@ Fierce Aura, Aqua Aura, Sylvan Aura, Flame Aura, Speed Aura, Critical Aura, Prom
 
 Keys
 Green Key Fragment, Blue Key Fragment, Purple Key Fragment, Orange Key Fragment, Brown Key Fragment, White Key Fragment, Stone Key Fragment, Dark Key Fragment, Burning Key Fragment
-Swamp Dungeon Key, Aqua Dungeon Key, Jungle Dungeon Key, Gobo Dungeon Key, Eye Dungeon Key, Sorcerer Dungeon Key, Bear Dungeon Key, Golem Dungeon Key, Twilight Dungeon Key, Abyssal Dungeon Key, Chimerical Entry Key, Chimerical Chest Key, Sinister Entry Key, Sinister Chest Key, Enchanted Entry Key, Enchanted Chest Key, Pirate Entry Key, Pirate Chest Key
+Swamp Dungeon Key, Aqua Dungeon Key, Jungle Dungeon Key, Gobo Dungeon Key, Eye Dungeon Key, Sorcerer Dungeon Key, Bear Dungeon Key, Golem Dungeon Key, Twilight Dungeon Key, Abyssal Dungeon Key, Chimerical Entry Key, Chimerical Chest Key, Sinister Entry Key, Sinister Chest Key, Enchanted Entry Key, Enchanted Chest Key, Pirate Entry Key, Pirate Chest Key, Chimerical Key, Enchanted Key
 
 Equipment
 Main Hand
-Cheese Sword, Verdant Sword, Azure Sword, Burble Sword, Crimson Sword, Rainbow Sword, Holy Sword, Regal Sword, Werewolf Slasher
+Cheese Sword, Verdant Sword, Azure Sword, Burble Sword, Crimson Sword, Rainbow Sword, Holy Sword, Regal Sword, Werewolf Slasher, Damaged Anchor, Gobo Boomstick, Gobo Shooter, Gobo Slasher, Gobo Smasher, Gobo Stabber
 Cheese Spear, Verdant Spear, Azure Spear, Burble Spear, Crimson Spear, Rainbow Spear, Holy Spear, Furious Spear, Stalactite Spear
 Cheese Mace, Verdant Mace, Azure Mace, Burble Mace, Crimson Mace, Rainbow Mace, Holy Mace, Chaotic Flail, Granite Bludgeon
 Wooden Crossbow, Birch Crossbow, Cedar Crossbow, Purpleheart Crossbow, Ginkgo Crossbow, Redwood Crossbow, Arcane Crossbow, Vampiric Bow, Cursed Bow
@@ -87,16 +87,16 @@ Wooden Water Staff, Birch Water Staff, Cedar Water Staff, Purpleheart Water Staf
 Wooden Nature Staff, Birch Nature Staff, Cedar Nature Staff, Purpleheart Nature Staff, Ginkgo Nature Staff, Redwood Nature Staff, Arcane Nature Staff, Jackalope Staff, Blooming Trident
 Wooden Fire Staff, Birch Fire Staff, Cedar Fire Staff, Purpleheart Fire Staff, Ginkgo Fire Staff, Redwood Fire Staff, Arcane Fire Staff, Infernal Battlestaff, Blazing Trident
 Off Hand
-Cheese Buckler, Verdant Buckler, Azure Buckler, Burble Buckler, Crimson Buckler, Rainbow Buckler, Holy Buckler, Knight's Defender
+Cheese Buckler, Verdant Buckler, Azure Buckler, Burble Buckler, Crimson Buckler, Rainbow Buckler, Holy Buckler, Knight's Defender, Gobo Defender
 Wooden Shield, Birch Shield, Cedar Shield, Purpleheart Shield, Ginkgo Shield, Redwood Shield, Arcane Shield, Manticore Shield, Vision Shield
 Tome Of Healing, Tome Of The Elements, Bishop's Codex, Watchful Relic
 Head
-Cheese Helmet, Verdant Helmet, Azure Helmet, Burble Helmet, Crimson Helmet, Rainbow Helmet, Holy Helmet, Knight's Helmet
+Cheese Helmet, Verdant Helmet, Azure Helmet, Burble Helmet, Crimson Helmet, Rainbow Helmet, Holy Helmet, Knight's Helmet, Corsair Crest
 Rough Hood, Reptile Hood, Gobo Hood, Beast Hood, Umbral Hood, Acrobatic Hood
 Cotton Hat, Linen Hat, Bamboo Hat, Silk Hat, Radiant Hat, Magician's Hat
 Fluffy Red Hat, Red Culinary Hat, Vision Helmet, Corsair Helmet
 Body
-Cheese Plate Body, Verdant Plate Body, Azure Plate Body, Burble Plate Body, Crimson Plate Body, Rainbow Plate Body, Holy Plate Body, Knight's Plate Body, Colossus Plate Body, Demonic Plate Body, Anchorbound Plate Body, Maelstrom Plate Body
+Cheese Plate Body, Verdant Plate Body, Azure Plate Body, Burble Plate Body, Crimson Plate Body, Rainbow Plate Body, Holy Plate Body, Knight's Plate Body, Colossus Plate Body, Demonic Plate Body, Anchorbound Plate Body, Maelstrom Plate Body, Gator Vest
 Rough Tunic, Reptile Tunic, Gobo Tunic, Beast Tunic, Umbral Tunic, Revenant Tunic, Griffin Tunic
 Cotton Robe Top, Linen Robe Top, Bamboo Robe Top, Silk Robe Top, Radiant Robe Top, Luna Robe Top, Icy Robe Top, Flaming Robe Top
 Dairyhand's Top, Forager's Top, Lumberjack's Top, Cheesemaker's Top, Crafter's Top, Tailor's Top, Chef's Top, Brewer's Top, Alchemist's Top, Enhancer's Top
@@ -110,24 +110,24 @@ Cheese Gauntlets, Verdant Gauntlets, Azure Gauntlets, Burble Gauntlets, Crimson 
 Rough Bracers, Reptile Bracers, Gobo Bracers, Beast Bracers, Umbral Bracers, Marksman Bracers
 Cotton Gloves, Linen Gloves, Bamboo Gloves, Silk Gloves, Radiant Gloves, Chrono Gloves, Enchanted Gloves
 Feet
-Cheese Boots, Verdant Boots, Azure Boots, Burble Boots, Crimson Boots, Rainbow Boots, Holy Boots, Knight's Boots, Turtle Boots, Black Bear Shoes, Centaur Boots
+Cheese Boots, Verdant Boots, Azure Boots, Burble Boots, Crimson Boots, Rainbow Boots, Holy Boots, Knight's Boots, Turtle Boots, Black Bear Shoes, Centaur Boots, Collector's Boots, Grizzly Bear Shoes
 Rough Boots, Reptile Boots, Gobo Boots, Beast Boots, Umbral Boots, Sighted Boots
 Cotton Boots, Linen Boots, Bamboo Boots, Silk Boots, Radiant Boots, Sorcerer's Sole
 Back
 Sinister Cape, Enchanted Cloak, Chimerical Quiver
 Pouch
-Small Pouch, Medium Pouch, Large Pouch, Giant Pouch, Guzzling Pouch
+Small Pouch, Medium Pouch, Large Pouch, Giant Pouch, Guzzling Pouch, Gluttonous Pouch
 Two Hand
-Cheese Bulwark, Verdant Bulwark, Azure Bulwark, Burble Bulwark, Crimson Bulwark, Rainbow Bulwark, Holy Bulwark, Knight's Bulwark
+Cheese Bulwark, Verdant Bulwark, Azure Bulwark, Burble Bulwark, Crimson Bulwark, Rainbow Bulwark, Holy Bulwark, Knight's Bulwark, Griffin Bulwark
 Wooden Bow, Birch Bow, Cedar Bow, Purpleheart Bow, Ginkgo Bow, Redwood Bow, Arcane Bow
 
 Jewelry
 Necklace Of Efficiency, Necklace Of Experience, Necklace Of Wisdom, Fighter Necklace, Ranger Necklace, Wizard Necklace, Pendant Of Time, Pendant Of Defiance, Pendant Of Rejuvenation
-Earrings Of Gathering, Earrings Of Essence Find, Earrings Of Armor, Earrings Of Regeneration, Earrings Of Resistance, Earrings Of Rare Find, Earrings Of Critical Strike, Philosopher's Earrings
-Ring Of Gathering, Ring Of Essence Find, Ring Of Armor, Ring Of Regeneration, Ring Of Resistance, Ring Of Rare Find, Ring Of Critical Strike, Philosopher's Ring
+Earrings Of Gathering, Earrings Of Essence Find, Earrings Of Armor, Earrings Of Regeneration, Earrings Of Resistance, Earrings Of Rare Find, Earrings Of Critical Strike, Philosopher's Earrings, Earrings Of Threat
+Ring Of Gathering, Ring Of Essence Find, Ring Of Armor, Ring Of Regeneration, Ring Of Resistance, Ring Of Rare Find, Ring Of Critical Strike, Philosopher's Ring, Basic Task Ring, Advanced Task Ring, Expert Task Ring
 
 Trinket
-Basic Task Badge, Advanced Task Badge, Expert Task Badge
+Basic Task Badge, Advanced Task Badge, Expert Task Badge, Eye Watch
 
 Tools
 Milking
