@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MWI Market Trends & Simulator</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <title>MWI Market Trends</title> <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js" integrity="sha512-Hn1w6YiiFw6p6S2lXv6yKeqTk0PLVzeCwWY9n32beuPjQ5HLcvz5l2QsP+KilEr1ws37rCTw3bZpvfvVIG6BFw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -53,8 +50,7 @@
             /* Chart element colors are hardcoded in JS options */
             --pin-color: #d0d7de; /* Color for unpinned star */
             --pin-color-active: #ffab00; /* Color for pinned star (gold) */
-            --calc-border-color: #e1e4e8; /* Specific border for calc sections */
-            --simulated-cost-color: #57606a; /* Color for simulated cost text */
+            /* Removed simulation/settings specific variables */
             --message-bg-error: rgba(207, 34, 46, 0.1);
             --message-border-error: var(--negative-color);
             --message-text-error: var(--negative-color);
@@ -64,11 +60,6 @@
             --message-bg-info: rgba(9, 105, 218, 0.1);
             --message-border-info: var(--info-color);
             --message-text-info: var(--info-color);
-            --settings-overlay-bg: rgba(0, 0, 0, 0.4);
-            --settings-panel-bg: var(--card-bg-color);
-            --settings-panel-shadow: 0 8px 24px rgba(140,149,159,.2);
-            --sim-details-bg: #f1f8ff; /* Light blue background */
-            --sim-details-border: #c8e1ff; /* Lighter blue border */
             --indices-bg: var(--card-bg-color);
             --indices-border: var(--border-color);
             --indices-title-color: var(--text-color-secondary);
@@ -112,8 +103,7 @@
             /* Chart element colors are hardcoded in JS options */
             --pin-color: #484f58; /* Dark mode unpinned star */
             --pin-color-active: #f1e05a; /* Dark mode pinned star (lighter gold) */
-            --calc-border-color: #30363d;
-            --simulated-cost-color: #8b949e; /* Dark mode simulated cost text */
+             /* Removed simulation/settings specific variables */
             --message-bg-error: rgba(248, 81, 73, 0.15);
             --message-border-error: var(--negative-color);
             --message-text-error: var(--negative-color);
@@ -123,11 +113,6 @@
             --message-bg-info: rgba(88, 166, 255, 0.15);
             --message-border-info: var(--info-color);
             --message-text-info: var(--info-color);
-            --settings-overlay-bg: rgba(0, 0, 0, 0.6);
-            --settings-panel-bg: var(--card-bg-color);
-            --settings-panel-shadow: 0 8px 24px rgba(1,4,9,.8);
-            --sim-details-bg: #1c2128; /* Darker background */
-            --sim-details-border: #30363d; /* Darker border */
             --indices-bg: var(--card-bg-color);
             --indices-border: var(--border-color);
             --indices-title-color: var(--text-color-secondary);
@@ -285,7 +270,7 @@
             min-width: 550px; /* Minimum width before wrapping */
         }
         .chart-display-container {
-            flex: 1; /* MODIFIED: Takes 1 part of the space (was 2) */
+            flex: 1; /* Takes 1 part of the space */
             min-width: 350px; /* Adjusted min-width slightly */
         }
 
@@ -308,12 +293,12 @@
         .pin-icon.pinned { color: var(--pin-color-active); }
         .pin-icon:hover { opacity: 0.7; }
 
-        /* Enhancer Level Controls in Table */
-        .enh-level-control { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; margin-left: 8px; vertical-align: middle;}
-        .enh-level-btn { padding: 1px 4px; font-size: 0.8em; line-height: 1; cursor: pointer; border: 1px solid var(--button-border-color); background-color: var(--button-bg-color); border-radius: 4px; color: var(--text-color-secondary); }
-        .enh-level-btn:hover:not(:disabled) { background-color: var(--button-hover-bg-color); }
-        .enh-level-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .enh-level-display { font-size: 0.9em; min-width: 2.5em; text-align: center; font-family: var(--code-font); color: var(--text-color-secondary); padding: 0 2px; }
+        /* REMOVED: Enhancer Level Controls Styles */
+        /*
+        .enh-level-control { ... }
+        .enh-level-btn { ... }
+        .enh-level-display { ... }
+        */
 
         /* Table Row Styles */
         #item-table tbody tr { transition: background-color 0.15s ease; }
@@ -330,8 +315,8 @@
         #item-table td:nth-child(8) { text-align: right; font-family: var(--code-font); font-size: 0.90em; } /* Volatility */
 
 
-        /* Simulated Cost Style */
-        .simulated-cost { font-style: italic; opacity: 0.8; color: var(--simulated-cost-color); }
+        /* REMOVED: Simulated Cost Style */
+        /* .simulated-cost { ... } */
 
         /* Trend Styles */
         .trend-value-container { display: flex; align-items: center; justify-content: flex-end; gap: 3px; }
@@ -360,25 +345,8 @@
         .chart-plot { flex-grow: 1; position: relative; min-height: 320px; }
         .chart-plot canvas { max-width: 100%; max-height: 380px; }
 
-        /* Simulation Details Panel */
-        #sim-details-panel {
-            background-color: var(--sim-details-bg);
-            border: 1px solid var(--sim-details-border);
-            border-radius: 6px;
-            padding: 15px;
-            margin-top: 20px;
-            font-size: 0.9em;
-            line-height: 1.6;
-        }
-        #sim-details-panel h4 {
-            margin-top: 0; margin-bottom: 10px; font-size: 1.1em;
-            font-weight: 600; color: var(--text-color-primary);
-            border-bottom: 1px solid var(--border-color); padding-bottom: 5px;
-        }
-        #sim-details-panel p { margin: 0 0 5px 0; }
-        #sim-details-panel strong { font-weight: 600; color: var(--text-color-primary); }
-        #sim-details-panel ul { margin: 5px 0 10px 20px; padding: 0; }
-        #sim-details-panel li { margin-bottom: 3px; }
+        /* REMOVED: Simulation Details Panel Styles */
+        /* #sim-details-panel { ... } */
 
         /* Pagination */
         .pagination { text-align: center; margin-top: 20px; padding-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 8px; }
@@ -397,70 +365,10 @@
         footer span, footer a { margin: 0 8px; color: var(--muted-text-color); text-decoration: none; }
         footer a:hover { text-decoration: underline; color: var(--link-hover-color); }
 
-        /* Settings Panel */
-        .settings-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--settings-overlay-bg);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 1000; opacity: 0; visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0s linear 0.3s;
-        }
-        .settings-overlay.visible {
-            opacity: 1; visibility: visible; transition-delay: 0s;
-        }
-        .settings-panel {
-            background-color: var(--settings-panel-bg);
-            padding: 25px 30px; border-radius: 8px;
-            box-shadow: var(--settings-panel-shadow);
-            max-width: 90%; width: 550px; max-height: 85vh;
-            overflow-y: auto;
-            transform: scale(0.95); transition: transform 0.3s ease;
-        }
-        .settings-overlay.visible .settings-panel {
-            transform: scale(1);
-        }
-        .settings-panel h2 {
-            text-align: left; margin-top: 0; margin-bottom: 20px;
-            font-size: 1.4em; font-weight: 600; color: var(--text-color-primary);
-            border-bottom: 1px solid var(--border-color); padding-bottom: 10px;
-        }
-        .settings-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 20px;
-        }
-        .settings-section {
-            margin-bottom: 20px; padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .settings-section:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        .settings-section h3 {
-            font-size: 1.1em; font-weight: 600; margin-top: 0; margin-bottom: 15px; color: var(--text-color-primary);
-        }
-        .settings-panel label {
-            display: block; margin-bottom: 5px; font-size: 0.9em; font-weight: 500; color: var(--text-color-secondary);
-        }
-        .settings-panel input[type="number"] { width: 80px; padding: 0.4rem 0.6rem; }
-        .settings-panel .checkbox-group label,
-        .settings-panel .radio-group label {
-            display: inline-flex; /* Changed to inline-flex */
-            align-items: center; /* Align items vertically */
-            margin-right: 15px; margin-bottom: 8px;
-            font-weight: normal; color: var(--text-color-primary);
-            cursor: pointer;
-        }
-        .settings-panel .checkbox-group input[type="checkbox"],
-        .settings-panel .radio-group input[type="radio"] {
-            margin-right: 6px; /* Space between checkbox/radio and text */
-            margin-top: 0; /* Align checkbox/radio with text */
-            vertical-align: middle;
-        }
-        .settings-panel .input-group {
-            display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
-        }
-        .settings-panel .input-group label { margin-bottom: 0; }
-        .settings-actions { text-align: right; margin-top: 25px; display: flex; justify-content: flex-end; gap: 10px; }
-        .settings-actions button { padding: 8px 20px; }
-        .settings-actions .save-btn { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
-        .settings-actions .save-btn:hover { background-color: var(--accent-hover-color); }
+        /* REMOVED: Settings Panel Styles */
+        /* .settings-overlay { ... } */
+        /* .settings-panel { ... } */
+        /* ... etc ... */
 
         /* Responsive Styles */
          @media (max-width: 768px) {
@@ -472,14 +380,13 @@
              .table-wrapper { max-height: 60vh; }
              h1 { font-size: 1.5em; }
              .chart-controls-container { flex-direction: column; gap: 10px; }
-             .settings-panel { width: 95%; padding: 20px; }
-             .settings-grid { grid-template-columns: 1fr; } /* Stack grid items on small screens */
-             .market-indices-container { justify-content: flex-start; } /* Align left on small screens */
-             #item-table th, #item-table td { font-size: 0.85em; padding: 8px 10px; } /* Smaller font/padding on mobile */
-             /* REMOVED: Column hiding rules are removed as per request */
+             /* Removed settings panel responsive styles */
+             .market-indices-container { justify-content: flex-start; }
+             #item-table th, #item-table td { font-size: 0.85em; padding: 8px 10px; }
+             /* REMOVED: Column hiding rules */
         }
          @media (max-width: 480px) {
-              /* REMOVED: Column hiding rules are removed as per request */
+              /* REMOVED: Column hiding rules */
               .sort-options button { padding: 4px 8px; font-size: 0.8em;} /* Smaller sort buttons */
          }
 
@@ -494,11 +401,7 @@
                  <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
                  <span class="toggle-text" style="margin-left: 6px;">Toggle Theme</span>
              </button>
-             <button id="settings-btn" class="action-button" title="Simulation Settings">
-                 <i class="fas fa-cog"></i>
-                 <span style="margin-left: 6px;">Settings</span>
-             </button>
-        </div>
+             </div>
         <div class="feedback-link-container">
             <a href="https://github.com/SporkSlinger/market-tracker-mwi/issues" target="_blank" rel="noopener noreferrer">Report an Issue or Suggest a Feature</a>
         </div>
@@ -527,7 +430,8 @@
                      <button data-sort="buy">Buy</button>
                      <button data-sort="vendor">Vendor</button>
                      <button data-sort="trend">Trend %</button>
-                     <button data-sort="volatility">Volatility</button> </div>
+                     <button data-sort="volatility">Volatility</button>
+                 </div>
             </div>
         </div>
 
@@ -551,7 +455,8 @@
                                 <th>Buy</th>
                                 <th>Vendor</th>
                                 <th>Trend (24h)</th>
-                                <th>Volatility (7d)</th> </tr>
+                                <th>Volatility (7d)</th>
+                            </tr>
                         </thead>
                         <tbody id="item-table-body"></tbody>
                     </table>
@@ -580,9 +485,7 @@
                      <div class="chart-plot hidden">
                         <canvas id="single-chart-canvas"></canvas>
                      </div>
-                     <div id="sim-details-panel" class="hidden">
-                         </div>
-                </div>
+                     </div>
             </div>
         </div>
 
@@ -592,70 +495,12 @@
             <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
         </footer>
 
-        <div id="settings-overlay" class="settings-overlay hidden">
-            <div id="settings-panel" class="settings-panel">
-                <h2>Simulation Settings</h2>
-
-                <div class="settings-grid">
-                    <div>
-                        <label for="setting-enhancing-level">Enhancing Level:</label>
-                        <input type="number" id="setting-enhancing-level" min="0" max="110" step="1">
-                    </div>
-                    <div>
-                        <label for="setting-observatory-level">Observatory Level:</label>
-                        <input type="number" id="setting-observatory-level" min="0" max="10" step="1">
-                    </div>
-                     <div>
-                        <label for="setting-enhancer-level">Enhancer Tool Level:</label>
-                        <input type="number" id="setting-enhancer-level" min="0" max="20" step="1">
-                    </div>
-                    <div>
-                        <label for="setting-enchanted-level">Enchanted Gloves Level:</label>
-                        <div class="input-group">
-                            <input type="checkbox" id="setting-use-enchanted">
-                            <input type="number" id="setting-enchanted-level" min="0" max="5" step="1">
-                        </div>
-                    </div>
-                     <div>
-                        <label for="setting-protect-at">Start Protection At Level:</label>
-                        <input type="number" id="setting-protect-at" min="2" max="31" step="1">
-                        <small>(Enter 31+ for Never)</small>
-                    </div>
-                </div>
-
-                 <div class="settings-section">
-                    <h3>Teas</h3>
-                    <div class="checkbox-group">
-                        <label><input type="checkbox" id="setting-tea-enhancing"> Enhancing</label>
-                        <label><input type="checkbox" id="setting-tea-super-enhancing"> Super Enhancing</label>
-                        <label><input type="checkbox" id="setting-tea-ultra-enhancing"> Ultra Enhancing</label>
-                        <label><input type="checkbox" id="setting-tea-blessed"> Blessed</label>
-                        <label><input type="checkbox" id="setting-tea-wisdom"> Wisdom</label>
-                    </div>
-                </div>
-
-                <div class="settings-section">
-                    <h3>Pricing</h3>
-                     <div class="radio-group">
-                        <label><input type="radio" name="price-ratio" id="price-ratio-buy" value="0.0"> Use Buy/Bid Price</label>
-                        <label><input type="radio" name="price-ratio" id="price-ratio-ask" value="1.0"> Use Ask Price</label>
-                        <label><input type="radio" name="price-ratio" id="price-ratio-avg" value="0.5"> Use Average</label>
-                    </div>
-                </div>
-
-                <div class="settings-actions">
-                    <button id="settings-cancel-btn" class="action-button">Cancel</button>
-                    <button id="settings-save-btn" class="action-button save-btn">Save</button>
-                </div>
-            </div>
-        </div>
-
-    </div> <script>
+        </div> <script>
         // --- Global State ---
         let allMarketData = {}; // History data { "Product": { buy: [...], ask: [...] } }
-        let marketSummary = []; // Summary data [ { name, category, buy, ask, vendor, trend, volatility_7d }, ... ] // Added volatility
-        let marketIndicesData = {}; // NEW: To store category indices { "Category": trend, ... }
-        let gameData = { itemDetailMap: {} }; // To store init_client_info.json data
+        let marketSummary = []; // Summary data [ { name, category, buy, ask, vendor, trend, volatility_7d }, ... ]
+        let marketIndicesData = {}; // To store category indices { "Category": trend, ... }
+        let gameData = { itemDetailMap: {} }; // To store init_client_info.json data (still needed for categories/hrids)
         let filteredAndSortedSummary = [];
         let currentChart = null;
         let currentPage = 1;
@@ -670,23 +515,14 @@
         let pinnedItems = [];
         const PINNED_ITEMS_KEY = 'mwiPinnedItems';
         const MAX_PINNED_ITEMS = 10;
-        let simulatedLevels = {}; // Store simulated levels { itemName: { level: number, result: object | null } }
+        // REMOVED: Simulation state variables
+        // let simulatedLevels = {};
         let messageTimeout = null; // Timeout ID for clearing messages
 
-        // --- Default Simulation Settings ---
-        const defaultSimSettings = {
-             enhancing_level: 100, observatory_level: 4, enhancer_level: 10,
-             use_enchanted: true, enchanted_level: 5, use_enhancer_top: false,
-             enhancer_top_level: 0, use_enhancer_bot: false, enhancer_bot_level: 0,
-             use_guzzling: true, guzzling_level: 0, tea_enhancing: false,
-             tea_super_enhancing: false, tea_ultra_enhancing: true, tea_blessed: true,
-             tea_wisdom: false,
-             priceAskBidRatio: 1.0, // Defaulting to Ask Price as requested
-             protect_at: 5, // Default protection level as requested
-             hourly_rate: 0
-        };
-        let currentSimSettings = { ...defaultSimSettings }; // Mutable settings object
-        const SIM_SETTINGS_KEY = 'mwiSimSettings';
+        // REMOVED: Simulation settings variables
+        // const defaultSimSettings = { ... };
+        // let currentSimSettings = { ... };
+        // const SIM_SETTINGS_KEY = 'mwiSimSettings';
 
         // --- DOM Elements ---
         const tableBodyEl = document.getElementById('item-table-body');
@@ -708,30 +544,14 @@
         const messageAreaEl = document.getElementById('message-area'); // Message display area
         const themeToggleButton = document.getElementById('theme-toggle-btn');
         const lastUpdateEl = document.getElementById('last-update');
-        const marketIndicesDisplayEl = document.getElementById('market-indices-display'); // NEW: Indices display area
-        const marketIndicesContainerEl = document.getElementById('market-indices-container'); // NEW: Indices container
-        // Settings Panel Elements
-        const settingsButton = document.getElementById('settings-btn');
-        const settingsOverlay = document.getElementById('settings-overlay');
-        const settingsPanel = document.getElementById('settings-panel');
-        const settingsSaveButton = document.getElementById('settings-save-btn');
-        const settingsCancelButton = document.getElementById('settings-cancel-btn');
-        const simDetailsPanel = document.getElementById('sim-details-panel'); // Simulation details display area
-        // Settings Form Inputs
-        const settingEnhancingLevel = document.getElementById('setting-enhancing-level');
-        const settingObservatoryLevel = document.getElementById('setting-observatory-level');
-        const settingEnhancerLevel = document.getElementById('setting-enhancer-level');
-        const settingUseEnchanted = document.getElementById('setting-use-enchanted');
-        const settingEnchantedLevel = document.getElementById('setting-enchanted-level');
-        const settingTeaEnhancing = document.getElementById('setting-tea-enhancing');
-        const settingTeaSuperEnhancing = document.getElementById('setting-tea-super-enhancing');
-        const settingTeaUltraEnhancing = document.getElementById('setting-tea-ultra-enhancing');
-        const settingTeaBlessed = document.getElementById('setting-tea-blessed');
-        const settingTeaWisdom = document.getElementById('setting-tea-wisdom');
-        const priceRatioBuy = document.getElementById('price-ratio-buy');
-        const priceRatioAsk = document.getElementById('price-ratio-ask');
-        const priceRatioAvg = document.getElementById('price-ratio-avg');
-        const settingProtectAt = document.getElementById('setting-protect-at');
+        const marketIndicesDisplayEl = document.getElementById('market-indices-display'); // Indices display area
+        const marketIndicesContainerEl = document.getElementById('market-indices-container'); // Indices container
+        // REMOVED: Settings Panel Elements References
+        // const settingsButton = document.getElementById('settings-btn');
+        // const settingsOverlay = document.getElementById('settings-overlay');
+        // ... etc ...
+        // REMOVED: Simulation Details Panel Reference
+        // const simDetailsPanel = document.getElementById('sim-details-panel');
 
 
         // --- SVG Icons for Trends ---
@@ -743,30 +563,24 @@
             if (price === null || price === undefined || isNaN(price)) return '<span class="na-value">--</span>';
             return price.toLocaleString();
         }
-        function formatPriceSimulated(price) {
-            if (price === null || price === undefined || isNaN(price)) return '<span class="na-value">--</span>';
-            return '<span class="simulated-cost">' + price.toLocaleString() + '</span>';
-        }
+        // REMOVED: formatPriceSimulated
+        // function formatPriceSimulated(price) { ... }
         function formatTrend(trend) {
             if (trend === null || trend === undefined || isNaN(trend)) return '<span class="na-value">--</span>';
             const arrow = trend > 0 ? trendUpIcon : trend < 0 ? trendDownIcon : '';
             const trendClass = trend > 0 ? 'trend-positive' : trend < 0 ? 'trend-negative' : '';
-            // Ensure trend is treated as a number for toFixed
             const trendValue = Number(trend);
             if (isNaN(trendValue)) return '<span class="na-value">--</span>';
             return `<span class="trend-value-container ${trendClass}">${arrow}<span>${trendValue.toFixed(2)}%</span></span>`;
         }
-        // NEW: Format Volatility (Standard Deviation)
         function formatVolatility(value) {
              if (value === null || value === undefined || isNaN(value)) return '<span class="na-value">--</span>';
-             // Standard deviation is in price units, format like price but maybe fewer decimals?
              const numValue = Number(value);
              if (isNaN(numValue)) return '<span class="na-value">--</span>';
-             // Let's use 1 decimal place for std dev, adjust if needed
              return numValue.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
         }
-
         function timeReadable(sec) {
+             // This might only be used by sim details now, consider removing if unused
              if (sec === null || sec === undefined || isNaN(sec) || sec < 0) return "N/A";
              if (sec === Infinity) return "∞";
              const days = Math.floor(sec / 86400);
@@ -780,12 +594,8 @@
              if (seconds > 0 || parts.length === 0) parts.push(seconds + "s");
              return parts.join(" ");
         }
-         function isEnhanceableItem(item) {
-             const itemHrid = item.hrid || (gameData.itemDetailMap && Object.keys(gameData.itemDetailMap).find(hrid => gameData.itemDetailMap[hrid]?.name === item.name));
-             const itemDetail = itemHrid && gameData.itemDetailMap && gameData.itemDetailMap[itemHrid];
-             // Check if enhancementCosts exists and is a non-empty array
-             return itemDetail && Array.isArray(itemDetail.enhancementCosts) && itemDetail.enhancementCosts.length > 0;
-        }
+         // REMOVED: isEnhanceableItem
+         // function isEnhanceableItem(item) { ... }
 
         /**
          * Displays a message in the message area.
@@ -876,143 +686,26 @@
         if (themeToggleButton) { themeToggleButton.addEventListener('click', toggleTheme); }
         else { console.error("Theme toggle button (#theme-toggle-btn) not found!"); }
 
-        // --- Settings Panel Logic ---
-        function openSettingsPanel() {
-            populateSettingsForm(); // Load current settings into form
-            settingsOverlay.classList.remove('hidden');
-            settingsOverlay.classList.add('visible');
-        }
-        function closeSettingsPanel() {
-            settingsOverlay.classList.remove('visible');
-            settingsOverlay.classList.add('hidden');
-        }
-        function populateSettingsForm() {
-            settingEnhancingLevel.value = currentSimSettings.enhancing_level;
-            settingObservatoryLevel.value = currentSimSettings.observatory_level;
-            settingEnhancerLevel.value = currentSimSettings.enhancer_level;
-            settingUseEnchanted.checked = currentSimSettings.use_enchanted;
-            settingEnchantedLevel.value = currentSimSettings.enchanted_level;
-            settingEnchantedLevel.disabled = !currentSimSettings.use_enchanted; // Disable level if checkbox unchecked
-            settingTeaEnhancing.checked = currentSimSettings.tea_enhancing;
-            settingTeaSuperEnhancing.checked = currentSimSettings.tea_super_enhancing;
-            settingTeaUltraEnhancing.checked = currentSimSettings.tea_ultra_enhancing;
-            settingTeaBlessed.checked = currentSimSettings.tea_blessed;
-            settingTeaWisdom.checked = currentSimSettings.tea_wisdom;
-            settingProtectAt.value = currentSimSettings.protect_at > 30 ? 31 : currentSimSettings.protect_at; // Show 31+ for "Never"
+        // REMOVED: Settings Panel Logic
+        // function openSettingsPanel() { ... }
+        // function closeSettingsPanel() { ... }
+        // function populateSettingsForm() { ... }
+        // function saveSettings() { ... }
+        // function loadSettings() { ... }
 
-            // Set price ratio radio button
-            if (currentSimSettings.priceAskBidRatio === 0.0) priceRatioBuy.checked = true;
-            else if (currentSimSettings.priceAskBidRatio === 1.0) priceRatioAsk.checked = true; // Default check Ask
-            else if (currentSimSettings.priceAskBidRatio === 0.5) priceRatioAvg.checked = true;
-            else priceRatioAsk.checked = true; // Default to Ask if invalid value
-        }
-        function saveSettings() {
-            const newSettings = { ...currentSimSettings }; // Start with current settings
-
-            // Read and validate numerical values
-            newSettings.enhancing_level = parseInt(settingEnhancingLevel.value, 10) || 0;
-            newSettings.observatory_level = parseInt(settingObservatoryLevel.value, 10) || 0;
-            newSettings.enhancer_level = parseInt(settingEnhancerLevel.value, 10) || 0;
-            newSettings.enchanted_level = parseInt(settingEnchantedLevel.value, 10) || 0;
-            newSettings.protect_at = parseInt(settingProtectAt.value, 10) || 5; // Default to 5 if invalid
-
-            // Read boolean values
-            newSettings.use_enchanted = settingUseEnchanted.checked;
-            newSettings.tea_enhancing = settingTeaEnhancing.checked;
-            newSettings.tea_super_enhancing = settingTeaSuperEnhancing.checked;
-            newSettings.tea_ultra_enhancing = settingTeaUltraEnhancing.checked;
-            newSettings.tea_blessed = settingTeaBlessed.checked;
-            newSettings.tea_wisdom = settingTeaWisdom.checked;
-
-            // Read price ratio
-            if (priceRatioBuy.checked) newSettings.priceAskBidRatio = 0.0;
-            else if (priceRatioAsk.checked) newSettings.priceAskBidRatio = 1.0;
-            else if (priceRatioAvg.checked) newSettings.priceAskBidRatio = 0.5;
-
-            // Update global settings and save to localStorage
-            currentSimSettings = newSettings;
-            localStorage.setItem(SIM_SETTINGS_KEY, JSON.stringify(currentSimSettings));
-            console.log("Simulation settings saved:", currentSimSettings);
-            closeSettingsPanel();
-            showMessage("Settings saved. Recalculating costs...", 'info', 3000);
-            // Recalculate costs after a short delay to allow UI to update
-            setTimeout(recalculateAllSimCosts, 50);
-        }
-
-        function loadSettings() {
-             const saved = localStorage.getItem(SIM_SETTINGS_KEY);
-             if (saved) {
-                 try {
-                     const parsed = JSON.parse(saved);
-                     // Merge saved settings with defaults to ensure all keys exist
-                     currentSimSettings = { ...defaultSimSettings, ...parsed };
-                     console.log("Simulation settings loaded from localStorage:", currentSimSettings);
-                 } catch (e) {
-                     console.error("Error parsing saved settings, using defaults.", e);
-                     currentSimSettings = { ...defaultSimSettings };
-                 }
-             } else {
-                 currentSimSettings = { ...defaultSimSettings };
-                 console.log("No saved settings found, using defaults.");
-             }
-             // Apply the loaded (or default) settings to the form initially
-             populateSettingsForm();
-        }
-
-        // Recalculate all currently displayed simulation costs
-        async function recalculateAllSimCosts() {
-            console.log("Recalculating simulation costs...");
-            const itemsToRecalculate = Object.keys(simulatedLevels);
-            if (itemsToRecalculate.length === 0) {
-                console.log("No simulated costs to recalculate.");
-                return;
-            }
-
-            // Use Promise.all to run calculations concurrently (optional, might be heavy)
-            // For simplicity, running sequentially here:
-            for (const itemName of itemsToRecalculate) {
-                const level = simulatedLevels[itemName].level;
-                const itemHrid = marketSummary.find(item => item.name === itemName)?.hrid ||
-                                (gameData.itemDetailMap && Object.keys(gameData.itemDetailMap).find(hrid => gameData.itemDetailMap[hrid]?.name === itemName));
-
-                if (itemHrid && level > 0) {
-                    const inputData = { ...currentSimSettings, item_hrid: itemHrid, stop_at: level };
-                    try {
-                        // Use calculateEnhanceStrat instead of findBestEnhanceStrat
-                        const result = await calculateEnhanceStrat(inputData, itemName);
-                        if (result && typeof result.totalCost === 'number') {
-                            simulatedLevels[itemName].result = result; // Store full result
-                        } else {
-                             console.warn(`Recalculation failed for ${itemName} +${level}`);
-                             delete simulatedLevels[itemName]; // Remove if calculation fails
-                        }
-                    } catch (error) {
-                         console.error(`Error recalculating cost for ${itemName} +${level}:`, error);
-                         delete simulatedLevels[itemName]; // Remove on error
-                    }
-                } else {
-                     delete simulatedLevels[itemName]; // Remove if invalid state
-                }
-            }
-
-            console.log("Recalculation complete.");
-            renderCurrentPage(); // Re-render the table with updated costs
-            // Update chart and details panel if the selected item was recalculated
-            if (currentChartProduct) {
-                 displayChart(currentChartProduct, selectedTableRow); // Re-render chart
-                 displaySimulationDetails(currentChartProduct); // Re-render details
-            }
-        }
+        // REMOVED: Recalculate All Sim Costs
+        // async function recalculateAllSimCosts() { ... }
 
 
-        // --- Data Fetching (Fetches Summary, History, Game Data, and Indices) ---
+        // --- Data Fetching (Simplified: No longer loads game data just for simulation) ---
         async function loadData() {
             // Reset UI state
             hideMessage(); // Clear any previous messages
             if(currentChart) { currentChart.destroy(); currentChart = null; }
             chartPlotContainer.classList.add('hidden'); chartControlsArea.style.display = 'none';
             chartPlaceholder.style.display = 'flex'; chartPlaceholder.textContent = 'Select an item name from the table to view its chart.';
-            simDetailsPanel.classList.add('hidden'); // Hide details panel
+            // REMOVED: Sim Details Panel Reset
+            // simDetailsPanel.classList.add('hidden');
             marketIndicesDisplayEl.classList.add('hidden'); // Hide indices initially
             marketIndicesContainerEl.innerHTML = '<span class="loading-message">Loading indices...</span>'; // Show loading message for indices
             currentChartProduct = null; if(selectedTableRow) selectedTableRow.classList.remove('selected-item'); selectedTableRow = null;
@@ -1023,16 +716,18 @@
             try {
                 pinnedItems = getPinnedItems(); console.log("Loaded pinned items:", pinnedItems);
 
-                // Fetch all data concurrently
+                // Fetch all needed data concurrently
                 const dataUrls = [
                     './data/market_summary.json',
                     './data/market_history.json',
-                    'https://doh-nuts.github.io/Enhancelator/init_client_info.json',
-                    './data/market_indices.json' // NEW: Fetch indices
+                    './data/market_indices.json' // Fetch indices
+                    // REMOVED: init_client_info.json fetch (unless needed for categories/hrids later)
+                    // If categories/hrids are ONLY in market_summary, we might not need init_client_info here anymore.
+                    // Let's keep it for now in case HRIDs are needed for something else.
+                    ,'https://doh-nuts.github.io/Enhancelator/init_client_info.json'
                 ];
                 const fetchPromises = dataUrls.map(url => fetch(url + '?t=' + Date.now()).catch(e => {
                     console.error(`Failed to fetch ${url}:`, e);
-                    // Return a specific error object or null to indicate failure for this specific fetch
                     return { error: true, url: url, status: 'fetch_error' };
                 }));
 
@@ -1041,8 +736,8 @@
                 // Process Responses
                 const summaryRes = responses[0];
                 const historyRes = responses[1];
-                const gameDataRes = responses[2];
-                const indicesRes = responses[3]; // NEW: Indices response
+                const indicesRes = responses[2];
+                const gameDataRes = responses[3]; // Game data is now last
 
                 // Process Summary
                 if (summaryRes.error || !summaryRes.ok) throw new Error(`Failed to fetch market_summary.json (Status: ${summaryRes.status || summaryRes.statusText || 'fetch_error'})`);
@@ -1057,13 +752,7 @@
                     console.log("Market history data loaded.");
                 }
 
-                 // Process Game Data
-                if (gameDataRes.error || !gameDataRes.ok) throw new Error(`Failed to fetch init_client_info.json (Status: ${gameDataRes.status || gameDataRes.statusText || 'fetch_error'})`);
-                const fullGameData = await gameDataRes.json();
-                gameData.itemDetailMap = fullGameData.itemDetailMap || {};
-                console.log("Game data loaded (itemDetailMap).");
-
-                // NEW: Process Market Indices
+                // Process Market Indices
                 if (indicesRes.error || !indicesRes.ok) {
                     console.warn(`Failed to fetch market_indices.json (Status: ${indicesRes.status || indicesRes.statusText || 'fetch_error'}). Indices will not be displayed.`);
                     marketIndicesData = {};
@@ -1074,6 +763,16 @@
                     displayMarketIndices(); // Display indices now that data is loaded
                     marketIndicesDisplayEl.classList.remove('hidden'); // Show the indices section
                 }
+
+                 // Process Game Data (only if needed, e.g., for future features or detailed item info)
+                 if (gameDataRes.error || !gameDataRes.ok) {
+                    console.warn(`Failed to fetch init_client_info.json (Status: ${gameDataRes.status || gameDataRes.statusText || 'fetch_error'}). Item details might be missing.`);
+                    gameData = { itemDetailMap: {} };
+                 } else {
+                    const fullGameData = await gameDataRes.json();
+                    gameData.itemDetailMap = fullGameData.itemDetailMap || {};
+                    console.log("Game data loaded (itemDetailMap).");
+                 }
 
 
                 // Populate categories *after* data is loaded
@@ -1095,8 +794,6 @@
                 marketIndicesDisplayEl.classList.remove('hidden'); // Show indices section even on error
                 marketIndicesContainerEl.innerHTML = '<span class="na-value">Error loading site data.</span>'; // Indicate error
                 lastUpdateEl.textContent = 'Error'; // Indicate error in footer
-                // Optionally load sample data for testing UI layout
-                // loadSampleDataForTesting();
             }
         }
 
@@ -1118,7 +815,7 @@
             });
         }
 
-        // --- NEW: Display Market Indices ---
+        // --- Display Market Indices ---
         function displayMarketIndices() {
             if (!marketIndicesContainerEl || !marketIndicesData || Object.keys(marketIndicesData).length === 0) {
                 marketIndicesContainerEl.innerHTML = '<span class="na-value">No index data available.</span>';
@@ -1184,8 +881,8 @@
                          case 'vendor_desc': return sortNum(a.vendor, b.vendor, false);
                          case 'trend_asc': return sortNum(a.trend, b.trend, true);
                          case 'trend_dec': return sortNum(a.trend, b.trend, false);
-                         case 'volatility_asc': return sortNum(a.volatility_7d, b.volatility_7d, true); // NEW
-                         case 'volatility_desc': return sortNum(a.volatility_7d, b.volatility_7d, false); // NEW
+                         case 'volatility_asc': return sortNum(a.volatility_7d, b.volatility_7d, true);
+                         case 'volatility_desc': return sortNum(a.volatility_7d, b.volatility_7d, false);
                          case 'name_asc': default: return sortStr(a.name, b.name, true); // Default
                      }
                  } catch (e) { console.error("Sort comparison error:", e); return 0; }
@@ -1193,11 +890,11 @@
              filteredAndSortedSummary = result; currentPage = 1; renderCurrentPage();
         }
 
-        // --- Rendering (Added Volatility Column) ---
+        // --- Rendering (Added Volatility Column, Removed Enh Controls) ---
         function renderCurrentPage() {
              tableBodyEl.innerHTML = '';
              if (selectedTableRow) { selectedTableRow.classList.remove('selected-item'); selectedTableRow = null; }
-             hideSimulationDetails(); // Hide details when table re-renders
+             // REMOVED: hideSimulationDetails();
 
              const currentPins = getPinnedItems();
              const totalItems = filteredAndSortedSummary.length;
@@ -1210,7 +907,7 @@
              if (itemsToDisplay.length === 0) {
                  const message = marketSummary.length === 0 ? 'Loading data or no data available.' : (currentSearch || currentCategoryFilter !== 'All' ? 'No items match your filters.' : 'No market data available.');
                  const tr = document.createElement('tr'); const td = document.createElement('td');
-                 td.colSpan = 8; // Increased colspan for new column
+                 td.colSpan = 8; // Adjusted colspan
                  td.textContent = message; td.style.textAlign = 'center'; td.style.padding = '20px'; td.style.color = 'var(--muted-text-color)';
                  tr.appendChild(td); tableBodyEl.appendChild(tr);
              } else {
@@ -1219,47 +916,34 @@
                      tr.dataset.product = encodeURIComponent(item.name);
                      const isPinned = currentPins.includes(item.name);
                      const pinIconClass = isPinned ? 'fas fa-star pin-icon pinned' : 'far fa-star pin-icon';
-                     const itemHrid = item.hrid || (gameData.itemDetailMap && Object.keys(gameData.itemDetailMap).find(hrid => gameData.itemDetailMap[hrid]?.name === item.name));
-                     const itemDetail = itemHrid && gameData.itemDetailMap && gameData.itemDetailMap[itemHrid];
-                     const isEnhanceable = itemDetail && Array.isArray(itemDetail.enhancementCosts) && itemDetail.enhancementCosts.length > 0;
-                     const currentSimLevel = simulatedLevels[item.name]?.level || 0;
-                     const simCost = simulatedLevels[item.name]?.result?.totalCost;
-                     const displayAsk = currentSimLevel > 0 ? formatPriceSimulated(simCost) : formatPrice(item.ask);
-                     const displayBuy = currentSimLevel > 0 ? formatPriceSimulated(simCost) : formatPrice(item.buy);
-                     const safeIdSuffix = (itemHrid || item.name).replace(/[\s/]/g, '_');
+                     // REMOVED: Enhancement related variables (itemHrid, itemDetail, isEnhanceable, currentSimLevel, simCost, safeIdSuffix)
 
-                     // Add volatility_7d field access
+                     const displayAsk = formatPrice(item.ask); // Directly format market price
+                     const displayBuy = formatPrice(item.buy); // Directly format market price
                      const volatilityValue = item.volatility_7d;
 
                      tr.innerHTML = `
                          <td class="pin-cell"><i class="${pinIconClass}" data-item-name="${item.name}" title="${isPinned ? 'Unpin' : 'Pin'} Item"></i></td>
                          <td>
                              <a class="item-name-link">${item.name}</a>
-                             ${isEnhanceable ? `
-                                 <span class="enh-level-control">
-                                     <button class="enh-level-btn" data-item-name="${item.name}" data-hrid="${itemHrid || ''}" data-change="-1" ${currentSimLevel <= 0 ? 'disabled' : ''}>-</button>
-                                     <span class="enh-level-display" id="level-display-${safeIdSuffix}">${currentSimLevel >= 0 ? '+' + currentSimLevel : '+0'}</span>
-                                     <button class="enh-level-btn" data-item-name="${item.name}" data-hrid="${itemHrid || ''}" data-change="1" ${currentSimLevel >= 30 ? 'disabled' : ''}>+</button>
-                                 </span>
-                             ` : ''}
-                         </td>
+                             </td>
                          <td>${item.category || '<span class="na-value">N/A</span>'}</td>
                          <td class="ask-cell">${displayAsk}</td>
                          <td class="buy-cell">${displayBuy}</td>
                          <td><span class="vendor-price">${formatPrice(item.vendor)}</span></td>
                          <td>${formatTrend(item.trend)}</td>
-                         <td>${formatVolatility(volatilityValue)}</td> `;
+                         <td>${formatVolatility(volatilityValue)}</td>
+                     `;
                      tr.querySelector('.pin-icon').addEventListener('click', handlePinClick);
                      tr.querySelector('.item-name-link').addEventListener('click', handleProductClick);
                      tr.querySelector('.item-name-link').style.cursor = 'pointer';
-                     if (isEnhanceable) {
-                         tr.querySelectorAll('.enh-level-btn').forEach(btn => btn.addEventListener('click', handleLevelChange));
-                     }
+                     // REMOVED: Event listeners for enhancement buttons
+
                      tableBodyEl.appendChild(tr);
                      if (item.name === currentChartProduct) {
                          tr.classList.add('selected-item');
                          selectedTableRow = tr;
-                         displaySimulationDetails(item.name); // Show details if item is selected
+                         // REMOVED: displaySimulationDetails(item.name);
                      }
                  });
              }
@@ -1272,10 +956,8 @@
              paginationEl.style.display = totalPages > 1 ? 'flex' : 'none'; // Use flex for layout
         }
 
-        // --- Charting ---
+        // --- Charting (Removed Simulation Annotation) ---
         function displayChart(productName, clickedTrElement) {
-             // (Existing displayChart function remains largely the same)
-             // ... (omitted for brevity, no changes needed here for volatility/indices) ...
              hideMessage();
              chartPlaceholder.style.display = 'none';
              chartPlotContainer.classList.remove('hidden');
@@ -1294,7 +976,7 @@
                  if (currentChart) { currentChart.destroy(); currentChart = null; }
                  chartPlotContainer.classList.add('hidden'); chartControlsArea.style.display = 'none';
                  chartPlaceholder.textContent = `No price history data available for ${productName}.`; chartPlaceholder.style.display = 'flex';
-                 hideSimulationDetails();
+                 // REMOVED: hideSimulationDetails();
                  return;
              }
 
@@ -1311,7 +993,7 @@
                   if (currentChart) { currentChart.destroy(); currentChart = null; }
                   chartPlotContainer.classList.add('hidden'); chartControlsArea.style.display = 'none';
                   chartPlaceholder.textContent = `No data available for ${productName} in the selected time range (${currentChartTimeRange}).`; chartPlaceholder.style.display = 'flex';
-                   hideSimulationDetails();
+                  // REMOVED: hideSimulationDetails();
                   return;
              }
 
@@ -1326,9 +1008,7 @@
              const gridColor = isDarkMode ? '#30363d' : '#d0d7de';
              const askColor = isDarkMode ? '#f85149' : '#cf222e';
              const buyColor = isDarkMode ? '#58a6ff' : '#0969da';
-             const simLineColor = isDarkMode ? 'rgba(63, 185, 80, 0.8)' : 'rgba(75, 192, 192, 0.8)';
-             const simLabelBgColor = simLineColor;
-             const simLabelColor = isDarkMode ? '#0d1117' : '#ffffff';
+             // REMOVED: Sim line colors
 
              const chartData = {
                  datasets: [
@@ -1337,28 +1017,7 @@
                  ]
              };
 
-             const simulatedLevel = simulatedLevels[productName]?.level || 0;
-             const simulatedCost = simulatedLevels[productName]?.result?.totalCost;
-             const annotation = {
-                 id: 'simulatedCostLine',
-                 type: 'line',
-                 display: simulatedLevel > 0 && typeof simulatedCost === 'number' && isFinite(simulatedCost),
-                 borderColor: simLineColor,
-                 borderWidth: 2,
-                 borderDash: [6, 6],
-                 label: {
-                     content: `Sim Cost (+${simulatedLevel}): ${formatPrice(simulatedCost)}`,
-                     display: true,
-                     position: 'end',
-                     backgroundColor: simLabelBgColor,
-                     color: simLabelColor,
-                     font: { size: 10 },
-                     padding: 3,
-                     borderRadius: 3
-                 },
-                 scaleID: 'y',
-                 value: simulatedCost
-             };
+             // REMOVED: Annotation object creation
 
              if (currentChart) { currentChart.destroy(); }
 
@@ -1366,14 +1025,15 @@
                  currentChart = new Chart(chartCanvas, {
                      type: 'line',
                      data: chartData,
-                     options: { /* ... existing chart options ... */
+                     options: {
                          responsive: true,
                          maintainAspectRatio: false,
                          plugins: {
                              title: { display: true, text: `${productName} (${currentChartTimeRange})`, font: { size: 15, weight: '600' }, padding: { bottom: 15 }, color: primaryTextColor },
                              legend: { position: 'top', labels: { font: { size: 12 }, color: primaryTextColor } },
                              tooltip: { mode: 'index', intersect: false, bodySpacing: 5, titleSpacing: 6, padding: 10, boxPadding: 4 },
-                             annotation: { annotations: { simulatedCostLine: annotation } }
+                             // REMOVED: Annotation plugin configuration
+                             // annotation: { annotations: { simulatedCostLine: annotation } }
                          },
                          scales: {
                              x: {
@@ -1420,338 +1080,30 @@
                  chartPlaceholder.textContent = 'Error rendering chart.';
                  chartPlaceholder.style.display = 'flex';
              }
-             displaySimulationDetails(productName);
+             // REMOVED: displaySimulationDetails(productName);
         }
 
-        // --- Simulation Details Display ---
-        function displaySimulationDetails(itemName) {
-            // (Existing displaySimulationDetails function remains the same)
-            // ... (omitted for brevity) ...
-             const simData = simulatedLevels[itemName];
-             if (simData && simData.result && simDetailsPanel) {
-                 const result = simData.result;
-                 const costs = result.costs;
-                 const simResult = result.simResult;
+        // REMOVED: Simulation Details Display Functions
+        // function displaySimulationDetails(itemName) { ... }
+        // function hideSimulationDetails() { ... }
 
-                 let materialsHtml = '<ul>';
-                 if (costs.needMap && Object.keys(costs.needMap).length > 0) {
-                     for (const matName in costs.needMap) {
-                         materialsHtml += `<li>${matName}: ${formatPrice(costs.needMap[matName])}</li>`;
-                     }
-                 } else {
-                     materialsHtml += '<li>N/A</li>';
-                 }
-                 materialsHtml += '</ul>';
-
-                 simDetailsPanel.innerHTML = `
-                     <h4>Simulation Details (+${simData.level} ${itemName})</h4>
-                     <p><strong>Total Estimated Cost:</strong> ${formatPrice(Math.round(result.totalCost))}</p>
-                     <p><strong>Estimated Time:</strong> ${simResult.totalActionTimeStr || 'N/A'}</p>
-                     <p><strong>Protection Strategy:</strong> Start at ${result.protect_at_display}</p>
-                     <p><strong>Base Item Cost Used:</strong> ${formatPrice(costs.baseCost)}</p>
-                     <p><strong>Protection Item Cost Used:</strong> ${formatPrice(costs.minProtectionCost)} (per item)</p>
-                     <p><strong>Material Cost Used (per attempt):</strong> ${formatPrice(costs.perActionCost)}</p>
-                     <p><strong>Materials:</strong></p>
-                     ${materialsHtml}
-                     <p><small>(Attempts: ${simResult.actions?.toFixed(2)}, Protections: ${result.protect_count?.toFixed(2)})</small></p>
-                 `;
-                 simDetailsPanel.classList.remove('hidden');
-             } else {
-                 hideSimulationDetails();
-             }
-        }
-
-        function hideSimulationDetails() {
-            if (simDetailsPanel) {
-                simDetailsPanel.innerHTML = '';
-                simDetailsPanel.classList.add('hidden');
-            }
-        }
-
-        // --- Enhancement Simulation Logic ---
-        // RESTORED FULL IMPLEMENTATIONS
-        const enhance_bonus = [ 1, 1.02, 1.042, 1.066, 1.092, 1.12, 1.15, 1.182, 1.216, 1.252, 1.29, 1.33, 1.372, 1.416, 1.462, 1.51, 1.56, 1.612, 1.666, 1.722, 1.78 ];
-        const success_rate = [ 50, 45, 45, 40, 40, 40, 35, 35, 35, 35, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 25, 25, 25, 25, 25, 20, 20, 20, 20, 20 ]; // Extended to +30
-
-        function simulateEnhancement(input_data, protect_at) {
-            const itemDetail = gameData.itemDetailMap[input_data.item_hrid];
-            if (!itemDetail) { console.error("simulateEnhancement: Item detail not found for", input_data.item_hrid); return null; }
-            const itemLevel = itemDetail.itemLevel || 1; // Default item level if missing
-
-            let guzzling_bonus = 1;
-            const guzzlingPouchDetail = gameData.itemDetailMap["/items/guzzling_pouch"];
-            if (input_data.use_guzzling && guzzlingPouchDetail?.equipmentDetail?.noncombatStats?.drinkConcentration) {
-                 const pouchLevel = input_data.guzzling_level;
-                 if (pouchLevel >= 0 && pouchLevel < enhance_bonus.length) {
-                     const bonusPercent = guzzlingPouchDetail.equipmentDetail.noncombatStats.drinkConcentration * 100 * enhance_bonus[pouchLevel];
-                     guzzling_bonus = 1 + bonusPercent / 100;
-                 }
-            }
-
-            let teaLevelBonus = 0;
-            if (input_data.tea_ultra_enhancing) teaLevelBonus = 8 * guzzling_bonus;
-            else if (input_data.tea_super_enhancing) teaLevelBonus = 6 * guzzling_bonus;
-            else if (input_data.tea_enhancing) teaLevelBonus = 3 * guzzling_bonus;
-
-            const effective_level = input_data.enhancing_level + teaLevelBonus;
-            const enhancerBonusPercent = input_data.enhancer_level >= 0 && input_data.enhancer_level < enhance_bonus.length ? enhance_bonus[input_data.enhancer_level] * 100 - 100 : 0;
-            let total_bonus;
-            if (effective_level >= itemLevel) { total_bonus = 1 + (0.05 * (effective_level + input_data.observatory_level - itemLevel) + enhancerBonusPercent) / 100; }
-            else { total_bonus = (1 - (0.5 * (1 - (effective_level) / itemLevel))) + ((0.05 * input_data.observatory_level) + enhancerBonusPercent) / 100; }
-            total_bonus = Math.max(0.1, total_bonus);
-
-            const targetLevel = input_data.stop_at;
-            while (success_rate.length < targetLevel) { success_rate.push(success_rate[success_rate.length - 1]); }
-
-            if (targetLevel <= 0 || targetLevel > 30) { console.error("Target level out of bounds (1-30):", targetLevel); return null; }
-
-            let P = math.zeros(targetLevel + 1, targetLevel + 1, 'sparse');
-            for (let i = 0; i < targetLevel; i++) {
-                 const success_chance_base = (success_rate[i] || success_rate[success_rate.length - 1]) / 100.0;
-                 const success_chance_mod = Math.min(1.0, success_chance_base * total_bonus);
-                 const failure_chance = 1.0 - success_chance_mod;
-                 const destination_on_fail = ((i + 1) >= protect_at) ? i : 0;
-
-                 if (input_data.tea_blessed && (i + 2) <= targetLevel) {
-                     const blessed_chance = success_chance_mod * 0.01 * guzzling_bonus;
-                     const normal_success_chance = success_chance_mod * (1 - 0.01 * guzzling_bonus);
-                     P.set([i, i + 2], blessed_chance);
-                     P.set([i, i + 1], normal_success_chance);
-                 } else {
-                     P.set([i, i + 1], success_chance_mod);
-                 }
-                  P.set([i, destination_on_fail], math.add(P.get([i, destination_on_fail]) || 0, failure_chance));
-            }
-            P.set([targetLevel, targetLevel], 1.0);
-
-            try {
-                let Q_subset_result = P.subset(math.index(math.range(0, targetLevel), math.range(0, targetLevel)));
-                let Q_dense;
-                if (targetLevel === 1 && typeof Q_subset_result === 'number') {
-                    Q_dense = math.matrix([[Q_subset_result]], 'dense');
-                } else {
-                    Q_dense = math.matrix(Q_subset_result, 'dense');
-                }
-                let I_dense = math.identity(targetLevel, 'dense');
-                let A_dense = math.subtract(I_dense, Q_dense);
-                let N_dense = math.inv(A_dense);
-                let N = math.matrix(N_dense);
-
-                const attemptsArray = N.subset(math.index(0, math.range(0, targetLevel)));
-                const attempts = math.sum(attemptsArray);
-
-                let protects = 0;
-                if (protect_at <= targetLevel) {
-                     for (let i = protect_at - 1; i < targetLevel; i++) {
-                         const expected_visits_to_state_i = N.get([0, i]);
-                         const success_chance_base_i = (success_rate[i] || success_rate[success_rate.length - 1]) / 100.0;
-                         const success_chance_mod_i = Math.min(1.0, success_chance_base_i * total_bonus);
-                         const failure_chance_i = 1.0 - success_chance_mod_i;
-                         protects += expected_visits_to_state_i * failure_chance_i;
-                     }
-                }
-
-                 const calc_speed = function (item_hrid, level) {
-                     const item = gameData.itemDetailMap[item_hrid];
-                     if (!item || !item.equipmentDetail?.noncombatStats?.enhancingSpeed) return 0;
-                     const bonus = (level >= 0 && level < enhance_bonus.length) ? enhance_bonus[level] : 1;
-                     return Number((item.equipmentDetail.noncombatStats.enhancingSpeed * 100 * bonus).toFixed(2));
-                 };
-                 const item_bonus = (input_data.use_enchanted ? calc_speed("/items/enchanted_gloves", input_data.enchanted_level) : 0.0) +
-                                    (input_data.use_enhancer_top ? calc_speed("/items/enhancers_top", input_data.enhancer_top_level) : 0.0) +
-                                    (input_data.use_enhancer_bot ? calc_speed("/items/enhancers_bottoms", input_data.enhancer_bot_level) : 0.0);
-                 const tea_speed_bonus = (input_data.tea_enhancing ? 3 : (input_data.tea_super_enhancing ? 6 : (input_data.tea_ultra_enhancing ? 8 : 0))) * guzzling_bonus;
-                 const timeBonusPercent = (input_data.enhancing_level > itemLevel ? ((effective_level + input_data.observatory_level - itemLevel) + item_bonus + tea_speed_bonus) : (input_data.observatory_level + item_bonus + tea_speed_bonus));
-                 const timeMultiplier = 1 + timeBonusPercent / 100;
-                 const baseTime = 12;
-                 const perActionTimeSec = baseTime / timeMultiplier;
-                 const totalActionTimeSec = perActionTimeSec * attempts;
-
-                return {
-                    actions: attempts,
-                    protect_count: protects,
-                    totalActionTimeSec: totalActionTimeSec,
-                    totalActionTimeStr: timeReadable(totalActionTimeSec)
-                };
-            } catch (error) {
-                console.error(`Markov chain calculation error (targetLevel=${targetLevel}, protect_at=${protect_at}):`, error);
-                 if (error.message && (error.message.toLowerCase().includes("matrix is singular") || error.message.toLowerCase().includes("cannot calculate inverse"))) {
-                    throw new Error("Calculation failed: Matrix is singular or non-invertible.");
-                 }
-                 if (error.message && error.message.toLowerCase().includes("dimension mismatch")) {
-                    console.error("Dimension mismatch details:", { targetLevel: targetLevel, protect_at: protect_at });
-                 }
-                 if (error.message && error.message.toLowerCase().includes("unexpected type of argument in function matrix")) {
-                    console.error("Error creating matrix, likely from Q_subset_result. Value:", Q_subset_result);
-                 }
-                throw error;
-            }
-        }
-
-        function getCosts(hrid, priceAskBidRatio) {
-             const itemDetailObj = gameData.itemDetailMap[hrid];
-             if (!itemDetailObj) return null;
-
-             const baseCost = getRealisticBaseItemPrice(hrid, priceAskBidRatio);
-             if (baseCost < 0) { console.warn(`Could not determine base cost for ${hrid}, using 0.`); }
-
-             let minProtectionPrice = Infinity; let minProtectionHrid = null;
-             let protect_item_hrids = ["/items/mirror_of_protection"];
-             if(itemDetailObj.protectionItemHrids && Array.isArray(itemDetailObj.protectionItemHrids)) {
-                 protect_item_hrids = protect_item_hrids.concat(itemDetailObj.protectionItemHrids);
-             }
-             protect_item_hrids.push(hrid);
-             protect_item_hrids = [...new Set(protect_item_hrids)];
-
-             protect_item_hrids.forEach((protection_hrid) => {
-                 const this_cost = getRealisticBaseItemPrice(protection_hrid, priceAskBidRatio);
-                 if (this_cost >= 0 && this_cost < minProtectionPrice) {
-                     minProtectionPrice = this_cost;
-                     minProtectionHrid = protection_hrid;
-                 }
-             });
-             if (minProtectionHrid === null) {
-                 minProtectionPrice = 0;
-                 console.warn(`No valid protection item price found for ${hrid}, using 0 protection cost.`);
-             }
-
-             const needMap = {}; let totalNeedPrice = 0;
-             if (itemDetailObj.enhancementCosts && Array.isArray(itemDetailObj.enhancementCosts)) {
-                  itemDetailObj.enhancementCosts.forEach(need => {
-                      const price = getItemMarketPrice(need.itemHrid, priceAskBidRatio);
-                      if (price < 0) {
-                          console.warn(`Could not determine cost for material ${need.itemHrid}, assuming 0.`);
-                          totalNeedPrice += 0;
-                      } else {
-                          totalNeedPrice += price * need.count;
-                      }
-                      if (need.itemHrid !== "/items/coin") {
-                          const materialName = gameData.itemDetailMap[need.itemHrid]?.name || need.itemHrid;
-                          needMap[materialName] = price >= 0 ? price : 'N/A';
-                      }
-                  });
-             } else { console.warn(`No enhancementCosts defined for ${hrid}`); }
-
-             return {
-                 baseCost: Math.max(0, baseCost),
-                 minProtectionCost: minProtectionPrice === Infinity ? 0 : minProtectionPrice,
-                 perActionCost: totalNeedPrice,
-                 choiceOfProtection: minProtectionHrid,
-                 needMap: needMap
-             };
-        }
-
-        function getRealisticBaseItemPrice(hrid, priceAskBidRatio) {
-            const marketPrice = getItemMarketPrice(hrid, priceAskBidRatio);
-            if (marketPrice >= 0) {
-                return marketPrice;
-            }
-            return -1;
-        }
-
-        function getItemMarketPrice(hrid, priceAskBidRatio) {
-             if (hrid === "/items/coin") return 1;
-
-             const fullName = gameData.itemDetailMap[hrid]?.name;
-             if (!fullName) return -1;
-
-             const itemMarketInfo = marketSummary.find(item => item.name === fullName);
-             const itemDetailInfo = gameData.itemDetailMap[hrid];
-             const vendorPrice = itemDetailInfo?.vendorPrice;
-
-             if (itemMarketInfo) {
-                 const ask = typeof itemMarketInfo.ask === 'number' ? itemMarketInfo.ask : null;
-                 const buy = typeof itemMarketInfo.buy === 'number' ? itemMarketInfo.buy : null;
-
-                 if (ask !== null && buy !== null) {
-                     return ask * priceAskBidRatio + buy * (1 - priceAskBidRatio);
-                 } else if (ask !== null) {
-                     return ask * priceAskBidRatio + ask * (1 - priceAskBidRatio); // Effectively just ask
-                 } else if (buy !== null) {
-                     return buy * priceAskBidRatio + buy * (1 - priceAskBidRatio); // Effectively just buy
-                 }
-             }
-
-             if (typeof vendorPrice === 'number' && vendorPrice > 0) {
-                 return vendorPrice;
-             }
-             return -1;
-        }
-
-        async function calculateEnhanceStrat(input_data, itemNameForLogging) {
-            let calculationResult = null;
-            let calculationError = null;
-
-            const protect_at_setting = currentSimSettings.protect_at || 5;
-            const current_protect_at = Math.min(protect_at_setting, input_data.stop_at + 1);
-            const protect_at_display = protect_at_setting > input_data.stop_at ? "Never" : `+${protect_at_setting}`;
-
-            const isDebuggingTarget = (itemNameForLogging === "Arcane Fire Staff" && input_data.stop_at === 5); // Example debug target
-             if (isDebuggingTarget) {
-                 console.groupCollapsed(`Debugging calculateEnhanceStrat for ${itemNameForLogging} +${input_data.stop_at} (Protect At: ${protect_at_display})`);
-                 console.log("Input Data:", JSON.parse(JSON.stringify(input_data)));
-             }
-
-            try {
-                const simResult = simulateEnhancement(input_data, current_protect_at);
-                if (!simResult) { throw new Error(`simulateEnhancement returned null for protect_at=${protect_at_display}`); }
-                 if (isDebuggingTarget) { console.log(`Sim Result (protect_at=${protect_at_display}):`, JSON.parse(JSON.stringify(simResult))); }
-
-                const costs = getCosts(input_data.item_hrid, input_data.priceAskBidRatio);
-                if (!costs) { throw new Error(`Failed to get cost data for item ${input_data.item_hrid}`); }
-                 if (isDebuggingTarget) { console.log(`Costs (protect_at=${protect_at_display}):`, JSON.parse(JSON.stringify(costs))); }
-
-                const useProtection = (protect_at_setting <= input_data.stop_at);
-                const actual_protect_count = useProtection ? simResult.protect_count : 0;
-                const actual_protection_cost = useProtection ? costs.minProtectionCost : 0;
-
-                const baseC = typeof costs.baseCost === 'number' ? costs.baseCost : 0;
-                const protC = typeof actual_protection_cost === 'number' ? actual_protection_cost : 0;
-                const protN = typeof actual_protect_count === 'number' ? actual_protect_count : 0;
-                const actionC = typeof costs.perActionCost === 'number' ? costs.perActionCost : 0;
-                const actionsN = typeof simResult.actions === 'number' ? simResult.actions : 0;
-
-                if (isNaN(baseC) || isNaN(protC) || isNaN(protN) || isNaN(actionC) || isNaN(actionsN)) {
-                     if (isDebuggingTarget) { console.log(`NaN Values: baseC=${baseC}, protC=${protC}, protN=${protN}, actionC=${actionC}, actionsN=${actionsN}`); }
-                    throw new Error(`NaN value encountered during cost calculation for protect_at=${protect_at_display}`);
-                }
-
-                const totalCost = baseC + (protC * protN) + (actionC * actionsN);
-                 if (isDebuggingTarget) { console.log(`Total Cost (protect_at=${protect_at_display}): ${totalCost.toLocaleString()} (base: ${baseC.toLocaleString()}, prot: ${protC.toLocaleString()}*${protN.toFixed(3)}, action: ${actionC.toLocaleString()}*${actionsN.toFixed(3)})`); }
-
-                calculationResult = {
-                    protect_at: useProtection ? current_protect_at : Infinity,
-                    protect_count: actual_protect_count,
-                    simResult: simResult,
-                    costs: costs,
-                    totalCost: totalCost,
-                    protect_at_display: protect_at_display
-                };
-
-            } catch (error) {
-                calculationError = error;
-                console.error(`Error in calculateEnhanceStrat (protect_at=${protect_at_display}):`, error);
-            }
-
-            if (calculationError && !calculationResult) {
-                 if (isDebuggingTarget) console.groupEnd();
-                throw calculationError;
-            }
-
-            console.log(`Calculated strategy for ${itemNameForLogging} +${input_data.stop_at} (Protect At: ${protect_at_display}):`, calculationResult ? JSON.parse(JSON.stringify(calculationResult)) : null);
-
-            if (isDebuggingTarget) console.groupEnd();
-            return calculationResult;
-        }
-        // --- End Enhancement Simulation Logic ---
+        // REMOVED: Enhancement Simulation Logic Functions
+        // function handleLevelChange(event) { ... }
+        // function updateTableRowCost(itemName, level, cost) { ... }
+        // function simulateEnhancement(input_data, protect_at) { ... }
+        // function getCosts(hrid, priceAskBidRatio) { ... }
+        // function getRealisticBaseItemPrice(hrid, priceAskBidRatio) { ... }
+        // function getItemMarketPrice(hrid, priceAskBidRatio) { ... }
+        // async function calculateEnhanceStrat(input_data, itemNameForLogging) { ... }
 
 
         // --- Event Handlers ---
         function handleProductClick(event) {
-             if (event.target.classList.contains('pin-icon') || event.target.closest('.enh-level-control')) { return; } // Ignore clicks on pin/level controls
+             // REMOVED: Check for .enh-level-control click
+             if (event.target.classList.contains('pin-icon')) { return; }
              const clickedLink = event.currentTarget;
              const clickedTr = clickedLink.closest('tr');
-             if (!clickedTr || !clickedTr.dataset.product) return; // Ensure row and product data exist
+             if (!clickedTr || !clickedTr.dataset.product) return;
              const productName = decodeURIComponent(clickedTr.dataset.product);
              displayChart(productName, clickedTr);
         }
@@ -1759,58 +1111,45 @@
         searchInput.addEventListener('input', (event) => { clearTimeout(searchTimeout); searchTimeout = setTimeout(() => { currentSearch = event.target.value; applyFiltersAndSort(); }, 300); });
         categoryFilterEl.addEventListener('change', (event) => { currentCategoryFilter = event.target.value; applyFiltersAndSort(); });
 
-        // --- MODIFIED: Event Listener for Sort Options (Handles Toggling, Added Volatility) ---
+        // Event Listener for Sort Options (Handles Toggling, Added Volatility)
         sortOptionsEl.addEventListener('click', (event) => {
             if (event.target.tagName === 'BUTTON' && event.target.dataset.sort) {
-                const sortBase = event.target.dataset.sort; // e.g., "name", "category", "trend", "volatility"
+                const sortBase = event.target.dataset.sort;
                 let newSort;
-
-                // Define default directions for non-toggling sorts (optional)
-                // Or define which columns toggle
-                const toggleColumns = ['name', 'trend', 'volatility']; // Columns that toggle direction
-                const defaultAscending = ['ask', 'category', 'volatility']; // Columns defaulting to Ascending first
-                const defaultDescending = ['buy', 'vendor', 'trend']; // Columns defaulting to Descending first
+                const toggleColumns = ['name', 'trend', 'volatility'];
+                const defaultAscending = ['ask', 'category', 'volatility'];
+                const defaultDescending = ['buy', 'vendor', 'trend'];
 
                 if (toggleColumns.includes(sortBase)) {
-                    // Toggle direction for specified columns
                     const ascSort = sortBase + '_asc';
                     const descSort = sortBase + '_desc';
-                    // Default to ascending if not currently sorted by this base, OR if currently descending
                     if (currentSort !== ascSort) {
-                         newSort = ascSort; // Default to Asc or switch from Desc to Asc
+                         newSort = ascSort;
                     } else {
-                         newSort = descSort; // Switch from Asc to Desc
+                         newSort = descSort;
                     }
-                    // Special case: Default trend/volatility to descending/ascending on first click if preferred
-                     if (!currentSort.startsWith(sortBase + '_')) { // If clicking this column for the first time
+                     if (!currentSort.startsWith(sortBase + '_')) {
                          if (defaultDescending.includes(sortBase)) newSort = descSort;
                          if (defaultAscending.includes(sortBase)) newSort = ascSort;
                      }
-
                 } else {
-                    // For columns that don't toggle (or haven't been configured to)
                     if (defaultAscending.includes(sortBase)) newSort = sortBase + '_asc';
                     else if (defaultDescending.includes(sortBase)) newSort = sortBase + '_desc';
-                    else newSort = sortBase + '_asc'; // Fallback default
+                    else newSort = sortBase + '_asc';
                 }
-
-                currentSort = newSort; // Update the global sort state
-
-                // Update button highlighting
+                currentSort = newSort;
                 sortOptionsEl.querySelectorAll('button').forEach(btn => {
                     const btnSortBase = btn.dataset.sort;
                     const isCurrent = currentSort.startsWith(btnSortBase + '_') || currentSort === btnSortBase;
                     btn.classList.toggle('current-sort', isCurrent);
-                    // Optional: Add visual indicator for direction
                 });
-
-                applyFiltersAndSort(); // Apply the new sort
+                applyFiltersAndSort();
             }
         });
 
 
-        prevButton.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderCurrentPage(); tableWrapperEl.scrollTop = 0; } }); // Scroll to top on page change
-        nextButton.addEventListener('click', () => { const totalPages = Math.ceil(filteredAndSortedSummary.length / itemsPerPage); if (currentPage < totalPages) { currentPage++; renderCurrentPage(); tableWrapperEl.scrollTop = 0; } }); // Scroll to top
+        prevButton.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderCurrentPage(); tableWrapperEl.scrollTop = 0; } });
+        nextButton.addEventListener('click', () => { const totalPages = Math.ceil(filteredAndSortedSummary.length / itemsPerPage); if (currentPage < totalPages) { currentPage++; renderCurrentPage(); tableWrapperEl.scrollTop = 0; } });
         chartTimeControlsEl.addEventListener('click', (event) => {
             if (event.target.tagName === 'BUTTON' && event.target.dataset.range) {
                 const newRange = event.target.dataset.range;
@@ -1829,35 +1168,15 @@
             });
         } else { console.error("Scale toggle button not found!"); }
 
-        // Settings Panel Event Listeners
-        if (settingsButton) {
-            settingsButton.addEventListener('click', openSettingsPanel);
-        }
-        if (settingsOverlay) {
-            // Close on overlay click
-            settingsOverlay.addEventListener('click', (event) => {
-                if (event.target === settingsOverlay) {
-                    closeSettingsPanel();
-                }
-            });
-        }
-        if (settingsSaveButton) {
-            settingsSaveButton.addEventListener('click', saveSettings);
-        }
-        if (settingsCancelButton) {
-            settingsCancelButton.addEventListener('click', closeSettingsPanel);
-        }
-        // Disable level input if checkbox is unchecked
-        if (settingUseEnchanted && settingEnchantedLevel) {
-            settingUseEnchanted.addEventListener('change', () => {
-                settingEnchantedLevel.disabled = !settingUseEnchanted.checked;
-            });
-        }
+        // REMOVED: Settings Panel Event Listeners
+        // if (settingsButton) { ... }
+        // if (settingsOverlay) { ... }
+        // ... etc ...
 
         // --- Initial Load ---
         document.addEventListener('DOMContentLoaded', () => {
             initTheme(); // Initialize theme based on localStorage/preference
-            loadSettings(); // Load simulation settings from localStorage or use defaults
+            // REMOVED: loadSettings();
             loadData(); // Load market/game data
         });
 
