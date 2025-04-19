@@ -227,7 +227,7 @@
         .sort-options button:hover { background-color: var(--button-hover-bg-color); border-color: var(--button-hover-border-color); }
         .sort-options button.current-sort { background-color: var(--button-active-bg-color); color: var(--button-active-text-color); border-color: var(--button-active-border-color); font-weight: 600; }
 
-        /* --- NEW: Market Indices Display Styles --- */
+        /* Market Indices Display Styles */
         .market-indices {
             background-color: var(--indices-bg);
             border: 1px solid var(--indices-border);
@@ -276,20 +276,33 @@
            font-weight: 600;
            white-space: nowrap;
         }
-        /* --- End Market Indices Display Styles --- */
 
 
         /* Main Layout */
         .main-layout { display: flex; flex-wrap: wrap; gap: 25px; }
-        .item-table-container { flex: 3; min-width: 550px; }
-        .chart-display-container { flex: 2; min-width: 400px; }
+        .item-table-container {
+            flex: 3; /* Takes 3 parts of the space */
+            min-width: 550px; /* Minimum width before wrapping */
+        }
+        .chart-display-container {
+            flex: 1; /* MODIFIED: Takes 1 part of the space (was 2) */
+            min-width: 350px; /* Adjusted min-width slightly */
+        }
 
         /* Table Styles */
-        .table-wrapper { max-height: 78vh; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--card-bg-color); transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
+        .table-wrapper {
+            max-height: 78vh;
+            overflow-y: auto;
+            overflow-x: auto; /* Allow horizontal scroll for table */
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--card-bg-color);
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        }
         #item-table { width: 100%; border-collapse: collapse; }
-        #item-table th, #item-table td { padding: 10px 12px; /* Slightly reduced padding */ text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; vertical-align: middle; font-size: 0.90em; /* Slightly smaller font */ }
-        #item-table th { background-color: var(--table-header-bg); font-weight: 600; font-size: 0.75em; /* Smaller header font */ text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted-text-color); position: sticky; top: 0; z-index: 1; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;}
-        #item-table th.pin-header { width: 35px; /* Smaller pin header */ text-align: center; padding: 10px 5px;}
+        #item-table th, #item-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; vertical-align: middle; font-size: 0.90em; }
+        #item-table th { background-color: var(--table-header-bg); font-weight: 600; font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted-text-color); position: sticky; top: 0; z-index: 1; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;}
+        #item-table th.pin-header { width: 35px; text-align: center; padding: 10px 5px;}
         #item-table td.pin-cell { text-align: center; padding: 10px 5px;}
         .pin-icon { cursor: pointer; color: var(--pin-color); font-size: 1.1em; transition: color 0.15s ease-in-out; }
         .pin-icon.pinned { color: var(--pin-color-active); }
@@ -311,7 +324,7 @@
         #item-table td:nth-child(2) { font-weight: 500; /* Name */ }
         #item-table td:nth-child(2) .item-name-link { color: var(--link-color); cursor: pointer; text-decoration: none; }
         #item-table td:nth-child(2) .item-name-link:hover { text-decoration: underline; color: var(--link-hover-color); }
-        #item-table td:nth-child(3) { font-size: 0.9em; color: var(--muted-text-color); max-width: 150px; /* Slightly reduced max-width */ overflow: hidden; text-overflow: ellipsis; } /* Category */
+        #item-table td:nth-child(3) { font-size: 0.9em; color: var(--muted-text-color); max-width: 150px; overflow: hidden; text-overflow: ellipsis; } /* Category */
         #item-table td:nth-child(n+5):not(:nth-child(8)) { text-align: right; font-family: var(--code-font); font-size: 0.90em; } /* Buy/Vendor/Trend */
         #item-table td:nth-child(4) { text-align: right; font-family: var(--code-font); font-size: 0.90em; } /* Ask */
         #item-table td:nth-child(8) { text-align: right; font-family: var(--code-font); font-size: 0.90em; } /* Volatility */
@@ -462,17 +475,28 @@
              .settings-panel { width: 95%; padding: 20px; }
              .settings-grid { grid-template-columns: 1fr; } /* Stack grid items on small screens */
              .market-indices-container { justify-content: flex-start; } /* Align left on small screens */
-             #item-table th, #item-table td { font-size: 0.85em; padding: 8px 10px; } /* Even smaller font/padding on mobile */
-             #item-table th:nth-child(3), /* Category */
+             #item-table th, #item-table td { font-size: 0.85em; padding: 8px 10px; } /* Smaller font/padding on mobile */
+             /* REMOVED: Column hiding rules are removed as per request */
+             /*
+             #item-table th:nth-child(3),
              #item-table td:nth-child(3),
-             #item-table th:nth-child(6), /* Vendor */
-             #item-table td:nth-child(6) { display: none; } /* Hide less important columns on mobile */
+             #item-table th:nth-child(6),
+             #item-table td:nth-child(6),
+             #item-table th:nth-child(8),
+             #item-table td:nth-child(8) {
+                 display: none;
+             }
+             */
         }
          @media (max-width: 480px) {
-              #item-table th:nth-child(5), /* Buy */
-              #item-table td:nth-child(5),
-              #item-table th:nth-child(8), /* Volatility */
-              #item-table td:nth-child(8) { display: none; } /* Hide more columns on very small screens */
+              /* REMOVED: Column hiding rules are removed as per request */
+              /*
+              #item-table th:nth-child(5),
+              #item-table td:nth-child(5)
+              {
+                  display: none;
+              }
+              */
               .sort-options button { padding: 4px 8px; font-size: 0.8em;} /* Smaller sort buttons */
          }
 
