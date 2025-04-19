@@ -160,7 +160,10 @@ def load_historical_data(days_to_load):
                     ask_df_long = ask_df_wide.melt(id_vars=['time'], value_vars=item_columns_ask, var_name='product', value_name='ask')
                     ask_df_long['timestamp'] = pd.to_datetime(ask_df_long['time'], unit='s', errors='coerce')
                     ask_df_long['ask'] = pd.to_numeric(ask_df_long['ask'], errors='coerce')
-                    ask_df_long.drop(columns=['time'], inplace=True); ask_df_long.dropna(subset=['timestamp', 'ask'], inplace=True)
+                    # Replace -1 with NA *after* converting to numeric
+                    ask_df_long['ask'] = ask_df_long['ask'].replace(-1, pd.NA)
+                    ask_df_long.drop(columns=['time'], inplace=True)
+                    ask_df_long.dropna(subset=['timestamp'], inplace=True) # Only drop rows with invalid timestamps
                     ask_df_long = ask_df_long[['product', 'ask', 'timestamp']]
                 except Exception as melt_error: logging.error(f"Error melting 'ask' data: {melt_error}", exc_info=True)
             else: logging.warning("No item columns found in 'ask' table.")
@@ -174,7 +177,10 @@ def load_historical_data(days_to_load):
                     bid_df_long = bid_df_wide.melt(id_vars=['time'], value_vars=item_columns_bid, var_name='product', value_name='buy')
                     bid_df_long['timestamp'] = pd.to_datetime(bid_df_long['time'], unit='s', errors='coerce')
                     bid_df_long['buy'] = pd.to_numeric(bid_df_long['buy'], errors='coerce')
-                    bid_df_long.drop(columns=['time'], inplace=True); bid_df_long.dropna(subset=['timestamp', 'buy'], inplace=True)
+                    # Replace -1 with NA *after* converting to numeric
+                    bid_df_long['buy'] = bid_df_long['buy'].replace(-1, pd.NA)
+                    bid_df_long.drop(columns=['time'], inplace=True)
+                    bid_df_long.dropna(subset=['timestamp'], inplace=True) # Only drop rows with invalid timestamps
                     bid_df_long = bid_df_long[['product', 'buy', 'timestamp']]
                 except Exception as melt_error: logging.error(f"Error melting 'bid' data: {melt_error}", exc_info=True)
             else: logging.warning("No item columns found in 'bid' table.")
@@ -199,7 +205,7 @@ def load_historical_data(days_to_load):
         if conn: conn.close()
         return pd.DataFrame()
 
-# (load_live_data function remains the same as provided by user)
+# (load_live_data function correctly handles -1 already by converting to pd.NA)
 def load_live_data():
     logging.info(f"Loading live data from {JSON_PATH}")
     vendor_prices = {}; live_records_df = pd.DataFrame()
@@ -208,9 +214,11 @@ def load_live_data():
         with open(JSON_PATH, 'r') as f: data = json.load(f)
         if 'market' not in data or not isinstance(data['market'], dict): logging.error("Invalid JSON structure."); return live_records_df, vendor_prices
         market_data = data['market']; records = []
-        current_time = datetime.now()
+        # Use timezone-aware current time
+        current_time = datetime.now(timezone.utc)
         for product_name, price_info in market_data.items():
             if isinstance(price_info, dict) and 'ask' in price_info and 'bid' in price_info:
+                 # Convert -1 to pd.NA here
                  ask_price = pd.NA if price_info['ask'] == -1 else price_info['ask']
                  buy_price = pd.NA if price_info['bid'] == -1 else price_info['bid']
                  vendor_price = price_info.get('vendor', pd.NA)
@@ -231,31 +239,34 @@ def load_live_data():
         return live_records_df, vendor_prices
     except Exception as e: logging.error(f"Error loading live data: {e}", exc_info=True); return pd.DataFrame(), {}
 
-# --- Trend Calculation (MODIFIED) ---
+# --- Trend Calculation (Uses 'ask' price, correctly skips NA) ---
 def calculate_trends(df, products):
     """Calculates 24h trend based on 'ask' price."""
     trends = {}; processed_count = 0
     if df.empty or not products: return trends
 
-    now = datetime.now()
+    # Use timezone-aware now
+    now = datetime.now(timezone.utc)
     yesterday = now - timedelta(hours=24)
     yesterday_start = yesterday - timedelta(hours=TREND_WINDOW_HOURS)
     yesterday_end = yesterday + timedelta(hours=TREND_WINDOW_HOURS)
 
-    logging.info(f"Calculating trends for {len(products)} products relative to {yesterday.strftime('%Y-%m-%d %H:%M:%S')} using ASK price")
+    logging.info(f"Calculating trends for {len(products)} products relative to {yesterday.strftime('%Y-%m-%d %H:%M:%S %Z')} using ASK price")
 
     try:
-        # Ensure timestamp column is datetime objects
-        df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+        # Ensure timestamp column is datetime objects and timezone-aware (UTC)
+        if not pd.api.types.is_datetime64_any_dtype(df['timestamp']):
+            df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+        if df['timestamp'].dt.tz is None:
+            df['timestamp'] = df['timestamp'].dt.tz_localize('UTC')
+        else:
+            df['timestamp'] = df['timestamp'].dt.tz_convert('UTC')
+
         df.dropna(subset=['timestamp'], inplace=True)
         if df.empty: return trends
     except Exception as e:
         logging.error(f"Error converting timestamp for trend calc: {e}")
         return trends
-
-    # --- MODIFICATION START: Use 'ask' price directly ---
-    # Remove the avg_price calculation
-    # df['avg_price'] = df[['buy', 'ask']].mean(axis=1).fillna(df['buy']).fillna(df['ask'])
 
     # Filter data to relevant past window (optimization)
     relevant_past_data = df[df['timestamp'] <= yesterday_end].copy()
@@ -281,6 +292,7 @@ def calculate_trends(df, products):
             past_window_df = past_product_df[(past_product_df['timestamp'] >= yesterday_start)]
             if past_window_df.empty: continue
 
+            # Ensure timestamps are timezone-aware for comparison
             time_diff_series = (past_window_df['timestamp'] - yesterday).abs()
             if time_diff_series.empty: continue
 
@@ -290,7 +302,6 @@ def calculate_trends(df, products):
             # Use 'ask' price for previous price
             previous_price = closest_past_data['ask']
             if pd.isna(previous_price): continue # Skip if no previous ask price in window
-            # --- MODIFICATION END ---
 
             # Calculate trend percentage
             if previous_price != 0:
@@ -298,11 +309,13 @@ def calculate_trends(df, products):
                 trends[product] = change_pct
                 processed_count += 1
             else:
-                trends[product] = None # Avoid division by zero
+                # Handle case where previous price was 0
+                if current_price > 0:
+                    trends[product] = float('inf') # Or some large number / None, depending on desired representation
+                else:
+                    trends[product] = 0.0 # 0 to 0 change is 0%
 
         except KeyError:
-            # This happens if a product exists in the overall list but not in one of the groups (should be rare)
-            # logging.debug(f"KeyError processing trend for {product}. Skipping.")
             continue
         except Exception as e:
             logging.error(f"Error calculating trend for {product}: {e}", exc_info=True)
@@ -343,25 +356,39 @@ def main():
 
     if not combined_df.empty:
         logging.info(f"Processing combined data ({len(combined_df)} records)...")
-        combined_df.drop_duplicates(subset=['product', 'timestamp'], keep='last', inplace=True)
-        combined_df.sort_values(by=['product', 'timestamp'], inplace=True)
-        combined_df['buy'] = pd.to_numeric(combined_df['buy'], errors='coerce')
-        combined_df['ask'] = pd.to_numeric(combined_df['ask'], errors='coerce')
+        # Ensure timestamp is datetime before timezone conversion/duplicates check
         combined_df['timestamp'] = pd.to_datetime(combined_df['timestamp'], errors='coerce')
         combined_df.dropna(subset=['timestamp'], inplace=True)
+
+        # Convert to UTC for consistent handling
+        if combined_df['timestamp'].dt.tz is None:
+            combined_df['timestamp'] = combined_df['timestamp'].dt.tz_localize('UTC')
+        else:
+            combined_df['timestamp'] = combined_df['timestamp'].dt.tz_convert('UTC')
+
+        combined_df.sort_values(by=['product', 'timestamp'], inplace=True)
+        # Keep last entry for duplicate product/timestamps after ensuring timezone consistency
+        combined_df.drop_duplicates(subset=['product', 'timestamp'], keep='last', inplace=True)
+
+        # Ensure numeric types after potential NA introduction
+        combined_df['buy'] = pd.to_numeric(combined_df['buy'], errors='coerce')
+        combined_df['ask'] = pd.to_numeric(combined_df['ask'], errors='coerce')
+
         logging.info(f"Final processed data size: {len(combined_df)} records.")
     else:
         logging.warning("Combined data is empty after processing.")
 
     all_products = sorted(list(combined_df['product'].unique())) if not combined_df.empty else []
-    product_trends = calculate_trends(combined_df.copy(), all_products) # Use copy
+    # Pass a copy to calculate_trends as it modifies the timestamp column
+    product_trends = calculate_trends(combined_df.copy(), all_products)
 
     # --- Generate JSON Data Files ---
     logging.info("Generating JSON data files...")
 
-    # 1. Market Summary (Includes category now)
+    # 1. Market Summary (Correctly uses latest data, converts NA to None)
     market_summary = []
     if not combined_df.empty:
+        # Use last() after sorting by timestamp ensures we get the latest
         latest_data_map = combined_df.groupby('product').last()
         for product in all_products:
             if product in latest_data_map.index:
@@ -369,6 +396,7 @@ def main():
                 market_summary.append({
                     'name': product,
                     'category': item_categories.get(product, 'Unknown'),
+                    # Convert pandas NA to None for JSON
                     'buy': latest['buy'] if pd.notna(latest['buy']) else None,
                     'ask': latest['ask'] if pd.notna(latest['ask']) else None,
                     'vendor': vendor_prices.get(product),
@@ -380,54 +408,53 @@ def main():
     summary_path = os.path.join(OUTPUT_DATA_DIR, 'market_summary.json')
     try:
         with open(summary_path, 'w') as f:
-            json.dump(market_summary, f, allow_nan=False)
+            # Use default=str for any remaining complex objects if necessary, though None should handle NAs
+            json.dump(market_summary, f, allow_nan=False, default=str)
         logging.info(f"Saved market summary to {summary_path}")
     except ValueError as ve: logging.error(f"ValueError saving market summary JSON: {ve}")
     except Exception as e: logging.error(f"Failed to save market summary JSON: {e}")
 
 
-    # 2. Full Historical Data - MODIFIED TO OUTPUT NESTED OBJECT
+    # 2. Full Historical Data - MODIFIED TO INCLUDE NULL PRICES
     nested_history_dict = {}
     if not combined_df.empty:
         logging.info("Grouping historical data by product for nested JSON...")
-        # Ensure timestamp is datetime for calculations
-        if not pd.api.types.is_datetime64_any_dtype(combined_df['timestamp']):
-             combined_df['timestamp'] = pd.to_datetime(combined_df['timestamp'], errors='coerce')
-             combined_df.dropna(subset=['timestamp'], inplace=True) # Drop rows where conversion failed
 
-        # Convert timestamp to UTC if it doesn't have timezone info
-        # This ensures consistent epoch seconds regardless of server timezone
-        if combined_df['timestamp'].dt.tz is None:
-            combined_df['timestamp'] = combined_df['timestamp'].dt.tz_localize('UTC')
-        else:
-            combined_df['timestamp'] = combined_df['timestamp'].dt.tz_convert('UTC')
+        # Ensure timestamp is timezone-aware UTC (already done above, but double-check)
+        if combined_df['timestamp'].dt.tz is None or str(combined_df['timestamp'].dt.tz) != 'UTC':
+             logging.warning("Timestamps in combined_df are not UTC timezone-aware before history generation. Converting...")
+             if combined_df['timestamp'].dt.tz is None:
+                 combined_df['timestamp'] = combined_df['timestamp'].dt.tz_localize('UTC')
+             else:
+                 combined_df['timestamp'] = combined_df['timestamp'].dt.tz_convert('UTC')
 
         # Group by product
         grouped_history = combined_df.groupby('product')
 
         for product_name, group_df in grouped_history:
-            buy_list = []
-            ask_list = []
+            # --- MODIFICATION START: Include NA points as null in history ---
+            # Process buy data
+            buy_data = group_df[['timestamp', 'buy']] # Keep NA rows
+            buy_list = [
+                # Output price if valid number, else None (for pd.NA)
+                {"timestamp": int(ts.timestamp()), "price": price if pd.notna(price) else None}
+                for ts, price in zip(buy_data['timestamp'], buy_data['buy'])
+                # Include NA points, but exclude non-finite numbers (like infinity)
+                if pd.isna(price) or (pd.notna(price) and np.isfinite(price))
+            ]
 
-            # Process buy data for the product
-            buy_data = group_df[['timestamp', 'buy']].dropna(subset=['buy'])
-            if not buy_data.empty:
-                 buy_list = [
-                     {"timestamp": int(ts.timestamp()), "price": price}
-                     for ts, price in zip(buy_data['timestamp'], buy_data['buy'])
-                     if pd.notna(price) and np.isfinite(price) # Ensure price is valid number
-                 ]
+            # Process ask data
+            ask_data = group_df[['timestamp', 'ask']] # Keep NA rows
+            ask_list = [
+                 # Output price if valid number, else None (for pd.NA)
+                {"timestamp": int(ts.timestamp()), "price": price if pd.notna(price) else None}
+                for ts, price in zip(ask_data['timestamp'], ask_data['ask'])
+                # Include NA points, but exclude non-finite numbers (like infinity)
+                if pd.isna(price) or (pd.notna(price) and np.isfinite(price))
+            ]
+            # --- MODIFICATION END ---
 
-            # Process ask data for the product
-            ask_data = group_df[['timestamp', 'ask']].dropna(subset=['ask'])
-            if not ask_data.empty:
-                 ask_list = [
-                     {"timestamp": int(ts.timestamp()), "price": price}
-                     for ts, price in zip(ask_data['timestamp'], ask_data['ask'])
-                     if pd.notna(price) and np.isfinite(price) # Ensure price is valid number
-                 ]
-
-            # Only add product if it has at least one buy or ask point
+            # Only add product if it has at least one valid (non-inf) or null point
             if buy_list or ask_list:
                  nested_history_dict[product_name] = {"buy": buy_list, "ask": ask_list}
 
@@ -440,7 +467,6 @@ def main():
         logging.info(f"Saved nested market history to {history_path}")
     except ValueError as ve:
         logging.error(f"ValueError saving market history JSON: {ve}")
-        # Add more detailed logging for complex structures if needed
     except Exception as e:
         logging.error(f"Failed to save market history JSON: {e}")
 
