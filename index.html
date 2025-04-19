@@ -477,26 +477,9 @@
              .market-indices-container { justify-content: flex-start; } /* Align left on small screens */
              #item-table th, #item-table td { font-size: 0.85em; padding: 8px 10px; } /* Smaller font/padding on mobile */
              /* REMOVED: Column hiding rules are removed as per request */
-             /*
-             #item-table th:nth-child(3),
-             #item-table td:nth-child(3),
-             #item-table th:nth-child(6),
-             #item-table td:nth-child(6),
-             #item-table th:nth-child(8),
-             #item-table td:nth-child(8) {
-                 display: none;
-             }
-             */
         }
          @media (max-width: 480px) {
               /* REMOVED: Column hiding rules are removed as per request */
-              /*
-              #item-table th:nth-child(5),
-              #item-table td:nth-child(5)
-              {
-                  display: none;
-              }
-              */
               .sort-options button { padding: 4px 8px; font-size: 0.8em;} /* Smaller sort buttons */
          }
 
@@ -1486,138 +1469,281 @@
         }
 
         // --- Enhancement Simulation Logic ---
-        // (Existing enhancement simulation functions remain the same)
-        // ... simulateEnhancement, getCosts, getRealisticBaseItemPrice, getItemMarketPrice, calculateEnhanceStrat ... (omitted for brevity) ...
+        // RESTORED FULL IMPLEMENTATIONS
         const enhance_bonus = [ 1, 1.02, 1.042, 1.066, 1.092, 1.12, 1.15, 1.182, 1.216, 1.252, 1.29, 1.33, 1.372, 1.416, 1.462, 1.51, 1.56, 1.612, 1.666, 1.722, 1.78 ];
         const success_rate = [ 50, 45, 45, 40, 40, 40, 35, 35, 35, 35, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 25, 25, 25, 25, 25, 20, 20, 20, 20, 20 ]; // Extended to +30
 
-        function handleLevelChange(event) {
-             event.stopPropagation();
-             hideMessage(); // Clear previous messages
+        function simulateEnhancement(input_data, protect_at) {
+            const itemDetail = gameData.itemDetailMap[input_data.item_hrid];
+            if (!itemDetail) { console.error("simulateEnhancement: Item detail not found for", input_data.item_hrid); return null; }
+            const itemLevel = itemDetail.itemLevel || 1; // Default item level if missing
 
-             const btn = event.currentTarget;
-             const itemName = btn.dataset.itemName;
-             const itemHrid = btn.dataset.hrid;
-             const change = parseInt(btn.dataset.change, 10);
-             const currentSimData = simulatedLevels[itemName] || { level: 0, result: null }; // Store result now
-             let newLevel = currentSimData.level + change;
-             newLevel = Math.max(0, Math.min(newLevel, 30)); // Clamp level
-
-             const safeIdSuffix = (itemHrid || itemName).replace(/[\s/]/g, '_');
-             const displaySpanId = `level-display-${safeIdSuffix}`;
-             const displaySpan = document.getElementById(displaySpanId);
-             if (displaySpan) displaySpan.textContent = newLevel >= 0 ? `+${newLevel}` : '+0';
-
-             const row = btn.closest('tr');
-             if (row) {
-                 row.querySelector(`.enh-level-btn[data-change="-1"]`).disabled = (newLevel <= 0);
-                 row.querySelector(`.enh-level-btn[data-change="1"]`).disabled = (newLevel >= 30);
-             }
-
-             if (newLevel === 0) {
-                 delete simulatedLevels[itemName];
-                 renderCurrentPage(); // Re-render to show market prices
-                 if (currentChartProduct === itemName) {
-                     displayChart(itemName, selectedTableRow); // Update chart
-                     hideSimulationDetails(); // Hide details panel
+            let guzzling_bonus = 1;
+            const guzzlingPouchDetail = gameData.itemDetailMap["/items/guzzling_pouch"];
+            if (input_data.use_guzzling && guzzlingPouchDetail?.equipmentDetail?.noncombatStats?.drinkConcentration) {
+                 const pouchLevel = input_data.guzzling_level;
+                 if (pouchLevel >= 0 && pouchLevel < enhance_bonus.length) {
+                     const bonusPercent = guzzlingPouchDetail.equipmentDetail.noncombatStats.drinkConcentration * 100 * enhance_bonus[pouchLevel];
+                     guzzling_bonus = 1 + bonusPercent / 100;
                  }
-                 return;
-             }
+            }
 
-             if (!itemHrid || !gameData.itemDetailMap || !gameData.itemDetailMap[itemHrid]) {
-                 console.error(`Cannot simulate: Item details not found for ${itemName} (HRID: ${itemHrid})`);
-                 showMessage(`Error: Item details not found for ${itemName}. Cannot calculate cost.`, 'error');
-                 if (displaySpan) displaySpan.textContent = currentSimData.level >= 0 ? `+${currentSimData.level}` : '+0'; // Revert display
-                 if (row) { // Re-enable buttons if error occurs before async operation
-                     row.querySelector(`.enh-level-btn[data-change="-1"]`).disabled = (currentSimData.level <= 0);
-                     row.querySelector(`.enh-level-btn[data-change="1"]`).disabled = (currentSimData.level >= 30);
-                 }
-                 return;
-             }
+            let teaLevelBonus = 0;
+            if (input_data.tea_ultra_enhancing) teaLevelBonus = 8 * guzzling_bonus;
+            else if (input_data.tea_super_enhancing) teaLevelBonus = 6 * guzzling_bonus;
+            else if (input_data.tea_enhancing) teaLevelBonus = 3 * guzzling_bonus;
 
-             // Use currentSimSettings instead of defaultPlayerStats
-             const inputData = { ...currentSimSettings, item_hrid: itemHrid, stop_at: newLevel };
+            const effective_level = input_data.enhancing_level + teaLevelBonus;
+            const enhancerBonusPercent = input_data.enhancer_level >= 0 && input_data.enhancer_level < enhance_bonus.length ? enhance_bonus[input_data.enhancer_level] * 100 - 100 : 0;
+            let total_bonus;
+            if (effective_level >= itemLevel) { total_bonus = 1 + (0.05 * (effective_level + input_data.observatory_level - itemLevel) + enhancerBonusPercent) / 100; }
+            else { total_bonus = (1 - (0.5 * (1 - (effective_level) / itemLevel))) + ((0.05 * input_data.observatory_level) + enhancerBonusPercent) / 100; }
+            total_bonus = Math.max(0.1, total_bonus);
 
-             // Disable buttons during calculation
-             if (row) row.querySelectorAll('.enh-level-btn').forEach(b => b.disabled = true);
-             if (displaySpan) displaySpan.textContent = '...'; // Indicate calculation
+            const targetLevel = input_data.stop_at;
+            while (success_rate.length < targetLevel) { success_rate.push(success_rate[success_rate.length - 1]); }
 
-             // Use setTimeout to avoid blocking UI during calculation
-             setTimeout(async () => {
-                 try {
-                     // Use calculateEnhanceStrat instead of findBestEnhanceStrat
-                     const result = await calculateEnhanceStrat(inputData, itemName); // Pass itemName for logging
-                     if (result && typeof result.totalCost === 'number') {
-                         simulatedLevels[itemName] = { level: newLevel, result: result }; // Store full result
-                         updateTableRowCost(itemName, newLevel, result.totalCost); // Update table with cost
-                         if (currentChartProduct === itemName) {
-                             displayChart(itemName, selectedTableRow); // Update chart
-                             displaySimulationDetails(itemName); // Update details panel
-                         }
-                     } else { throw new Error("Calculation returned invalid result (cost missing or NaN)."); }
-                 } catch (error) {
-                     console.error(`Error during enhancement simulation for ${itemName}:`, error);
-                     showMessage(`Error calculating cost for +${newLevel} ${itemName}: ${error.message}`, 'error');
-                     if (displaySpan) displaySpan.textContent = currentSimData.level >= 0 ? `+${currentSimData.level}` : '+0'; // Revert display on error
-                     delete simulatedLevels[itemName]; // Remove potentially bad data
-                     updateTableRowCost(itemName, 0, null); // Revert to market price display
-                     if (currentChartProduct === itemName) {
-                         hideSimulationDetails(); // Hide details if calculation failed
-                     }
-                 } finally {
-                     // Re-enable buttons after calculation attempt
-                     if (row) {
-                         const finalLevel = simulatedLevels[itemName]?.level || 0;
-                         if (displaySpan) displaySpan.textContent = finalLevel >= 0 ? `+${finalLevel}` : '+0';
-                         row.querySelector(`.enh-level-btn[data-change="-1"]`).disabled = (finalLevel <= 0);
-                         row.querySelector(`.enh-level-btn[data-change="1"]`).disabled = (finalLevel >= 30);
-                     }
-                 }
-             }, 10); // Small delay to allow UI update (disabling buttons)
-        }
+            if (targetLevel <= 0 || targetLevel > 30) { console.error("Target level out of bounds (1-30):", targetLevel); return null; }
 
-        function updateTableRowCost(itemName, level, cost) {
-             const encodedName = encodeURIComponent(itemName);
-             const row = tableBodyEl.querySelector(`tr[data-product="${encodedName}"]`);
-             if (row) {
-                 const askCell = row.querySelector('td.ask-cell'); // Use specific class
-                 const buyCell = row.querySelector('td.buy-cell'); // Use specific class
+            let P = math.zeros(targetLevel + 1, targetLevel + 1, 'sparse');
+            for (let i = 0; i < targetLevel; i++) {
+                 const success_chance_base = (success_rate[i] || success_rate[success_rate.length - 1]) / 100.0;
+                 const success_chance_mod = Math.min(1.0, success_chance_base * total_bonus);
+                 const failure_chance = 1.0 - success_chance_mod;
+                 const destination_on_fail = ((i + 1) >= protect_at) ? i : 0;
 
-                 if (level > 0 && cost !== null && isFinite(cost)) { // Check cost is valid number
-                     // Display simulated cost
-                     const formattedCost = formatPriceSimulated(Math.round(cost)); // Round here for display
-                     if (askCell) askCell.innerHTML = formattedCost;
-                     if (buyCell) buyCell.innerHTML = formattedCost;
+                 if (input_data.tea_blessed && (i + 2) <= targetLevel) {
+                     const blessed_chance = success_chance_mod * 0.01 * guzzling_bonus;
+                     const normal_success_chance = success_chance_mod * (1 - 0.01 * guzzling_bonus);
+                     P.set([i, i + 2], blessed_chance);
+                     P.set([i, i + 1], normal_success_chance);
                  } else {
-                     // Display market price (level is 0 or cost is null/invalid)
-                     const marketItem = marketSummary.find(item => item.name === itemName);
-                     if (marketItem) {
-                         if (askCell) askCell.innerHTML = formatPrice(marketItem.ask);
-                         if (buyCell) buyCell.innerHTML = formatPrice(marketItem.buy);
-                     } else {
-                         // Fallback if market item not found (shouldn't happen often)
-                         if (askCell) askCell.innerHTML = formatPrice(null);
-                         if (buyCell) buyCell.innerHTML = formatPrice(null);
-                     }
+                     P.set([i, i + 1], success_chance_mod);
                  }
-             }
+                  P.set([i, destination_on_fail], math.add(P.get([i, destination_on_fail]) || 0, failure_chance));
+            }
+            P.set([targetLevel, targetLevel], 1.0);
+
+            try {
+                let Q_subset_result = P.subset(math.index(math.range(0, targetLevel), math.range(0, targetLevel)));
+                let Q_dense;
+                if (targetLevel === 1 && typeof Q_subset_result === 'number') {
+                    Q_dense = math.matrix([[Q_subset_result]], 'dense');
+                } else {
+                    Q_dense = math.matrix(Q_subset_result, 'dense');
+                }
+                let I_dense = math.identity(targetLevel, 'dense');
+                let A_dense = math.subtract(I_dense, Q_dense);
+                let N_dense = math.inv(A_dense);
+                let N = math.matrix(N_dense);
+
+                const attemptsArray = N.subset(math.index(0, math.range(0, targetLevel)));
+                const attempts = math.sum(attemptsArray);
+
+                let protects = 0;
+                if (protect_at <= targetLevel) {
+                     for (let i = protect_at - 1; i < targetLevel; i++) {
+                         const expected_visits_to_state_i = N.get([0, i]);
+                         const success_chance_base_i = (success_rate[i] || success_rate[success_rate.length - 1]) / 100.0;
+                         const success_chance_mod_i = Math.min(1.0, success_chance_base_i * total_bonus);
+                         const failure_chance_i = 1.0 - success_chance_mod_i;
+                         protects += expected_visits_to_state_i * failure_chance_i;
+                     }
+                }
+
+                 const calc_speed = function (item_hrid, level) {
+                     const item = gameData.itemDetailMap[item_hrid];
+                     if (!item || !item.equipmentDetail?.noncombatStats?.enhancingSpeed) return 0;
+                     const bonus = (level >= 0 && level < enhance_bonus.length) ? enhance_bonus[level] : 1;
+                     return Number((item.equipmentDetail.noncombatStats.enhancingSpeed * 100 * bonus).toFixed(2));
+                 };
+                 const item_bonus = (input_data.use_enchanted ? calc_speed("/items/enchanted_gloves", input_data.enchanted_level) : 0.0) +
+                                    (input_data.use_enhancer_top ? calc_speed("/items/enhancers_top", input_data.enhancer_top_level) : 0.0) +
+                                    (input_data.use_enhancer_bot ? calc_speed("/items/enhancers_bottoms", input_data.enhancer_bot_level) : 0.0);
+                 const tea_speed_bonus = (input_data.tea_enhancing ? 3 : (input_data.tea_super_enhancing ? 6 : (input_data.tea_ultra_enhancing ? 8 : 0))) * guzzling_bonus;
+                 const timeBonusPercent = (input_data.enhancing_level > itemLevel ? ((effective_level + input_data.observatory_level - itemLevel) + item_bonus + tea_speed_bonus) : (input_data.observatory_level + item_bonus + tea_speed_bonus));
+                 const timeMultiplier = 1 + timeBonusPercent / 100;
+                 const baseTime = 12;
+                 const perActionTimeSec = baseTime / timeMultiplier;
+                 const totalActionTimeSec = perActionTimeSec * attempts;
+
+                return {
+                    actions: attempts,
+                    protect_count: protects,
+                    totalActionTimeSec: totalActionTimeSec,
+                    totalActionTimeStr: timeReadable(totalActionTimeSec)
+                };
+            } catch (error) {
+                console.error(`Markov chain calculation error (targetLevel=${targetLevel}, protect_at=${protect_at}):`, error);
+                 if (error.message && (error.message.toLowerCase().includes("matrix is singular") || error.message.toLowerCase().includes("cannot calculate inverse"))) {
+                    throw new Error("Calculation failed: Matrix is singular or non-invertible.");
+                 }
+                 if (error.message && error.message.toLowerCase().includes("dimension mismatch")) {
+                    console.error("Dimension mismatch details:", { targetLevel: targetLevel, protect_at: protect_at });
+                 }
+                 if (error.message && error.message.toLowerCase().includes("unexpected type of argument in function matrix")) {
+                    console.error("Error creating matrix, likely from Q_subset_result. Value:", Q_subset_result);
+                 }
+                throw error;
+            }
         }
 
-        // --- Integrated Calculator Logic (Placeholder - Assumed to be complete) ---
-        // Functions: simulateEnhancement, getCosts, getRealisticBaseItemPrice, getItemMarketPrice, calculateEnhanceStrat
-        // These functions are assumed to exist and work as previously defined.
-        // They are omitted here for brevity but are required for the simulation part to function.
-        async function calculateEnhanceStrat(input_data, itemNameForLogging) { /* ... implementation ... */
-             // This function needs the full implementation from previous versions
-             console.warn("calculateEnhanceStrat implementation is omitted here for brevity but required.");
-             // Placeholder return
-             return { totalCost: Math.random() * 100000, protect_at_display: "+5", simResult: { actions: 10, protect_count: 2, totalActionTimeStr: "1m 30s" }, costs: { baseCost: 1000, minProtectionCost: 5000, perActionCost: 100, needMap: {"Essence": 100} } };
+        function getCosts(hrid, priceAskBidRatio) {
+             const itemDetailObj = gameData.itemDetailMap[hrid];
+             if (!itemDetailObj) return null;
+
+             const baseCost = getRealisticBaseItemPrice(hrid, priceAskBidRatio);
+             if (baseCost < 0) { console.warn(`Could not determine base cost for ${hrid}, using 0.`); }
+
+             let minProtectionPrice = Infinity; let minProtectionHrid = null;
+             let protect_item_hrids = ["/items/mirror_of_protection"];
+             if(itemDetailObj.protectionItemHrids && Array.isArray(itemDetailObj.protectionItemHrids)) {
+                 protect_item_hrids = protect_item_hrids.concat(itemDetailObj.protectionItemHrids);
+             }
+             protect_item_hrids.push(hrid);
+             protect_item_hrids = [...new Set(protect_item_hrids)];
+
+             protect_item_hrids.forEach((protection_hrid) => {
+                 const this_cost = getRealisticBaseItemPrice(protection_hrid, priceAskBidRatio);
+                 if (this_cost >= 0 && this_cost < minProtectionPrice) {
+                     minProtectionPrice = this_cost;
+                     minProtectionHrid = protection_hrid;
+                 }
+             });
+             if (minProtectionHrid === null) {
+                 minProtectionPrice = 0;
+                 console.warn(`No valid protection item price found for ${hrid}, using 0 protection cost.`);
+             }
+
+             const needMap = {}; let totalNeedPrice = 0;
+             if (itemDetailObj.enhancementCosts && Array.isArray(itemDetailObj.enhancementCosts)) {
+                  itemDetailObj.enhancementCosts.forEach(need => {
+                      const price = getItemMarketPrice(need.itemHrid, priceAskBidRatio);
+                      if (price < 0) {
+                          console.warn(`Could not determine cost for material ${need.itemHrid}, assuming 0.`);
+                          totalNeedPrice += 0;
+                      } else {
+                          totalNeedPrice += price * need.count;
+                      }
+                      if (need.itemHrid !== "/items/coin") {
+                          const materialName = gameData.itemDetailMap[need.itemHrid]?.name || need.itemHrid;
+                          needMap[materialName] = price >= 0 ? price : 'N/A';
+                      }
+                  });
+             } else { console.warn(`No enhancementCosts defined for ${hrid}`); }
+
+             return {
+                 baseCost: Math.max(0, baseCost),
+                 minProtectionCost: minProtectionPrice === Infinity ? 0 : minProtectionPrice,
+                 perActionCost: totalNeedPrice,
+                 choiceOfProtection: minProtectionHrid,
+                 needMap: needMap
+             };
         }
-        function simulateEnhancement(input_data, protect_at) { /* ... implementation ... */ return { actions: 10, protect_count: 2, totalActionTimeSec: 90, totalActionTimeStr: "1m 30s" }; }
-        function getCosts(hrid, priceAskBidRatio) { /* ... implementation ... */ return { baseCost: 1000, minProtectionCost: 5000, perActionCost: 100, choiceOfProtection: "/items/mirror", needMap: {"Essence": 100} }; }
-        function getRealisticBaseItemPrice(hrid, priceAskBidRatio) { /* ... implementation ... */ return 1000; }
-        function getItemMarketPrice(hrid, priceAskBidRatio) { /* ... implementation ... */ return 100; }
-        // --- End Placeholder for Calculator Logic ---
+
+        function getRealisticBaseItemPrice(hrid, priceAskBidRatio) {
+            const marketPrice = getItemMarketPrice(hrid, priceAskBidRatio);
+            if (marketPrice >= 0) {
+                return marketPrice;
+            }
+            return -1;
+        }
+
+        function getItemMarketPrice(hrid, priceAskBidRatio) {
+             if (hrid === "/items/coin") return 1;
+
+             const fullName = gameData.itemDetailMap[hrid]?.name;
+             if (!fullName) return -1;
+
+             const itemMarketInfo = marketSummary.find(item => item.name === fullName);
+             const itemDetailInfo = gameData.itemDetailMap[hrid];
+             const vendorPrice = itemDetailInfo?.vendorPrice;
+
+             if (itemMarketInfo) {
+                 const ask = typeof itemMarketInfo.ask === 'number' ? itemMarketInfo.ask : null;
+                 const buy = typeof itemMarketInfo.buy === 'number' ? itemMarketInfo.buy : null;
+
+                 if (ask !== null && buy !== null) {
+                     return ask * priceAskBidRatio + buy * (1 - priceAskBidRatio);
+                 } else if (ask !== null) {
+                     return ask * priceAskBidRatio + ask * (1 - priceAskBidRatio); // Effectively just ask
+                 } else if (buy !== null) {
+                     return buy * priceAskBidRatio + buy * (1 - priceAskBidRatio); // Effectively just buy
+                 }
+             }
+
+             if (typeof vendorPrice === 'number' && vendorPrice > 0) {
+                 return vendorPrice;
+             }
+             return -1;
+        }
+
+        async function calculateEnhanceStrat(input_data, itemNameForLogging) {
+            let calculationResult = null;
+            let calculationError = null;
+
+            const protect_at_setting = currentSimSettings.protect_at || 5;
+            const current_protect_at = Math.min(protect_at_setting, input_data.stop_at + 1);
+            const protect_at_display = protect_at_setting > input_data.stop_at ? "Never" : `+${protect_at_setting}`;
+
+            const isDebuggingTarget = (itemNameForLogging === "Arcane Fire Staff" && input_data.stop_at === 5); // Example debug target
+             if (isDebuggingTarget) {
+                 console.groupCollapsed(`Debugging calculateEnhanceStrat for ${itemNameForLogging} +${input_data.stop_at} (Protect At: ${protect_at_display})`);
+                 console.log("Input Data:", JSON.parse(JSON.stringify(input_data)));
+             }
+
+            try {
+                const simResult = simulateEnhancement(input_data, current_protect_at);
+                if (!simResult) { throw new Error(`simulateEnhancement returned null for protect_at=${protect_at_display}`); }
+                 if (isDebuggingTarget) { console.log(`Sim Result (protect_at=${protect_at_display}):`, JSON.parse(JSON.stringify(simResult))); }
+
+                const costs = getCosts(input_data.item_hrid, input_data.priceAskBidRatio);
+                if (!costs) { throw new Error(`Failed to get cost data for item ${input_data.item_hrid}`); }
+                 if (isDebuggingTarget) { console.log(`Costs (protect_at=${protect_at_display}):`, JSON.parse(JSON.stringify(costs))); }
+
+                const useProtection = (protect_at_setting <= input_data.stop_at);
+                const actual_protect_count = useProtection ? simResult.protect_count : 0;
+                const actual_protection_cost = useProtection ? costs.minProtectionCost : 0;
+
+                const baseC = typeof costs.baseCost === 'number' ? costs.baseCost : 0;
+                const protC = typeof actual_protection_cost === 'number' ? actual_protection_cost : 0;
+                const protN = typeof actual_protect_count === 'number' ? actual_protect_count : 0;
+                const actionC = typeof costs.perActionCost === 'number' ? costs.perActionCost : 0;
+                const actionsN = typeof simResult.actions === 'number' ? simResult.actions : 0;
+
+                if (isNaN(baseC) || isNaN(protC) || isNaN(protN) || isNaN(actionC) || isNaN(actionsN)) {
+                     if (isDebuggingTarget) { console.log(`NaN Values: baseC=${baseC}, protC=${protC}, protN=${protN}, actionC=${actionC}, actionsN=${actionsN}`); }
+                    throw new Error(`NaN value encountered during cost calculation for protect_at=${protect_at_display}`);
+                }
+
+                const totalCost = baseC + (protC * protN) + (actionC * actionsN);
+                 if (isDebuggingTarget) { console.log(`Total Cost (protect_at=${protect_at_display}): ${totalCost.toLocaleString()} (base: ${baseC.toLocaleString()}, prot: ${protC.toLocaleString()}*${protN.toFixed(3)}, action: ${actionC.toLocaleString()}*${actionsN.toFixed(3)})`); }
+
+                calculationResult = {
+                    protect_at: useProtection ? current_protect_at : Infinity,
+                    protect_count: actual_protect_count,
+                    simResult: simResult,
+                    costs: costs,
+                    totalCost: totalCost,
+                    protect_at_display: protect_at_display
+                };
+
+            } catch (error) {
+                calculationError = error;
+                console.error(`Error in calculateEnhanceStrat (protect_at=${protect_at_display}):`, error);
+            }
+
+            if (calculationError && !calculationResult) {
+                 if (isDebuggingTarget) console.groupEnd();
+                throw calculationError;
+            }
+
+            console.log(`Calculated strategy for ${itemNameForLogging} +${input_data.stop_at} (Protect At: ${protect_at_display}):`, calculationResult ? JSON.parse(JSON.stringify(calculationResult)) : null);
+
+            if (isDebuggingTarget) console.groupEnd();
+            return calculationResult;
+        }
+        // --- End Enhancement Simulation Logic ---
 
 
         // --- Event Handlers ---
