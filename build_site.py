@@ -27,7 +27,8 @@ TEMPLATE_DIR = "templates" # Directory for Jinja templates - Added for clarity
 
 # History and Trend Settings
 HISTORICAL_DAYS = 30 # How much history to process
-TREND_WINDOW_HOURS = 12 # +/- hours around 24h ago for trend calc
+# TREND_WINDOW_HOURS is no longer used for selecting the previous price point,
+# but the concept of comparing to ~24h ago remains.
 
 # --- Category Parsing (Revised v3 - Based on new cata.txt) ---
 # (parse_categories function remains the same as provided by user)
@@ -239,19 +240,25 @@ def load_live_data():
         return live_records_df, vendor_prices
     except Exception as e: logging.error(f"Error loading live data: {e}", exc_info=True); return pd.DataFrame(), {}
 
-# --- Trend Calculation (Uses 'ask' price, correctly skips NA) ---
+# --- Trend Calculation (REFINED AVERAGING LOGIC) ---
 def calculate_trends(df, products):
-    """Calculates 24h trend based on 'ask' price."""
+    """
+    Calculates 24h trend based on 'ask' price.
+    Refined Logic:
+    - If >1 point in last 24h: Use 24h average 'ask'.
+    - If =1 point in last 24h: Use that single 'ask' price.
+    - If 0 points in last 24h: Use 7d average 'ask'.
+    - If 0 points in last 7d: No trend.
+    """
     trends = {}; processed_count = 0
     if df.empty or not products: return trends
 
     # Use timezone-aware now
     now = datetime.now(timezone.utc)
-    yesterday = now - timedelta(hours=24)
-    yesterday_start = yesterday - timedelta(hours=TREND_WINDOW_HOURS)
-    yesterday_end = yesterday + timedelta(hours=TREND_WINDOW_HOURS)
+    twenty_four_hours_ago = now - timedelta(hours=24)
+    seven_days_ago = now - timedelta(days=7)
 
-    logging.info(f"Calculating trends for {len(products)} products relative to {yesterday.strftime('%Y-%m-%d %H:%M:%S %Z')} using ASK price")
+    logging.info(f"Calculating trends for {len(products)} products relative to {now.strftime('%Y-%m-%d %H:%M:%S %Z')} using refined averaging logic (ASK price)")
 
     try:
         # Ensure timestamp column is datetime objects and timezone-aware (UTC)
@@ -268,50 +275,61 @@ def calculate_trends(df, products):
         logging.error(f"Error converting timestamp for trend calc: {e}")
         return trends
 
-    # Filter data to relevant past window (optimization)
-    relevant_past_data = df[df['timestamp'] <= yesterday_end].copy()
-
     # Group data for efficient lookup
     grouped = df.groupby('product')
-    relevant_past_grouped = relevant_past_data.groupby('product')
 
     for product in products:
         try:
-            # Get latest data for the product
+            # Get all data for the product
             product_group = grouped.get_group(product)
             if product_group.empty: continue
-            latest_data = product_group.iloc[-1]
 
-            # Use 'ask' price for current price
+            # --- Get Current Price ---
+            latest_data = product_group.iloc[-1]
             current_price = latest_data['ask']
             if pd.isna(current_price): continue # Skip if no current ask price
 
-            # Find data point closest to 24 hours ago
-            if product not in relevant_past_grouped.groups: continue
-            past_product_df = relevant_past_grouped.get_group(product)
-            past_window_df = past_product_df[(past_product_df['timestamp'] >= yesterday_start)]
-            if past_window_df.empty: continue
+            # --- Determine Previous Price using REFINED logic ---
+            previous_price = pd.NA # Initialize as NA
 
-            # Ensure timestamps are timezone-aware for comparison
-            time_diff_series = (past_window_df['timestamp'] - yesterday).abs()
-            if time_diff_series.empty: continue
+            # 1. Check last 24 hours
+            df_last_24h = product_group[product_group['timestamp'] >= twenty_four_hours_ago]
+            valid_ask_24h = df_last_24h['ask'].dropna()
+            num_points_24h = len(valid_ask_24h)
 
-            closest_index_label = time_diff_series.idxmin()
-            closest_past_data = past_window_df.loc[closest_index_label]
+            if num_points_24h > 1:
+                # More than 1 point in last 24h: Use 24h average
+                previous_price = valid_ask_24h.mean()
+                logging.debug(f"Trend for '{product}': Using 24h avg ({num_points_24h} points) = {previous_price}")
+            elif num_points_24h == 1:
+                # Exactly 1 point in last 24h: Use that single point's price
+                previous_price = valid_ask_24h.iloc[0]
+                logging.debug(f"Trend for '{product}': Using single 24h point = {previous_price}")
+            else:
+                # 0 points in last 24h: Check last 7 days
+                df_last_7d = product_group[product_group['timestamp'] >= seven_days_ago]
+                valid_ask_7d = df_last_7d['ask'].dropna()
 
-            # Use 'ask' price for previous price
-            previous_price = closest_past_data['ask']
-            if pd.isna(previous_price): continue # Skip if no previous ask price in window
+                if len(valid_ask_7d) > 0:
+                    # Use 7d average
+                    previous_price = valid_ask_7d.mean()
+                    logging.debug(f"Trend for '{product}': Using 7d avg ({len(valid_ask_7d)} points) = {previous_price}")
+                else:
+                    # No valid data in last 7 days either
+                    logging.debug(f"Trend for '{product}': No valid ask price found in last 7 days.")
+                    previous_price = pd.NA # Ensure it remains NA
 
-            # Calculate trend percentage
+            # --- Calculate Trend Percentage ---
+            if pd.isna(previous_price): continue # Skip if no previous price could be determined
+
             if previous_price != 0:
                 change_pct = ((current_price - previous_price) / previous_price) * 100
                 trends[product] = change_pct
                 processed_count += 1
             else:
-                # Handle case where previous price was 0
+                # Handle case where previous average price was 0
                 if current_price > 0:
-                    trends[product] = float('inf') # Or some large number / None, depending on desired representation
+                    trends[product] = float('inf') # Represent large increase
                 else:
                     trends[product] = 0.0 # 0 to 0 change is 0%
 
@@ -400,7 +418,7 @@ def main():
                     'buy': latest['buy'] if pd.notna(latest['buy']) else None,
                     'ask': latest['ask'] if pd.notna(latest['ask']) else None,
                     'vendor': vendor_prices.get(product),
-                    'trend': product_trends.get(product) # Trend calculated using 'ask' now
+                    'trend': product_trends.get(product) # Trend calculated using new logic now
                 })
             else:
                  logging.warning(f"Product '{product}' not found in latest_data_map despite being in unique list.")
@@ -415,7 +433,7 @@ def main():
     except Exception as e: logging.error(f"Failed to save market summary JSON: {e}")
 
 
-    # 2. Full Historical Data - MODIFIED TO INCLUDE NULL PRICES
+    # 2. Full Historical Data - Includes NULL prices for unavailable periods
     nested_history_dict = {}
     if not combined_df.empty:
         logging.info("Grouping historical data by product for nested JSON...")
@@ -432,7 +450,6 @@ def main():
         grouped_history = combined_df.groupby('product')
 
         for product_name, group_df in grouped_history:
-            # --- MODIFICATION START: Include NA points as null in history ---
             # Process buy data
             buy_data = group_df[['timestamp', 'buy']] # Keep NA rows
             buy_list = [
@@ -452,7 +469,6 @@ def main():
                 # Include NA points, but exclude non-finite numbers (like infinity)
                 if pd.isna(price) or (pd.notna(price) and np.isfinite(price))
             ]
-            # --- MODIFICATION END ---
 
             # Only add product if it has at least one valid (non-inf) or null point
             if buy_list or ask_list:
