@@ -304,7 +304,7 @@ def load_live_data():
 # --- Trend Calculation ---
 def calculate_trends(df, products):
     """
-    Calculates 24h trend based on 'ask' price.
+    Calculates 24h trend based on 'ask' price for a given list of products.
     Refined Logic:
     - If >1 point in last 24h: Use 24h average 'ask'.
     - If =1 point in last 24h: Use that single 'ask' price.
@@ -321,6 +321,7 @@ def calculate_trends(df, products):
     logging.info(f"Calculating trends for {len(products)} products relative to {now.strftime('%Y-%m-%d %H:%M:%S %Z')} using refined averaging logic (ASK price)")
 
     try:
+        # Ensure timestamp column is datetime objects and timezone-aware (UTC)
         if not pd.api.types.is_datetime64_any_dtype(df['timestamp']):
             df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
         if df['timestamp'].dt.tz is None:
@@ -341,7 +342,7 @@ def calculate_trends(df, products):
         logging.error("Column 'product' not found for grouping in calculate_trends.")
         return trends
 
-    for product in products:
+    for product in products: # Iterate only through the filtered list
         try:
             product_group = grouped.get_group(product)
             if product_group.empty: continue
@@ -381,7 +382,8 @@ def calculate_trends(df, products):
                 trends[product] = float('inf') if current_price > 0 else 0.0
 
         except KeyError:
-            logging.warning(f"KeyError processing trend for {product}. Skipping.")
+            # This might happen if a product is in the filtered list but somehow missing from the grouped object
+            logging.warning(f"KeyError processing trend for filtered product {product}. Skipping.")
             continue
         except Exception as e:
             logging.error(f"Error calculating trend for {product}: {e}", exc_info=True)
@@ -390,9 +392,9 @@ def calculate_trends(df, products):
     logging.info(f"Finished trend calculation. Calculated trends for {processed_count} out of {len(products)} products.")
     return {k: (v if pd.notna(v) and np.isfinite(v) else None) for k, v in trends.items()}
 
-# --- NEW: Volatility Calculation ---
+# --- Volatility Calculation ---
 def calculate_volatility(df, products, days=7):
-    """Calculates price volatility (standard deviation of ask price) over a given period."""
+    """Calculates price volatility (standard deviation of ask price) over a given period for a list of products."""
     volatility = {}
     if df.empty or not products:
         logging.warning("Cannot calculate volatility: DataFrame or product list is empty.")
@@ -429,7 +431,7 @@ def calculate_volatility(df, products, days=7):
         return volatility
 
     processed_count = 0
-    for product in products:
+    for product in products: # Iterate only through the filtered list
         try:
             if product not in grouped.groups: continue # Skip if no data for this product in the period
 
@@ -445,7 +447,7 @@ def calculate_volatility(df, products, days=7):
                 volatility[product] = None # Not enough data points to calculate std dev
 
         except KeyError:
-             logging.warning(f"KeyError processing volatility for {product}. Skipping.")
+             logging.warning(f"KeyError processing volatility for filtered product {product}. Skipping.")
              continue
         except Exception as e:
             logging.error(f"Error calculating volatility for {product}: {e}", exc_info=True)
@@ -456,9 +458,10 @@ def calculate_volatility(df, products, days=7):
     # Ensure NaN/Inf are replaced with None for JSON compatibility
     return {k: (v if pd.notna(v) and np.isfinite(v) else None) for k, v in volatility.items()}
 
-# --- NEW: Market Index Calculation ---
+# --- Market Index Calculation ---
 def calculate_market_indices(product_trends, item_categories):
-    """Calculates the average trend for each item category."""
+    """Calculates the average trend for each item category based on provided trends."""
+    # Note: product_trends should already be filtered to include only desired items
     if not product_trends or not item_categories:
         logging.warning("Cannot calculate market indices: Missing product trends or item categories.")
         return {}
@@ -481,7 +484,7 @@ def calculate_market_indices(product_trends, item_categories):
                 average_trend = sum(trends_list) / len(trends_list)
                 market_indices[category] = average_trend
             except ZeroDivisionError:
-                 market_indices[category] = None # Should not happen due to if trends_list, but safe practice
+                 market_indices[category] = None
             except Exception as e:
                  logging.error(f"Error calculating average trend for category '{category}': {e}")
                  market_indices[category] = None
@@ -536,12 +539,10 @@ def main():
         # --- Process Combined Data ---
         if not combined_df.empty:
             logging.info(f"Processing combined data ({len(combined_df)} records)...")
-            # Ensure timestamp is datetime before timezone conversion/duplicates check
             try:
                 combined_df['timestamp'] = pd.to_datetime(combined_df['timestamp'], errors='coerce')
                 combined_df.dropna(subset=['timestamp'], inplace=True)
 
-                # Convert to UTC for consistent handling
                 if not combined_df.empty: # Check again after potential drops
                     if combined_df['timestamp'].dt.tz is None:
                         combined_df['timestamp'] = combined_df['timestamp'].dt.tz_localize('UTC')
@@ -549,10 +550,7 @@ def main():
                         combined_df['timestamp'] = combined_df['timestamp'].dt.tz_convert('UTC')
 
                     combined_df.sort_values(by=['product', 'timestamp'], inplace=True)
-                    # Keep last entry for duplicate product/timestamps after ensuring timezone consistency
                     combined_df.drop_duplicates(subset=['product', 'timestamp'], keep='last', inplace=True)
-
-                    # Ensure numeric types after potential NA introduction
                     combined_df['buy'] = pd.to_numeric(combined_df['buy'], errors='coerce')
                     combined_df['ask'] = pd.to_numeric(combined_df['ask'], errors='coerce')
                     logging.info(f"Final processed data size: {len(combined_df)} records.")
@@ -561,29 +559,44 @@ def main():
 
             except Exception as e:
                 logging.error(f"Error during combined data processing (timestamps, types, duplicates): {e}", exc_info=True)
-                combined_df = pd.DataFrame() # Reset on error to prevent issues later
+                combined_df = pd.DataFrame() # Reset on error
 
         else:
             logging.warning("Combined data is empty before processing.")
 
-        # --- Calculate Trends, Volatility, and Indices ---
-        all_products = sorted(list(combined_df['product'].unique())) if not combined_df.empty else []
+        # --- Filter Products Based on Vendor Price ---
+        all_products_initial = sorted(list(combined_df['product'].unique())) if not combined_df.empty else []
+        if not all_products_initial:
+             logging.warning("No products found in combined data to process.")
+             filtered_products = []
+        else:
+            logging.info(f"Applying vendor price filter to {len(all_products_initial)} initial products...")
+            filtered_products = [
+                p for p in all_products_initial
+                if p == "Bag Of 10 Cowbells" or (vp := vendor_prices.get(p)) is None or vp > 0
+                # Condition: Keep if name is exception OR vendor price is missing OR vendor price is > 0
+            ]
+            logging.info(f"Filtered down to {len(filtered_products)} products.")
+
+
+        # --- Calculate Trends, Volatility, and Indices for Filtered Products ---
         # Pass copies to calculation functions as they might modify timezone info or require specific states
         df_copy_for_calc = combined_df.copy() if not combined_df.empty else pd.DataFrame()
-        product_trends = calculate_trends(df_copy_for_calc.copy(), all_products)
-        product_volatility = calculate_volatility(df_copy_for_calc.copy(), all_products, days=VOLATILITY_DAYS)
+        # Only calculate for filtered products
+        product_trends = calculate_trends(df_copy_for_calc.copy(), filtered_products)
+        product_volatility = calculate_volatility(df_copy_for_calc.copy(), filtered_products, days=VOLATILITY_DAYS)
+        # Indices are based on the trends of the filtered products
         market_indices = calculate_market_indices(product_trends, item_categories)
 
         # --- Generate JSON Data Files ---
         logging.info("--- Generating JSON Data Files ---")
 
-        # 1. Market Summary (Add Volatility)
+        # 1. Market Summary (Iterate through FILTERED products)
         market_summary = []
         if not combined_df.empty:
             try:
-                # Use last() after sorting by timestamp ensures we get the latest
                 latest_data_map = combined_df.groupby('product').last()
-                for product in all_products:
+                for product in filtered_products: # Use the filtered list here
                     if product in latest_data_map.index:
                         latest = latest_data_map.loc[product]
                         market_summary.append({
@@ -591,26 +604,28 @@ def main():
                             'category': item_categories.get(product, 'Unknown'),
                             'buy': latest['buy'] if pd.notna(latest['buy']) else None,
                             'ask': latest['ask'] if pd.notna(latest['ask']) else None,
-                            'vendor': vendor_prices.get(product), # Already handles None
-                            'trend': product_trends.get(product), # Already handles None
-                            f'volatility_{VOLATILITY_DAYS}d': product_volatility.get(product) # Add volatility (already handles None)
+                            'vendor': vendor_prices.get(product),
+                            'trend': product_trends.get(product), # Already calculated only for filtered
+                            f'volatility_{VOLATILITY_DAYS}d': product_volatility.get(product) # Already calculated only for filtered
                         })
                     else:
-                         logging.warning(f"Product '{product}' not found in latest_data_map despite being in unique list.")
+                         # This warning might appear if an item exists only in live_df but not historical,
+                         # and gets filtered out before calculations. Should be rare.
+                         logging.warning(f"Filtered product '{product}' not found in latest_data_map. Skipping summary entry.")
             except Exception as e:
                 logging.error(f"Error creating market summary list: {e}", exc_info=True)
-                market_summary = [] # Ensure it's an empty list on error
+                market_summary = []
 
         summary_path = os.path.join(OUTPUT_DATA_DIR, 'market_summary.json')
         try:
             with open(summary_path, 'w') as f:
                 json.dump(market_summary, f, allow_nan=False, default=str)
-            logging.info(f"Saved market summary to {summary_path}")
-        except (IOError, TypeError, ValueError) as e: # More specific JSON/IO errors
+            logging.info(f"Saved market summary ({len(market_summary)} items) to {summary_path}")
+        except (IOError, TypeError, ValueError) as e:
             logging.error(f"Error saving market summary JSON to {summary_path}: {e}", exc_info=True)
 
 
-        # 2. Full Historical Data (Includes null prices)
+        # 2. Full Historical Data (Generate full, then filter output)
         nested_history_dict = {}
         if not combined_df.empty:
             logging.info("Grouping historical data by product for nested JSON...")
@@ -623,25 +638,22 @@ def main():
                      else:
                          combined_df['timestamp'] = combined_df['timestamp'].dt.tz_convert('UTC')
 
-                # Group by product
                 grouped_history = combined_df.groupby('product')
 
                 for product_name, group_df in grouped_history:
-                    # Process buy data
-                    buy_data = group_df[['timestamp', 'buy']] # Keep NA rows
+                    # Generate lists for all products initially
+                    buy_data = group_df[['timestamp', 'buy']]
                     buy_list = [
                         {"timestamp": int(ts.timestamp()), "price": price if pd.notna(price) else None}
                         for ts, price in zip(buy_data['timestamp'], buy_data['buy'])
-                        if pd.isna(price) or (pd.notna(price) and np.isfinite(price)) # Include NA, exclude Inf
+                        if pd.isna(price) or (pd.notna(price) and np.isfinite(price))
                     ]
-                    # Process ask data
-                    ask_data = group_df[['timestamp', 'ask']] # Keep NA rows
+                    ask_data = group_df[['timestamp', 'ask']]
                     ask_list = [
                         {"timestamp": int(ts.timestamp()), "price": price if pd.notna(price) else None}
                         for ts, price in zip(ask_data['timestamp'], ask_data['ask'])
-                        if pd.isna(price) or (pd.notna(price) and np.isfinite(price)) # Include NA, exclude Inf
+                        if pd.isna(price) or (pd.notna(price) and np.isfinite(price))
                     ]
-                    # Only add product if it has at least one valid (non-inf) or null point
                     if buy_list or ask_list:
                          nested_history_dict[product_name] = {"buy": buy_list, "ask": ask_list}
 
@@ -649,22 +661,27 @@ def main():
                 logging.error(f"Error processing data for market history JSON: {e}", exc_info=True)
                 nested_history_dict = {} # Reset on error
 
-        # Save the nested dictionary
+        # Filter the generated history dictionary based on filtered_products
+        filtered_nested_history = {
+            p: data for p, data in nested_history_dict.items() if p in filtered_products
+        }
+
+        # Save the FILTERED nested dictionary
         history_path = os.path.join(OUTPUT_DATA_DIR, 'market_history.json')
         try:
-            logging.info(f"Attempting to save nested market history JSON ({len(nested_history_dict)} products)...")
+            logging.info(f"Attempting to save FILTERED nested market history JSON ({len(filtered_nested_history)} products)...")
             with open(history_path, 'w') as f:
-                json.dump(nested_history_dict, f, allow_nan=False) # allow_nan=False handles NaN/Inf
-            logging.info(f"Saved nested market history to {history_path}")
-        except (IOError, TypeError, ValueError) as e: # More specific JSON/IO errors
+                json.dump(filtered_nested_history, f, allow_nan=False)
+            logging.info(f"Saved filtered market history to {history_path}")
+        except (IOError, TypeError, ValueError) as e:
             logging.error(f"Error saving market history JSON to {history_path}: {e}", exc_info=True)
 
-        # 3. NEW: Market Indices JSON
+        # 3. Market Indices JSON (Already based on filtered trends)
         indices_path = os.path.join(OUTPUT_DATA_DIR, 'market_indices.json')
         try:
             with open(indices_path, 'w') as f:
                 json.dump(market_indices, f, allow_nan=False, default=str)
-            logging.info(f"Saved market indices to {indices_path}")
+            logging.info(f"Saved market indices ({len(market_indices)} categories) to {indices_path}")
         except (IOError, TypeError, ValueError) as e:
             logging.error(f"Error saving market indices JSON to {indices_path}: {e}", exc_info=True)
 
@@ -683,11 +700,9 @@ def main():
                 else:
                     env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
                     template = env.get_template('index.html')
-                    # Potentially pass indices to the template if needed
                     html_context = {
                         'last_update': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                         'categories': unique_categories
-                        # 'market_indices': market_indices # Example if template uses it
                         }
                     html_content = template.render(html_context)
                     html_path = os.path.join(OUTPUT_DIR, 'index.html')
