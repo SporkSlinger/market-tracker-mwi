@@ -231,46 +231,87 @@ def load_live_data():
         return live_records_df, vendor_prices
     except Exception as e: logging.error(f"Error loading live data: {e}", exc_info=True); return pd.DataFrame(), {}
 
-# (calculate_trends function remains the same as provided by user)
+# --- Trend Calculation (MODIFIED) ---
 def calculate_trends(df, products):
+    """Calculates 24h trend based on 'ask' price."""
     trends = {}; processed_count = 0
     if df.empty or not products: return trends
-    now = datetime.now(); yesterday = now - timedelta(hours=24)
-    yesterday_start = yesterday - timedelta(hours=TREND_WINDOW_HOURS); yesterday_end = yesterday + timedelta(hours=TREND_WINDOW_HOURS)
-    logging.info(f"Calculating trends for {len(products)} products relative to {yesterday.strftime('%Y-%m-%d %H:%M:%S')}")
+
+    now = datetime.now()
+    yesterday = now - timedelta(hours=24)
+    yesterday_start = yesterday - timedelta(hours=TREND_WINDOW_HOURS)
+    yesterday_end = yesterday + timedelta(hours=TREND_WINDOW_HOURS)
+
+    logging.info(f"Calculating trends for {len(products)} products relative to {yesterday.strftime('%Y-%m-%d %H:%M:%S')} using ASK price")
+
     try:
+        # Ensure timestamp column is datetime objects
         df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
         df.dropna(subset=['timestamp'], inplace=True)
         if df.empty: return trends
-    except Exception as e: logging.error(f"Error converting timestamp for trend calc: {e}"); return trends
-    df['avg_price'] = df[['buy', 'ask']].mean(axis=1).fillna(df['buy']).fillna(df['ask'])
+    except Exception as e:
+        logging.error(f"Error converting timestamp for trend calc: {e}")
+        return trends
+
+    # --- MODIFICATION START: Use 'ask' price directly ---
+    # Remove the avg_price calculation
+    # df['avg_price'] = df[['buy', 'ask']].mean(axis=1).fillna(df['buy']).fillna(df['ask'])
+
+    # Filter data to relevant past window (optimization)
     relevant_past_data = df[df['timestamp'] <= yesterday_end].copy()
+
+    # Group data for efficient lookup
     grouped = df.groupby('product')
     relevant_past_grouped = relevant_past_data.groupby('product')
+
     for product in products:
         try:
+            # Get latest data for the product
             product_group = grouped.get_group(product)
             if product_group.empty: continue
-            latest_data = product_group.iloc[-1]; current_price = latest_data['avg_price']
-            if pd.isna(current_price): continue
+            latest_data = product_group.iloc[-1]
+
+            # Use 'ask' price for current price
+            current_price = latest_data['ask']
+            if pd.isna(current_price): continue # Skip if no current ask price
+
+            # Find data point closest to 24 hours ago
             if product not in relevant_past_grouped.groups: continue
             past_product_df = relevant_past_grouped.get_group(product)
             past_window_df = past_product_df[(past_product_df['timestamp'] >= yesterday_start)]
             if past_window_df.empty: continue
+
             time_diff_series = (past_window_df['timestamp'] - yesterday).abs()
             if time_diff_series.empty: continue
+
             closest_index_label = time_diff_series.idxmin()
             closest_past_data = past_window_df.loc[closest_index_label]
-            previous_price = closest_past_data['avg_price']
-            if pd.isna(previous_price): continue
+
+            # Use 'ask' price for previous price
+            previous_price = closest_past_data['ask']
+            if pd.isna(previous_price): continue # Skip if no previous ask price in window
+            # --- MODIFICATION END ---
+
+            # Calculate trend percentage
             if previous_price != 0:
-                 change_pct = ((current_price - previous_price) / previous_price) * 100; trends[product] = change_pct
-                 processed_count += 1
-            else: trends[product] = None
-        except KeyError: continue
-        except Exception as e: logging.error(f"Error calculating trend for {product}: {e}", exc_info=True); continue
+                change_pct = ((current_price - previous_price) / previous_price) * 100
+                trends[product] = change_pct
+                processed_count += 1
+            else:
+                trends[product] = None # Avoid division by zero
+
+        except KeyError:
+            # This happens if a product exists in the overall list but not in one of the groups (should be rare)
+            # logging.debug(f"KeyError processing trend for {product}. Skipping.")
+            continue
+        except Exception as e:
+            logging.error(f"Error calculating trend for {product}: {e}", exc_info=True)
+            continue # Skip product on error
+
     logging.info(f"Finished trend calculation. Calculated trends for {processed_count} out of {len(products)} products.")
+    # Ensure NaN/Inf are replaced with None for JSON compatibility
     return {k: (v if pd.notna(v) and np.isfinite(v) else None) for k, v in trends.items()}
+
 
 def main():
     """Main build process."""
@@ -331,7 +372,7 @@ def main():
                     'buy': latest['buy'] if pd.notna(latest['buy']) else None,
                     'ask': latest['ask'] if pd.notna(latest['ask']) else None,
                     'vendor': vendor_prices.get(product),
-                    'trend': product_trends.get(product)
+                    'trend': product_trends.get(product) # Trend calculated using 'ask' now
                 })
             else:
                  logging.warning(f"Product '{product}' not found in latest_data_map despite being in unique list.")
@@ -405,6 +446,9 @@ def main():
 
 
     # --- Render HTML Template ---
+    # This part assumes you have an HTML template named 'index.html'
+    # in a 'templates' subdirectory relative to where this script runs.
+    # If not, this part will fail or need adjustment.
     logging.info("Rendering HTML template...")
     try:
         # Get unique categories for the filter dropdown FROM THE PARSED DATA
@@ -413,18 +457,25 @@ def main():
         # Ensure TEMPLATE_DIR is defined correctly
         if not os.path.isdir(TEMPLATE_DIR):
              logging.error(f"Template directory '{TEMPLATE_DIR}' not found!")
-             return # Stop if template dir is missing
+             # Decide if you want to return or continue without HTML rendering
+             # return # Example: Stop if template dir is missing
 
-        env = Environment(loader=FileSystemLoader(TEMPLATE_DIR)) # Use TEMPLATE_DIR
-        template = env.get_template('index.html')
-        html_context = {
-            'last_update': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'categories': unique_categories # Pass parsed categories
-            }
-        html_content = template.render(html_context)
-        html_path = os.path.join(OUTPUT_DIR, 'index.html')
-        with open(html_path, 'w', encoding='utf-8') as f: f.write(html_content)
-        logging.info(f"Saved main HTML to {html_path}")
+        # Check if the template file exists
+        template_file_path = os.path.join(TEMPLATE_DIR, 'index.html')
+        if not os.path.isfile(template_file_path):
+            logging.warning(f"HTML template file '{template_file_path}' not found! Skipping HTML rendering.")
+        else:
+            env = Environment(loader=FileSystemLoader(TEMPLATE_DIR)) # Use TEMPLATE_DIR
+            template = env.get_template('index.html')
+            html_context = {
+                'last_update': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'categories': unique_categories # Pass parsed categories
+                }
+            html_content = template.render(html_context)
+            html_path = os.path.join(OUTPUT_DIR, 'index.html')
+            with open(html_path, 'w', encoding='utf-8') as f: f.write(html_content)
+            logging.info(f"Saved main HTML to {html_path}")
+
     except Exception as e: logging.error(f"Failed to render or save HTML template: {e}", exc_info=True)
 
     logging.info("--- Static Site Build Finished ---")
