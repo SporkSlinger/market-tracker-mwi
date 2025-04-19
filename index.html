@@ -399,7 +399,7 @@
              .chart-controls-container { flex-direction: column; gap: 10px; }
              .settings-panel { width: 95%; padding: 20px; }
              .settings-grid { grid-template-columns: 1fr; } /* Stack grid items on small screens */
-         }
+        }
     </style>
 </head>
 <body>
@@ -438,13 +438,11 @@
             <div class="controls-right">
                  <div class="sort-options" id="sort-options">
                      <span>Sort By:</span>
-                     <button data-sort="name_asc" class="current-sort">Name</button>
-                     <button data-sort="category_asc">Category</button>
-                     <button data-sort="ask_asc">Ask</button>
-                     <button data-sort="buy_desc">Buy</button>
-                     <button data-sort="vendor_desc">Vendor</button>
-                     <button data-sort="trend_dec">Trend %</button>
-                 </div>
+                     <button data-sort="name" class="current-sort">Name</button> <button data-sort="category">Category</button>
+                     <button data-sort="ask">Ask</button>
+                     <button data-sort="buy">Buy</button>
+                     <button data-sort="vendor">Vendor</button>
+                     <button data-sort="trend">Trend %</button> </div>
             </div>
         </div>
 
@@ -489,7 +487,7 @@
                      </div>
                      <div class="chart-placeholder" id="chart-placeholder">Select an item name from the table to view its chart.</div>
                      <div class="chart-plot hidden">
-                         <canvas id="single-chart-canvas"></canvas>
+                        <canvas id="single-chart-canvas"></canvas>
                      </div>
                      <div id="sim-details-panel" class="hidden">
                          </div>
@@ -570,7 +568,7 @@
         let currentChart = null;
         let currentPage = 1;
         const itemsPerPage = 20;
-        let currentSort = 'name_asc';
+        let currentSort = 'name_asc'; // Default sort
         let currentSearch = '';
         let currentCategoryFilter = 'All';
         let selectedTableRow = null;
@@ -674,13 +672,13 @@
              if (minutes > 0) parts.push(minutes + "m");
              if (seconds > 0 || parts.length === 0) parts.push(seconds + "s");
              return parts.join(" ");
-         }
+        }
          function isEnhanceableItem(item) {
              const itemHrid = item.hrid || (gameData.itemDetailMap && Object.keys(gameData.itemDetailMap).find(hrid => gameData.itemDetailMap[hrid].name === item.name));
              const itemDetail = itemHrid && gameData.itemDetailMap && gameData.itemDetailMap[itemHrid];
              // Check if enhancementCosts exists and is a non-empty array
              return itemDetail && Array.isArray(itemDetail.enhancementCosts) && itemDetail.enhancementCosts.length > 0;
-         }
+        }
 
         /**
          * Displays a message in the message area.
@@ -716,7 +714,7 @@
                 messageTimeout = null;
             }
              if (messageAreaEl) {
-                messageAreaEl.className = ''; // Hide by removing classes
+                 messageAreaEl.className = ''; // Hide by removing classes
             }
         }
 
@@ -743,7 +741,7 @@
         function handlePinClick(event) {
              event.stopPropagation(); const icon = event.currentTarget; const itemName = icon.dataset.itemName;
              if (itemName) { togglePin(itemName); } else { console.error("Could not find item name for pinning."); }
-         }
+        }
 
         // --- Theme Switching Logic ---
         const THEME_KEY = 'mwi-market-theme';
@@ -871,7 +869,7 @@
             for (const itemName of itemsToRecalculate) {
                 const level = simulatedLevels[itemName].level;
                 const itemHrid = marketSummary.find(item => item.name === itemName)?.hrid ||
-                               (gameData.itemDetailMap && Object.keys(gameData.itemDetailMap).find(hrid => gameData.itemDetailMap[hrid]?.name === itemName));
+                                (gameData.itemDetailMap && Object.keys(gameData.itemDetailMap).find(hrid => gameData.itemDetailMap[hrid]?.name === itemName));
 
                 if (itemHrid && level > 0) {
                     const inputData = { ...currentSimSettings, item_hrid: itemHrid, stop_at: level };
@@ -980,7 +978,7 @@
         }
 
 
-        // --- Filtering and Sorting (MODIFIED for Pinning) ---
+        // --- Filtering and Sorting (MODIFIED for Pinning & Trend Toggle) ---
         function applyFiltersAndSort() {
              let result = [...marketSummary];
              if (currentCategoryFilter !== 'All') { result = result.filter(item => item.category === currentCategoryFilter); }
@@ -991,22 +989,45 @@
                  const isAPinned = currentPins.includes(a.name); const isBPinned = currentPins.includes(b.name);
                  if (isAPinned && !isBPinned) return -1; if (!isAPinned && isBPinned) return 1;
                  try {
-                     const sortNum = (valA, valB, ascending = true) => { const numA = valA ?? (ascending ? Infinity : -Infinity); const numB = valB ?? (ascending ? Infinity : -Infinity); if (isNaN(numA)) return ascending ? 1 : -1; if (isNaN(numB)) return ascending ? -1 : 1; return ascending ? numA - numB : numB - numA; };
-                     const sortStr = (valA, valB, ascending = true) => { const strA = (valA ?? '').toLowerCase(); const strB = (valB ?? '').toLowerCase(); const compare = strA.localeCompare(strB); return ascending ? compare : -compare; };
+                     // Helper for numeric sort, handling nulls/NaNs
+                     // Puts nulls/NaNs at the end for ascending, beginning for descending
+                     const sortNum = (valA, valB, ascending = true) => {
+                         const numA = (valA === null || valA === undefined || isNaN(valA)) ? (ascending ? Infinity : -Infinity) : valA;
+                         const numB = (valB === null || valB === undefined || isNaN(valB)) ? (ascending ? Infinity : -Infinity) : valB;
+                         if (numA === Infinity && numB === Infinity) return 0;
+                         if (numA === -Infinity && numB === -Infinity) return 0;
+                         if (numA === Infinity) return ascending ? 1 : -1;
+                         if (numB === Infinity) return ascending ? -1 : 1;
+                         if (numA === -Infinity) return ascending ? -1 : 1;
+                         if (numB === -Infinity) return ascending ? 1 : -1;
+                         return ascending ? numA - numB : numB - numA;
+                     };
+                     // Helper for string sort
+                     const sortStr = (valA, valB, ascending = true) => {
+                         const strA = (valA ?? '').toLowerCase();
+                         const strB = (valB ?? '').toLowerCase();
+                         const compare = strA.localeCompare(strB);
+                         return ascending ? compare : -compare;
+                     };
+                     // Determine sort logic based on currentSort key
                      switch (currentSort) {
                          case 'name_desc': return sortStr(a.name, b.name, false);
                          case 'category_asc': return sortStr(a.category, b.category, true);
+                         case 'category_desc': return sortStr(a.category, b.category, false); // Example if category toggle added
                          case 'ask_asc': return sortNum(a.ask, b.ask, true);
+                         case 'ask_desc': return sortNum(a.ask, b.ask, false); // Example if ask toggle added
+                         case 'buy_asc': return sortNum(a.buy, b.buy, true); // Example if buy toggle added
                          case 'buy_desc': return sortNum(a.buy, b.buy, false);
+                         case 'vendor_asc': return sortNum(a.vendor, b.vendor, true); // Example if vendor toggle added
                          case 'vendor_desc': return sortNum(a.vendor, b.vendor, false);
-                         case 'trend_inc': return sortNum(a.trend, b.trend, true);
+                         case 'trend_asc': return sortNum(a.trend, b.trend, true); // *** ADDED ***
                          case 'trend_dec': return sortNum(a.trend, b.trend, false);
-                         case 'name_asc': default: return sortStr(a.name, b.name, true);
+                         case 'name_asc': default: return sortStr(a.name, b.name, true); // Default to name ascending
                      }
                  } catch (e) { console.error("Sort comparison error:", e); return 0; }
              });
              filteredAndSortedSummary = result; currentPage = 1; renderCurrentPage();
-         }
+        }
 
         // --- Rendering (MODIFIED for Pinning & Enhancer Controls) ---
         function renderCurrentPage() {
@@ -1076,13 +1097,13 @@
                  });
              }
              renderPagination(totalPages);
-         }
+        }
         function renderPagination(totalPages) {
              pageInfoEl.textContent = `Page ${currentPage} of ${totalPages || 1}`;
              prevButton.disabled = currentPage <= 1;
              nextButton.disabled = currentPage >= totalPages;
              paginationEl.style.display = totalPages > 1 ? 'flex' : 'none'; // Use flex for layout
-         }
+        }
 
         // --- Charting (Added Horizontal Line Logic & Theme Awareness) ---
         function displayChart(productName, clickedTrElement) {
@@ -1209,19 +1230,19 @@
                                      color: secondaryTextColor,
                                      // Improved Log scale callback for better readability
                                      callback: currentYScaleType === 'logarithmic'
-                                         ? function(value, index, ticks) {
-                                             if (value <= 0) return null;
-                                             const log10 = Math.log10(value);
-                                             // Show labels for powers of 10 or the first/last tick if needed
-                                             if (Math.abs(log10 - Math.round(log10)) < 0.01 || index === 0 || index === ticks.length - 1) {
-                                                 if (value >= 1e9) return (value / 1e9).toFixed(0) + 'B';
-                                                 if (value >= 1e6) return (value / 1e6).toFixed(0) + 'M';
-                                                 if (value >= 1e3) return (value / 1e3).toFixed(0) + 'k';
-                                                 return value.toLocaleString();
-                                             }
-                                             return null; // Hide intermediate labels
-                                         }
-                                         : function(value) { return value.toLocaleString(); } // Standard formatting for linear
+                                          ? function(value, index, ticks) {
+                                              if (value <= 0) return null;
+                                              const log10 = Math.log10(value);
+                                              // Show labels for powers of 10 or the first/last tick if needed
+                                              if (Math.abs(log10 - Math.round(log10)) < 0.01 || index === 0 || index === ticks.length - 1) {
+                                                  if (value >= 1e9) return (value / 1e9).toFixed(0) + 'B';
+                                                  if (value >= 1e6) return (value / 1e6).toFixed(0) + 'M';
+                                                  if (value >= 1e3) return (value / 1e3).toFixed(0) + 'k';
+                                                  return value.toLocaleString();
+                                              }
+                                              return null; // Hide intermediate labels
+                                          }
+                                          : function(value) { return value.toLocaleString(); } // Standard formatting for linear
                                  }
                              }
                          },
@@ -1240,7 +1261,7 @@
 
              // Display simulation details if available
              displaySimulationDetails(productName);
-         }
+        }
 
         // --- Simulation Details Display ---
         function displaySimulationDetails(itemName) {
@@ -1329,8 +1350,8 @@
                  showMessage(`Error: Item details not found for ${itemName}. Cannot calculate cost.`, 'error');
                  if (displaySpan) displaySpan.textContent = currentSimData.level >= 0 ? `+${currentSimData.level}` : '+0'; // Revert display
                  if (row) { // Re-enable buttons if error occurs before async operation
-                    row.querySelector(`.enh-level-btn[data-change="-1"]`).disabled = (currentSimData.level <= 0);
-                    row.querySelector(`.enh-level-btn[data-change="1"]`).disabled = (currentSimData.level >= 30);
+                     row.querySelector(`.enh-level-btn[data-change="-1"]`).disabled = (currentSimData.level <= 0);
+                     row.querySelector(`.enh-level-btn[data-change="1"]`).disabled = (currentSimData.level >= 30);
                  }
                  return;
              }
@@ -1374,7 +1395,7 @@
                      }
                  }
              }, 10); // Small delay to allow UI update (disabling buttons)
-         }
+        }
 
         function updateTableRowCost(itemName, level, cost) {
              const encodedName = encodeURIComponent(itemName);
@@ -1401,7 +1422,7 @@
                      }
                  }
              }
-         }
+        }
 
         // --- Integrated Calculator Logic (Adapted and RENAMED) ---
         // Renamed from Enhancelate to simulateEnhancement
@@ -1538,28 +1559,28 @@
                 // Log matrix A if inversion or solve fails
                 if (error.message && (error.message.toLowerCase().includes("matrix is singular") || error.message.toLowerCase().includes("cannot calculate inverse"))) {
                      try {
-                        let I_debug = math.identity(targetLevel, 'dense');
-                        let Q_subset_debug = P.subset(math.index(math.range(0, targetLevel), math.range(0, targetLevel)));
-                        let Q_debug;
-                         if (targetLevel === 1 && typeof Q_subset_debug === 'number') {
-                            Q_debug = math.matrix([[Q_subset_debug]], 'dense');
-                         } else {
-                            Q_debug = math.matrix(Q_subset_debug, 'dense');
-                         }
-                        let A_debug = math.subtract(I_debug, Q_debug);
-                        console.error("Matrix A (I-Q) that failed inversion:", A_debug.valueOf());
+                         let I_debug = math.identity(targetLevel, 'dense');
+                         let Q_subset_debug = P.subset(math.index(math.range(0, targetLevel), math.range(0, targetLevel)));
+                         let Q_debug;
+                          if (targetLevel === 1 && typeof Q_subset_debug === 'number') {
+                              Q_debug = math.matrix([[Q_subset_debug]], 'dense');
+                          } else {
+                              Q_debug = math.matrix(Q_subset_debug, 'dense');
+                          }
+                         let A_debug = math.subtract(I_debug, Q_debug);
+                         console.error("Matrix A (I-Q) that failed inversion:", A_debug.valueOf());
                     } catch (logError) {
-                        console.error("Error during matrix logging for singular/inv error:", logError);
+                         console.error("Error during matrix logging for singular/inv error:", logError);
                     }
                     throw new Error("Calculation failed: Matrix is singular or non-invertible.");
                 }
                  // Add specific check for dimension mismatch
                  if (error.message && error.message.toLowerCase().includes("dimension mismatch")) {
-                    console.error("Dimension mismatch details:", { targetLevel: targetLevel, protect_at: protect_at });
+                     console.error("Dimension mismatch details:", { targetLevel: targetLevel, protect_at: protect_at });
                  }
                  // Check for the specific error reported by the user
                  if (error.message && error.message.toLowerCase().includes("unexpected type of argument in function matrix")) {
-                     console.error("Error creating matrix, likely from Q_subset_result. Value:", Q_subset_result); // Log the problematic value
+                      console.error("Error creating matrix, likely from Q_subset_result. Value:", Q_subset_result); // Log the problematic value
                  }
                 throw error; // Re-throw other errors
             }
@@ -1624,7 +1645,7 @@
                  choiceOfProtection: minProtectionHrid,
                  needMap: needMap
              };
-         }
+        }
 
         // Gets the 'realistic' price, preferring market avg, then vendor price
         function getRealisticBaseItemPrice(hrid, priceAskBidRatio) {
@@ -1678,7 +1699,7 @@
              // A simpler approach: if no price found, return -1 to signal an issue.
              // getCosts can then decide how to handle -1 (e.g., treat as 0 for materials, error for base item).
              return -1; // Signal that no price could be determined
-         }
+        }
 
 
         // --- ** START MODIFICATION: Calculate strategy for a fixed protection level ** ---
@@ -1696,9 +1717,9 @@
 
             const isDebuggingTarget = (itemNameForLogging === "Arcane Fire Staff" && input_data.stop_at === 5);
              if (isDebuggingTarget) {
-                console.groupCollapsed(`Debugging calculateEnhanceStrat for ${itemNameForLogging} +${input_data.stop_at} (Protect At: ${protect_at_display})`);
-                console.log("Input Data:", JSON.parse(JSON.stringify(input_data)));
-            }
+                 console.groupCollapsed(`Debugging calculateEnhanceStrat for ${itemNameForLogging} +${input_data.stop_at} (Protect At: ${protect_at_display})`);
+                 console.log("Input Data:", JSON.parse(JSON.stringify(input_data)));
+             }
 
             try {
                 // Call simulation function for the fixed protection level
@@ -1707,16 +1728,16 @@
                     throw new Error(`simulateEnhancement returned null for protect_at=${protect_at_display}`);
                 }
                  if (isDebuggingTarget) {
-                    console.log(`Sim Result (protect_at=${protect_at_display}):`, JSON.parse(JSON.stringify(simResult)));
-                }
+                     console.log(`Sim Result (protect_at=${protect_at_display}):`, JSON.parse(JSON.stringify(simResult)));
+                 }
 
                 const costs = getCosts(input_data.item_hrid, input_data.priceAskBidRatio);
                 if (!costs) {
                     throw new Error(`Failed to get cost data for item ${input_data.item_hrid}`);
                 }
                  if (isDebuggingTarget) {
-                    console.log(`Costs (protect_at=${protect_at_display}):`, JSON.parse(JSON.stringify(costs)));
-                }
+                     console.log(`Costs (protect_at=${protect_at_display}):`, JSON.parse(JSON.stringify(costs)));
+                 }
 
                 // Determine actual protection usage based on the fixed strategy
                 const useProtection = (protect_at_setting <= input_data.stop_at);
@@ -1732,15 +1753,15 @@
 
                 if (isNaN(baseC) || isNaN(protC) || isNaN(protN) || isNaN(actionC) || isNaN(actionsN)) {
                      if (isDebuggingTarget) {
-                        console.log(`NaN Values: baseC=${baseC}, protC=${protC}, protN=${protN}, actionC=${actionC}, actionsN=${actionsN}`);
-                    }
+                         console.log(`NaN Values: baseC=${baseC}, protC=${protC}, protN=${protN}, actionC=${actionC}, actionsN=${actionsN}`);
+                     }
                     throw new Error(`NaN value encountered during cost calculation for protect_at=${protect_at_display}`);
                 }
 
                 const totalCost = baseC + (protC * protN) + (actionC * actionsN);
                  if (isDebuggingTarget) {
-                    console.log(`Total Cost (protect_at=${protect_at_display}): ${totalCost.toLocaleString()} (base: ${baseC.toLocaleString()}, prot: ${protC.toLocaleString()}*${protN.toFixed(3)}, action: ${actionC.toLocaleString()}*${actionsN.toFixed(3)})`);
-                }
+                     console.log(`Total Cost (protect_at=${protect_at_display}): ${totalCost.toLocaleString()} (base: ${baseC.toLocaleString()}, prot: ${protC.toLocaleString()}*${protN.toFixed(3)}, action: ${actionC.toLocaleString()}*${actionsN.toFixed(3)})`);
+                 }
 
                 calculationResult = {
                     protect_at: useProtection ? current_protect_at : Infinity, // Store actual level used or Infinity
@@ -1802,7 +1823,7 @@
               // Message area already shows the error
               lastUpdateEl.textContent = 'Using Sample Data'; // Update footer status
               displayChart("Test Item Alpha", null); // Show sample chart
-          }
+         }
 
 
         // --- Event Handlers ---
@@ -1813,25 +1834,60 @@
              if (!clickedTr || !clickedTr.dataset.product) return; // Ensure row and product data exist
              const productName = decodeURIComponent(clickedTr.dataset.product);
              displayChart(productName, clickedTr);
-         }
+        }
         let searchTimeout;
         searchInput.addEventListener('input', (event) => { clearTimeout(searchTimeout); searchTimeout = setTimeout(() => { currentSearch = event.target.value; applyFiltersAndSort(); }, 300); });
         categoryFilterEl.addEventListener('change', (event) => { currentCategoryFilter = event.target.value; applyFiltersAndSort(); });
+
+        // --- MODIFIED: Event Listener for Sort Options (Handles Toggling) ---
         sortOptionsEl.addEventListener('click', (event) => {
             if (event.target.tagName === 'BUTTON' && event.target.dataset.sort) {
-                const newSort = event.target.dataset.sort;
-                // Toggle direction only for name sort
-                if (newSort === currentSort) {
-                     if (currentSort === 'name_asc') currentSort = 'name_desc';
-                     else if (currentSort === 'name_desc') currentSort = 'name_asc';
-                     // Add similar toggles for other columns if desired
+                const sortBase = event.target.dataset.sort; // e.g., "name", "category", "trend"
+                let newSort;
+
+                // Define default directions for non-toggling sorts (optional)
+                const defaultSorts = {
+                    category: 'category_asc',
+                    ask: 'ask_asc',
+                    buy: 'buy_desc',
+                    vendor: 'vendor_desc'
+                };
+
+                // Toggle logic for specific columns that should toggle
+                if (sortBase === 'name') {
+                    newSort = (currentSort === 'name_asc') ? 'name_desc' : 'name_asc';
+                } else if (sortBase === 'trend') { // *** NEW TREND TOGGLE ***
+                    newSort = (currentSort === 'trend_dec') ? 'trend_asc' : 'trend_dec'; // Default to descending first if not currently sorted by trend
+                } else if (defaultSorts[sortBase]) {
+                    // For columns without toggle, set to their default sort
+                    // Or implement toggling for them too if desired
+                    newSort = defaultSorts[sortBase];
                 } else {
-                    currentSort = newSort;
+                     console.warn(`Unhandled sort base: ${sortBase}`);
+                     return; // Don't sort if the base isn't recognized
                 }
-                sortOptionsEl.querySelectorAll('button').forEach(btn => { btn.classList.toggle('current-sort', btn.dataset.sort === currentSort || (currentSort === 'name_desc' && btn.dataset.sort === 'name_asc')); }); // Highlight base name sort too
-                applyFiltersAndSort();
+
+
+                currentSort = newSort; // Update the global sort state
+
+                // Update button highlighting
+                sortOptionsEl.querySelectorAll('button').forEach(btn => {
+                    const btnSortBase = btn.dataset.sort;
+                    // Highlight if the button's base matches the current sort's base
+                    // e.g. highlight 'name' button if currentSort is 'name_asc' OR 'name_desc'
+                    const isCurrent = currentSort.startsWith(btnSortBase + '_') || currentSort === btnSortBase;
+                    btn.classList.toggle('current-sort', isCurrent);
+
+                    // Optional: Add visual indicator for direction (e.g., up/down arrow icons)
+                    // Example: if (isCurrent) btn.textContent = `${btnSortBase} ${currentSort.endsWith('_asc') ? '▲' : '▼'}`;
+                    // else btn.textContent = btnSortBase; // Reset text if not current
+                });
+
+                applyFiltersAndSort(); // Apply the new sort
             }
         });
+
+
         prevButton.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderCurrentPage(); tableWrapperEl.scrollTop = 0; } }); // Scroll to top on page change
         nextButton.addEventListener('click', () => { const totalPages = Math.ceil(filteredAndSortedSummary.length / itemsPerPage); if (currentPage < totalPages) { currentPage++; renderCurrentPage(); tableWrapperEl.scrollTop = 0; } }); // Scroll to top
         chartTimeControlsEl.addEventListener('click', (event) => {
