@@ -521,7 +521,7 @@ def main():
 
         logging.info("--- Loading Data ---")
         historical_df = load_historical_data(days_to_load=HISTORICAL_DAYS)
-        live_df, vendor_prices = load_live_data()
+        live_df, vendor_prices = load_live_data() # vendor_prices is crucial for filtering
 
         if historical_df.empty and live_df.empty:
              logging.error("Both historical and live data sources are empty. Cannot build site.")
@@ -571,12 +571,13 @@ def main():
              filtered_products = []
         else:
             logging.info(f"Applying vendor price filter to {len(all_products_initial)} initial products...")
+            # --- MODIFIED FILTER LOGIC ---
             filtered_products = [
                 p for p in all_products_initial
-                if p == "Bag Of 10 Cowbells" or (vp := vendor_prices.get(p)) is None or vp > 0
-                # Condition: Keep if name is exception OR vendor price is missing OR vendor price is > 0
+                if p == "Bag Of 10 Cowbells" or ((vp := vendor_prices.get(p)) is not None and vp > 0)
+                # Condition: Keep if name is exception OR (vendor price exists AND is > 0)
             ]
-            logging.info(f"Filtered down to {len(filtered_products)} products.")
+            logging.info(f"Filtered down to {len(filtered_products)} products (Removed items with VP=0 or VP=None, except Cowbells).")
 
 
         # --- Calculate Trends, Volatility, and Indices for Filtered Products ---
@@ -609,8 +610,6 @@ def main():
                             f'volatility_{VOLATILITY_DAYS}d': product_volatility.get(product) # Already calculated only for filtered
                         })
                     else:
-                         # This warning might appear if an item exists only in live_df but not historical,
-                         # and gets filtered out before calculations. Should be rare.
                          logging.warning(f"Filtered product '{product}' not found in latest_data_map. Skipping summary entry.")
             except Exception as e:
                 logging.error(f"Error creating market summary list: {e}", exc_info=True)
