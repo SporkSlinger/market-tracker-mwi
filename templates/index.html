@@ -129,11 +129,19 @@
         }
         .container { max-width: 1600px; margin: 25px auto; padding: 0 25px; }
         h1 { text-align: center; color: var(--text-color-primary); margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.8em; letter-spacing: -0.5px; }
+        .subheader {
+            text-align: center;
+            color: var(--text-color-secondary);
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.1em;
+            font-weight: 400;
+        }
         h2 { text-align: center; color: var(--text-color-secondary); margin-top: 1rem; margin-bottom: 1.5rem; font-weight: 500; font-size: 1.3em; }
 
         /* Container for the buttons under title */
         .title-button-container {
-            text-align: center; margin-bottom: 15px; /* Reduced margin */
+            text-align: center; margin-bottom: 15px;
             display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
         }
         /* Style for action buttons (theme, settings) */
@@ -186,7 +194,7 @@
         }
 
         /* Controls Bar */
-        .controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 16px 20px; margin-bottom: 15px; /* Reduced margin */ gap: 15px; background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
+        .controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 16px 20px; margin-bottom: 15px; gap: 15px; background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;}
         .controls-left, .controls-right { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
         label { display: block; margin-bottom: 0.25rem; font-size: 0.875rem; font-weight: 500; color: var(--text-color-secondary); }
         input[type="text"], input[type="number"], select {
@@ -218,7 +226,7 @@
             border: 1px solid var(--indices-border);
             border-radius: 6px;
             padding: 15px 20px;
-            margin-bottom: 30px; /* Space before main layout */
+            margin-bottom: 30px;
             transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
         }
         .market-indices h3 {
@@ -246,18 +254,18 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            min-width: 150px; /* Adjust as needed */
+            min-width: 150px;
         }
         .index-item .category-name {
             font-weight: 500;
             color: var(--text-color-secondary);
-            flex-grow: 1; /* Push trend value to the right */
+            flex-grow: 1;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        .index-item .trend-value-container { /* Reuse existing trend styles */
-           font-size: 1em; /* Adjust if needed */
+        .index-item .trend-value-container {
+           font-size: 1em;
            font-weight: 600;
            white-space: nowrap;
         }
@@ -266,12 +274,12 @@
         /* Main Layout */
         .main-layout { display: flex; flex-wrap: wrap; gap: 25px; }
         .item-table-container {
-            flex: 3; /* Takes 3 parts of the space */
-            min-width: 550px; /* Minimum width before wrapping */
+            flex: 3;
+            min-width: 550px;
         }
         .chart-display-container {
-            flex: 1; /* Takes 1 part of the space */
-            min-width: 350px; /* Adjusted min-width slightly */
+            flex: 1; /* Keep chart smaller */
+            min-width: 350px;
         }
 
         /* Table Styles */
@@ -293,13 +301,6 @@
         .pin-icon.pinned { color: var(--pin-color-active); }
         .pin-icon:hover { opacity: 0.7; }
 
-        /* REMOVED: Enhancer Level Controls Styles */
-        /*
-        .enh-level-control { ... }
-        .enh-level-btn { ... }
-        .enh-level-display { ... }
-        */
-
         /* Table Row Styles */
         #item-table tbody tr { transition: background-color 0.15s ease; }
         #item-table tbody tr:nth-child(even) { background-color: var(--table-row-even-bg); }
@@ -313,10 +314,6 @@
         #item-table td:nth-child(n+5):not(:nth-child(8)) { text-align: right; font-family: var(--code-font); font-size: 0.90em; } /* Buy/Vendor/Trend */
         #item-table td:nth-child(4) { text-align: right; font-family: var(--code-font); font-size: 0.90em; } /* Ask */
         #item-table td:nth-child(8) { text-align: right; font-family: var(--code-font); font-size: 0.90em; } /* Volatility */
-
-
-        /* REMOVED: Simulated Cost Style */
-        /* .simulated-cost { ... } */
 
         /* Trend Styles */
         .trend-value-container { display: flex; align-items: center; justify-content: flex-end; gap: 3px; }
@@ -345,9 +342,6 @@
         .chart-plot { flex-grow: 1; position: relative; min-height: 320px; }
         .chart-plot canvas { max-width: 100%; max-height: 380px; }
 
-        /* REMOVED: Simulation Details Panel Styles */
-        /* #sim-details-panel { ... } */
-
         /* Pagination */
         .pagination { text-align: center; margin-top: 20px; padding-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .pagination button { padding: 7px 14px; background-color: var(--button-bg-color); border: 1px solid var(--button-border-color); box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04); color: var(--accent-color); border-radius: 6px; transition: background-color 0.1s, border-color 0.1s; cursor: pointer; font-weight: 500; font-size: 0.9em; }
@@ -365,11 +359,6 @@
         footer span, footer a { margin: 0 8px; color: var(--muted-text-color); text-decoration: none; }
         footer a:hover { text-decoration: underline; color: var(--link-hover-color); }
 
-        /* REMOVED: Settings Panel Styles */
-        /* .settings-overlay { ... } */
-        /* .settings-panel { ... } */
-        /* ... etc ... */
-
         /* Responsive Styles */
          @media (max-width: 768px) {
              .controls { flex-direction: column; align-items: stretch; }
@@ -380,13 +369,10 @@
              .table-wrapper { max-height: 60vh; }
              h1 { font-size: 1.5em; }
              .chart-controls-container { flex-direction: column; gap: 10px; }
-             /* Removed settings panel responsive styles */
              .market-indices-container { justify-content: flex-start; }
              #item-table th, #item-table td { font-size: 0.85em; padding: 8px 10px; }
-             /* REMOVED: Column hiding rules */
         }
          @media (max-width: 480px) {
-              /* REMOVED: Column hiding rules */
               .sort-options button { padding: 4px 8px; font-size: 0.8em;} /* Smaller sort buttons */
          }
 
@@ -396,6 +382,7 @@
 
     <div class="container">
         <h1>MWI Market Trends</h1>
+        <p class="subheader">The website will be buggy today while I update it</p>
         <div class="title-button-container" >
              <button id="theme-toggle-btn" class="action-button" title="Toggle Theme">
                  <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
@@ -430,8 +417,7 @@
                      <button data-sort="buy">Buy</button>
                      <button data-sort="vendor">Vendor</button>
                      <button data-sort="trend">Trend %</button>
-                     <button data-sort="volatility">Volatility</button>
-                 </div>
+                     <button data-sort="volatility">Volatility</button> </div>
             </div>
         </div>
 
@@ -455,8 +441,7 @@
                                 <th>Buy</th>
                                 <th>Vendor</th>
                                 <th>Trend (24h)</th>
-                                <th>Volatility (7d)</th>
-                            </tr>
+                                <th>Volatility (7d)</th> </tr>
                         </thead>
                         <tbody id="item-table-body"></tbody>
                     </table>
@@ -498,7 +483,8 @@
         </div> <script>
         // --- Global State ---
         let allMarketData = {}; // History data { "Product": { buy: [...], ask: [...] } }
-        let marketSummary = []; // Summary data [ { name, category, buy, ask, vendor, trend, volatility_7d }, ... ]
+        // Updated marketSummary structure comment
+        let marketSummary = []; // Summary data [ { name, category, buy, ask, vendor, trend, volatility_7d, volatility_norm_7d }, ... ]
         let marketIndicesData = {}; // To store category indices { "Category": trend, ... }
         let gameData = { itemDetailMap: {} }; // To store init_client_info.json data (still needed for categories/hrids)
         let filteredAndSortedSummary = [];
@@ -515,14 +501,7 @@
         let pinnedItems = [];
         const PINNED_ITEMS_KEY = 'mwiPinnedItems';
         const MAX_PINNED_ITEMS = 10;
-        // REMOVED: Simulation state variables
-        // let simulatedLevels = {};
         let messageTimeout = null; // Timeout ID for clearing messages
-
-        // REMOVED: Simulation settings variables
-        // const defaultSimSettings = { ... };
-        // let currentSimSettings = { ... };
-        // const SIM_SETTINGS_KEY = 'mwiSimSettings';
 
         // --- DOM Elements ---
         const tableBodyEl = document.getElementById('item-table-body');
@@ -546,13 +525,6 @@
         const lastUpdateEl = document.getElementById('last-update');
         const marketIndicesDisplayEl = document.getElementById('market-indices-display'); // Indices display area
         const marketIndicesContainerEl = document.getElementById('market-indices-container'); // Indices container
-        // REMOVED: Settings Panel Elements References
-        // const settingsButton = document.getElementById('settings-btn');
-        // const settingsOverlay = document.getElementById('settings-overlay');
-        // ... etc ...
-        // REMOVED: Simulation Details Panel Reference
-        // const simDetailsPanel = document.getElementById('sim-details-panel');
-
 
         // --- SVG Icons for Trends ---
         const trendUpIcon = `<svg class="trend-icon" aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"><path fill="currentColor" d="M8.707 2.293a1 1 0 0 0-1.414 0l-4 4a1 1 0 1 0 1.414 1.414L8 4.414l3.293 3.293a1 1 0 0 0 1.414-1.414l-4-4Z"></path></svg>`;
@@ -563,8 +535,6 @@
             if (price === null || price === undefined || isNaN(price)) return '<span class="na-value">--</span>';
             return price.toLocaleString();
         }
-        // REMOVED: formatPriceSimulated
-        // function formatPriceSimulated(price) { ... }
         function formatTrend(trend) {
             if (trend === null || trend === undefined || isNaN(trend)) return '<span class="na-value">--</span>';
             const arrow = trend > 0 ? trendUpIcon : trend < 0 ? trendDownIcon : '';
@@ -573,12 +543,17 @@
             if (isNaN(trendValue)) return '<span class="na-value">--</span>';
             return `<span class="trend-value-container ${trendClass}">${arrow}<span>${trendValue.toFixed(2)}%</span></span>`;
         }
-        function formatVolatility(value) {
+        // NEW: Format Normalized Volatility (Coefficient of Variation)
+        function formatVolatilityNorm(value) {
              if (value === null || value === undefined || isNaN(value)) return '<span class="na-value">--</span>';
              const numValue = Number(value);
              if (isNaN(numValue)) return '<span class="na-value">--</span>';
-             return numValue.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+             // Format as percentage with 1 decimal place
+             return numValue.toFixed(1) + '%';
         }
+        // REMOVED: formatVolatility (absolute std dev)
+        // function formatVolatility(value) { ... }
+
         function timeReadable(sec) {
              // This might only be used by sim details now, consider removing if unused
              if (sec === null || sec === undefined || isNaN(sec) || sec < 0) return "N/A";
@@ -594,8 +569,6 @@
              if (seconds > 0 || parts.length === 0) parts.push(seconds + "s");
              return parts.join(" ");
         }
-         // REMOVED: isEnhanceableItem
-         // function isEnhanceableItem(item) { ... }
 
         /**
          * Displays a message in the message area.
@@ -647,7 +620,6 @@
             if (index > -1) { currentPins.splice(index, 1); }
             else {
                 if (currentPins.length >= MAX_PINNED_ITEMS) {
-                    // Use the new message system instead of alert
                     showMessage(`You can only pin up to ${MAX_PINNED_ITEMS} items.`, 'warning');
                     return;
                 }
@@ -667,7 +639,6 @@
             if (theme === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); }
             else { document.documentElement.removeAttribute('data-theme'); }
             localStorage.setItem(THEME_KEY, theme);
-            // Re-render chart if it exists, as colors might need updating
             if (currentChart && currentChartProduct) {
                 displayChart(currentChartProduct, selectedTableRow);
             }
@@ -686,45 +657,29 @@
         if (themeToggleButton) { themeToggleButton.addEventListener('click', toggleTheme); }
         else { console.error("Theme toggle button (#theme-toggle-btn) not found!"); }
 
-        // REMOVED: Settings Panel Logic
-        // function openSettingsPanel() { ... }
-        // function closeSettingsPanel() { ... }
-        // function populateSettingsForm() { ... }
-        // function saveSettings() { ... }
-        // function loadSettings() { ... }
 
-        // REMOVED: Recalculate All Sim Costs
-        // async function recalculateAllSimCosts() { ... }
-
-
-        // --- Data Fetching (Simplified: No longer loads game data just for simulation) ---
+        // --- Data Fetching ---
         async function loadData() {
             // Reset UI state
-            hideMessage(); // Clear any previous messages
+            hideMessage();
             if(currentChart) { currentChart.destroy(); currentChart = null; }
             chartPlotContainer.classList.add('hidden'); chartControlsArea.style.display = 'none';
             chartPlaceholder.style.display = 'flex'; chartPlaceholder.textContent = 'Select an item name from the table to view its chart.';
-            // REMOVED: Sim Details Panel Reset
-            // simDetailsPanel.classList.add('hidden');
-            marketIndicesDisplayEl.classList.add('hidden'); // Hide indices initially
-            marketIndicesContainerEl.innerHTML = '<span class="loading-message">Loading indices...</span>'; // Show loading message for indices
+            marketIndicesDisplayEl.classList.add('hidden');
+            marketIndicesContainerEl.innerHTML = '<span class="loading-message">Loading indices...</span>';
             currentChartProduct = null; if(selectedTableRow) selectedTableRow.classList.remove('selected-item'); selectedTableRow = null;
             loadingMessageEl.style.display = 'block';
             tableWrapperEl.classList.add('hidden'); paginationEl.style.display = 'none';
-            lastUpdateEl.textContent = 'Loading...'; // Indicate loading in footer
+            lastUpdateEl.textContent = 'Loading...';
 
             try {
                 pinnedItems = getPinnedItems(); console.log("Loaded pinned items:", pinnedItems);
 
-                // Fetch all needed data concurrently
                 const dataUrls = [
                     './data/market_summary.json',
                     './data/market_history.json',
-                    './data/market_indices.json' // Fetch indices
-                    // REMOVED: init_client_info.json fetch (unless needed for categories/hrids later)
-                    // If categories/hrids are ONLY in market_summary, we might not need init_client_info here anymore.
-                    // Let's keep it for now in case HRIDs are needed for something else.
-                    ,'https://doh-nuts.github.io/Enhancelator/init_client_info.json'
+                    './data/market_indices.json',
+                    'https://doh-nuts.github.io/Enhancelator/init_client_info.json'
                 ];
                 const fetchPromises = dataUrls.map(url => fetch(url + '?t=' + Date.now()).catch(e => {
                     console.error(`Failed to fetch ${url}:`, e);
@@ -733,17 +688,14 @@
 
                 const responses = await Promise.all(fetchPromises);
 
-                // Process Responses
                 const summaryRes = responses[0];
                 const historyRes = responses[1];
                 const indicesRes = responses[2];
-                const gameDataRes = responses[3]; // Game data is now last
+                const gameDataRes = responses[3];
 
-                // Process Summary
                 if (summaryRes.error || !summaryRes.ok) throw new Error(`Failed to fetch market_summary.json (Status: ${summaryRes.status || summaryRes.statusText || 'fetch_error'})`);
-                marketSummary = await summaryRes.json();
+                marketSummary = await summaryRes.json(); // marketSummary now contains volatility_norm_7d
 
-                // Process History
                 if (historyRes.error || !historyRes.ok) {
                     console.warn(`Failed to fetch market_history.json (Status: ${historyRes.status || historyRes.statusText || 'fetch_error'}). Charts may not work.`);
                     allMarketData = {};
@@ -752,19 +704,17 @@
                     console.log("Market history data loaded.");
                 }
 
-                // Process Market Indices
                 if (indicesRes.error || !indicesRes.ok) {
                     console.warn(`Failed to fetch market_indices.json (Status: ${indicesRes.status || indicesRes.statusText || 'fetch_error'}). Indices will not be displayed.`);
                     marketIndicesData = {};
-                    marketIndicesContainerEl.innerHTML = '<span class="na-value">Failed to load indices.</span>'; // Show error in indices area
+                    marketIndicesContainerEl.innerHTML = '<span class="na-value">Failed to load indices.</span>';
                 } else {
                     marketIndicesData = await indicesRes.json();
                     console.log("Market indices data loaded.");
-                    displayMarketIndices(); // Display indices now that data is loaded
-                    marketIndicesDisplayEl.classList.remove('hidden'); // Show the indices section
+                    displayMarketIndices();
+                    marketIndicesDisplayEl.classList.remove('hidden');
                 }
 
-                 // Process Game Data (only if needed, e.g., for future features or detailed item info)
                  if (gameDataRes.error || !gameDataRes.ok) {
                     console.warn(`Failed to fetch init_client_info.json (Status: ${gameDataRes.status || gameDataRes.statusText || 'fetch_error'}). Item details might be missing.`);
                     gameData = { itemDetailMap: {} };
@@ -774,39 +724,30 @@
                     console.log("Game data loaded (itemDetailMap).");
                  }
 
-
-                // Populate categories *after* data is loaded
                 populateCategoryFilter();
-
-                applyFiltersAndSort(); // This calls renderCurrentPage
+                applyFiltersAndSort();
                 loadingMessageEl.style.display = 'none';
                 tableWrapperEl.classList.remove('hidden');
-                paginationEl.style.display = 'flex'; // Use flex for pagination centering
-                lastUpdateEl.textContent = new Date().toLocaleString(); // Set update time
+                paginationEl.style.display = 'flex';
+                lastUpdateEl.textContent = new Date().toLocaleString();
 
             } catch (error) {
                 console.error("Error loading site data:", error);
                 loadingMessageEl.style.display = 'none';
-                // Use the message area for critical errors
-                showMessage(`Error loading site data: ${error.message}. Please try refreshing.`, 'error', 0); // Show error permanently
+                showMessage(`Error loading site data: ${error.message}. Please try refreshing.`, 'error', 0);
                 tableWrapperEl.classList.add('hidden');
                 paginationEl.style.display = 'none';
-                marketIndicesDisplayEl.classList.remove('hidden'); // Show indices section even on error
-                marketIndicesContainerEl.innerHTML = '<span class="na-value">Error loading site data.</span>'; // Indicate error
-                lastUpdateEl.textContent = 'Error'; // Indicate error in footer
+                marketIndicesDisplayEl.classList.remove('hidden');
+                marketIndicesContainerEl.innerHTML = '<span class="na-value">Error loading site data.</span>';
+                lastUpdateEl.textContent = 'Error';
             }
         }
 
         // --- Populate Category Filter ---
         function populateCategoryFilter() {
             if (!categoryFilterEl || !marketSummary) return;
-
-            const categories = [...new Set(marketSummary.map(item => item.category).filter(Boolean))].sort(); // Get unique, sorted categories
-
-            // Clear existing options (except the 'All' option)
+            const categories = [...new Set(marketSummary.map(item => item.category).filter(Boolean))].sort();
             categoryFilterEl.innerHTML = '<option value="All">All Categories</option>';
-
-            // Add new options
             categories.forEach(category => {
                 const option = document.createElement('option');
                 option.value = category;
@@ -821,10 +762,8 @@
                 marketIndicesContainerEl.innerHTML = '<span class="na-value">No index data available.</span>';
                 return;
             }
-
-            marketIndicesContainerEl.innerHTML = ''; // Clear previous content (like loading message)
-            const sortedCategories = Object.keys(marketIndicesData).sort(); // Sort categories alphabetically
-
+            marketIndicesContainerEl.innerHTML = '';
+            const sortedCategories = Object.keys(marketIndicesData).sort();
             sortedCategories.forEach(category => {
                 const trend = marketIndicesData[category];
                 const indexItem = document.createElement('div');
@@ -838,7 +777,7 @@
         }
 
 
-        // --- Filtering and Sorting (Added Volatility) ---
+        // --- Filtering and Sorting (Updated to sort by normalized volatility) ---
         function applyFiltersAndSort() {
              let result = [...marketSummary];
              if (currentCategoryFilter !== 'All') { result = result.filter(item => item.category === currentCategoryFilter); }
@@ -849,7 +788,6 @@
                  const isAPinned = currentPins.includes(a.name); const isBPinned = currentPins.includes(b.name);
                  if (isAPinned && !isBPinned) return -1; if (!isAPinned && isBPinned) return 1;
                  try {
-                     // Helper for numeric sort, handling nulls/NaNs
                      const sortNum = (valA, valB, ascending = true) => {
                          const numA = (valA === null || valA === undefined || isNaN(valA)) ? (ascending ? Infinity : -Infinity) : valA;
                          const numB = (valB === null || valB === undefined || isNaN(valB)) ? (ascending ? Infinity : -Infinity) : valB;
@@ -861,14 +799,12 @@
                          if (numB === -Infinity) return ascending ? 1 : -1;
                          return ascending ? numA - numB : numB - numA;
                      };
-                     // Helper for string sort
                      const sortStr = (valA, valB, ascending = true) => {
                          const strA = (valA ?? '').toLowerCase();
                          const strB = (valB ?? '').toLowerCase();
                          const compare = strA.localeCompare(strB);
                          return ascending ? compare : -compare;
                      };
-                     // Determine sort logic based on currentSort key
                      switch (currentSort) {
                          case 'name_desc': return sortStr(a.name, b.name, false);
                          case 'category_asc': return sortStr(a.category, b.category, true);
@@ -881,20 +817,20 @@
                          case 'vendor_desc': return sortNum(a.vendor, b.vendor, false);
                          case 'trend_asc': return sortNum(a.trend, b.trend, true);
                          case 'trend_dec': return sortNum(a.trend, b.trend, false);
-                         case 'volatility_asc': return sortNum(a.volatility_7d, b.volatility_7d, true);
-                         case 'volatility_desc': return sortNum(a.volatility_7d, b.volatility_7d, false);
-                         case 'name_asc': default: return sortStr(a.name, b.name, true); // Default
+                         // MODIFIED: Sort using volatility_norm_7d field
+                         case 'volatility_asc': return sortNum(a.volatility_norm_7d, b.volatility_norm_7d, true);
+                         case 'volatility_desc': return sortNum(a.volatility_norm_7d, b.volatility_norm_7d, false);
+                         case 'name_asc': default: return sortStr(a.name, b.name, true);
                      }
                  } catch (e) { console.error("Sort comparison error:", e); return 0; }
              });
              filteredAndSortedSummary = result; currentPage = 1; renderCurrentPage();
         }
 
-        // --- Rendering (Added Volatility Column, Removed Enh Controls) ---
+        // --- Rendering (Updated to display normalized volatility) ---
         function renderCurrentPage() {
              tableBodyEl.innerHTML = '';
              if (selectedTableRow) { selectedTableRow.classList.remove('selected-item'); selectedTableRow = null; }
-             // REMOVED: hideSimulationDetails();
 
              const currentPins = getPinnedItems();
              const totalItems = filteredAndSortedSummary.length;
@@ -907,7 +843,7 @@
              if (itemsToDisplay.length === 0) {
                  const message = marketSummary.length === 0 ? 'Loading data or no data available.' : (currentSearch || currentCategoryFilter !== 'All' ? 'No items match your filters.' : 'No market data available.');
                  const tr = document.createElement('tr'); const td = document.createElement('td');
-                 td.colSpan = 8; // Adjusted colspan
+                 td.colSpan = 8; // Colspan remains 8
                  td.textContent = message; td.style.textAlign = 'center'; td.style.padding = '20px'; td.style.color = 'var(--muted-text-color)';
                  tr.appendChild(td); tableBodyEl.appendChild(tr);
              } else {
@@ -916,34 +852,29 @@
                      tr.dataset.product = encodeURIComponent(item.name);
                      const isPinned = currentPins.includes(item.name);
                      const pinIconClass = isPinned ? 'fas fa-star pin-icon pinned' : 'far fa-star pin-icon';
-                     // REMOVED: Enhancement related variables (itemHrid, itemDetail, isEnhanceable, currentSimLevel, simCost, safeIdSuffix)
-
-                     const displayAsk = formatPrice(item.ask); // Directly format market price
-                     const displayBuy = formatPrice(item.buy); // Directly format market price
-                     const volatilityValue = item.volatility_7d;
+                     const displayAsk = formatPrice(item.ask);
+                     const displayBuy = formatPrice(item.buy);
+                     // MODIFIED: Get normalized volatility value
+                     const volatilityNormValue = item.volatility_norm_7d;
 
                      tr.innerHTML = `
                          <td class="pin-cell"><i class="${pinIconClass}" data-item-name="${item.name}" title="${isPinned ? 'Unpin' : 'Pin'} Item"></i></td>
-                         <td>
-                             <a class="item-name-link">${item.name}</a>
-                             </td>
+                         <td><a class="item-name-link">${item.name}</a></td>
                          <td>${item.category || '<span class="na-value">N/A</span>'}</td>
                          <td class="ask-cell">${displayAsk}</td>
                          <td class="buy-cell">${displayBuy}</td>
                          <td><span class="vendor-price">${formatPrice(item.vendor)}</span></td>
                          <td>${formatTrend(item.trend)}</td>
-                         <td>${formatVolatility(volatilityValue)}</td>
+                         <td>${formatVolatilityNorm(volatilityNormValue)}</td>
                      `;
                      tr.querySelector('.pin-icon').addEventListener('click', handlePinClick);
                      tr.querySelector('.item-name-link').addEventListener('click', handleProductClick);
                      tr.querySelector('.item-name-link').style.cursor = 'pointer';
-                     // REMOVED: Event listeners for enhancement buttons
 
                      tableBodyEl.appendChild(tr);
                      if (item.name === currentChartProduct) {
                          tr.classList.add('selected-item');
                          selectedTableRow = tr;
-                         // REMOVED: displaySimulationDetails(item.name);
                      }
                  });
              }
@@ -953,10 +884,10 @@
              pageInfoEl.textContent = `Page ${currentPage} of ${totalPages || 1}`;
              prevButton.disabled = currentPage <= 1;
              nextButton.disabled = currentPage >= totalPages;
-             paginationEl.style.display = totalPages > 1 ? 'flex' : 'none'; // Use flex for layout
+             paginationEl.style.display = totalPages > 1 ? 'flex' : 'none';
         }
 
-        // --- Charting (Removed Simulation Annotation) ---
+        // --- Charting ---
         function displayChart(productName, clickedTrElement) {
              hideMessage();
              chartPlaceholder.style.display = 'none';
@@ -976,7 +907,6 @@
                  if (currentChart) { currentChart.destroy(); currentChart = null; }
                  chartPlotContainer.classList.add('hidden'); chartControlsArea.style.display = 'none';
                  chartPlaceholder.textContent = `No price history data available for ${productName}.`; chartPlaceholder.style.display = 'flex';
-                 // REMOVED: hideSimulationDetails();
                  return;
              }
 
@@ -993,7 +923,6 @@
                   if (currentChart) { currentChart.destroy(); currentChart = null; }
                   chartPlotContainer.classList.add('hidden'); chartControlsArea.style.display = 'none';
                   chartPlaceholder.textContent = `No data available for ${productName} in the selected time range (${currentChartTimeRange}).`; chartPlaceholder.style.display = 'flex';
-                  // REMOVED: hideSimulationDetails();
                   return;
              }
 
@@ -1008,7 +937,6 @@
              const gridColor = isDarkMode ? '#30363d' : '#d0d7de';
              const askColor = isDarkMode ? '#f85149' : '#cf222e';
              const buyColor = isDarkMode ? '#58a6ff' : '#0969da';
-             // REMOVED: Sim line colors
 
              const chartData = {
                  datasets: [
@@ -1016,8 +944,6 @@
                      { label: 'Buy', data: buyData, borderColor: buyColor, backgroundColor: buyColor + '1A', tension: 0, pointRadius: 2, pointHoverRadius: 5, spanGaps: false, borderWidth: 1.5 }
                  ]
              };
-
-             // REMOVED: Annotation object creation
 
              if (currentChart) { currentChart.destroy(); }
 
@@ -1032,8 +958,6 @@
                              title: { display: true, text: `${productName} (${currentChartTimeRange})`, font: { size: 15, weight: '600' }, padding: { bottom: 15 }, color: primaryTextColor },
                              legend: { position: 'top', labels: { font: { size: 12 }, color: primaryTextColor } },
                              tooltip: { mode: 'index', intersect: false, bodySpacing: 5, titleSpacing: 6, padding: 10, boxPadding: 4 },
-                             // REMOVED: Annotation plugin configuration
-                             // annotation: { annotations: { simulatedCostLine: annotation } }
                          },
                          scales: {
                              x: {
@@ -1080,26 +1004,10 @@
                  chartPlaceholder.textContent = 'Error rendering chart.';
                  chartPlaceholder.style.display = 'flex';
              }
-             // REMOVED: displaySimulationDetails(productName);
         }
-
-        // REMOVED: Simulation Details Display Functions
-        // function displaySimulationDetails(itemName) { ... }
-        // function hideSimulationDetails() { ... }
-
-        // REMOVED: Enhancement Simulation Logic Functions
-        // function handleLevelChange(event) { ... }
-        // function updateTableRowCost(itemName, level, cost) { ... }
-        // function simulateEnhancement(input_data, protect_at) { ... }
-        // function getCosts(hrid, priceAskBidRatio) { ... }
-        // function getRealisticBaseItemPrice(hrid, priceAskBidRatio) { ... }
-        // function getItemMarketPrice(hrid, priceAskBidRatio) { ... }
-        // async function calculateEnhanceStrat(input_data, itemNameForLogging) { ... }
-
 
         // --- Event Handlers ---
         function handleProductClick(event) {
-             // REMOVED: Check for .enh-level-control click
              if (event.target.classList.contains('pin-icon')) { return; }
              const clickedLink = event.currentTarget;
              const clickedTr = clickedLink.closest('tr');
@@ -1111,7 +1019,7 @@
         searchInput.addEventListener('input', (event) => { clearTimeout(searchTimeout); searchTimeout = setTimeout(() => { currentSearch = event.target.value; applyFiltersAndSort(); }, 300); });
         categoryFilterEl.addEventListener('change', (event) => { currentCategoryFilter = event.target.value; applyFiltersAndSort(); });
 
-        // Event Listener for Sort Options (Handles Toggling, Added Volatility)
+        // Event Listener for Sort Options
         sortOptionsEl.addEventListener('click', (event) => {
             if (event.target.tagName === 'BUTTON' && event.target.dataset.sort) {
                 const sortBase = event.target.dataset.sort;
@@ -1168,16 +1076,10 @@
             });
         } else { console.error("Scale toggle button not found!"); }
 
-        // REMOVED: Settings Panel Event Listeners
-        // if (settingsButton) { ... }
-        // if (settingsOverlay) { ... }
-        // ... etc ...
-
         // --- Initial Load ---
         document.addEventListener('DOMContentLoaded', () => {
-            initTheme(); // Initialize theme based on localStorage/preference
-            // REMOVED: loadSettings();
-            loadData(); // Load market/game data
+            initTheme();
+            loadData();
         });
 
     </script>
