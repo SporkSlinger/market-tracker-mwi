@@ -155,6 +155,11 @@
         #theme-toggle-btn .fa-moon { display: inline-block; }
         html[data-theme="dark"] #theme-toggle-btn .fa-sun { display: inline-block; }
         html[data-theme="dark"] #theme-toggle-btn .fa-moon { display: none; }
+        /* NEW: Indices toggle button icons */
+        #toggle-indices-btn .fa-eye-slash { display: none; } /* Hide slash icon by default */
+        #toggle-indices-btn.indices-hidden .fa-eye-slash { display: inline-block; } /* Show slash when hidden */
+        #toggle-indices-btn.indices-hidden .fa-eye { display: none; } /* Hide eye when hidden */
+
 
         /* Feedback Link */
         .feedback-link-container { text-align: center; margin-bottom: 20px; font-size: 0.9em; }
@@ -318,8 +323,6 @@
         .trend-icon { width: 14px; height: 14px; vertical-align: text-bottom; }
         .trend-positive { color: var(--positive-color); }
         .trend-negative { color: var(--negative-color); }
-        /* REMOVED: .vendor-price style */
-        /* .vendor-price { ... } */
         .na-value { color: var(--na-value-color); font-style: normal; }
 
         /* Chart Display Styles */
@@ -387,7 +390,11 @@
                  <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
                  <span class="toggle-text" style="margin-left: 6px;">Toggle Theme</span>
              </button>
-             </div>
+             <button id="toggle-indices-btn" class="action-button" title="Toggle Market Indices">
+                 <i class="fas fa-eye"></i><i class="fas fa-eye-slash"></i>
+                 <span class="toggle-text" style="margin-left: 6px;">Hide Indices</span>
+             </button>
+        </div>
         <div class="feedback-link-container">
             <a href="https://github.com/SporkSlinger/market-tracker-mwi/issues" target="_blank" rel="noopener noreferrer">Report an Issue or Suggest a Feature</a>
         </div>
@@ -521,6 +528,7 @@
         const lastUpdateEl = document.getElementById('last-update');
         const marketIndicesDisplayEl = document.getElementById('market-indices-display');
         const marketIndicesContainerEl = document.getElementById('market-indices-container');
+        const toggleIndicesBtn = document.getElementById('toggle-indices-btn'); // NEW: Indices Toggle Button
 
         // --- SVG Icons for Trends ---
         const trendUpIcon = `<svg class="trend-icon" aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"><path fill="currentColor" d="M8.707 2.293a1 1 0 0 0-1.414 0l-4 4a1 1 0 1 0 1.414 1.414L8 4.414l3.293 3.293a1 1 0 0 0 1.414-1.414l-4-4Z"></path></svg>`;
@@ -635,7 +643,12 @@
             if(currentChart) { currentChart.destroy(); currentChart = null; }
             chartPlotContainer.classList.add('hidden'); chartControlsArea.style.display = 'none';
             chartPlaceholder.style.display = 'flex'; chartPlaceholder.textContent = 'Select an item name from the table to view its chart.';
+            // Start with indices hidden by default (or based on saved state if implemented)
             marketIndicesDisplayEl.classList.add('hidden');
+            if (toggleIndicesBtn) { // Ensure button exists before updating
+                 toggleIndicesBtn.querySelector('.toggle-text').textContent = 'Show Indices';
+                 toggleIndicesBtn.classList.add('indices-hidden'); // Add class for icon styling
+            }
             marketIndicesContainerEl.innerHTML = '<span class="loading-message">Loading indices...</span>';
             currentChartProduct = null; if(selectedTableRow) selectedTableRow.classList.remove('selected-item'); selectedTableRow = null;
             loadingMessageEl.style.display = 'block';
@@ -678,11 +691,15 @@
                     console.warn(`Failed to fetch market_indices.json (Status: ${indicesRes.status || indicesRes.statusText || 'fetch_error'}). Indices will not be displayed.`);
                     marketIndicesData = {};
                     marketIndicesContainerEl.innerHTML = '<span class="na-value">Failed to load indices.</span>';
+                    // Keep indices section hidden, but button should still work if it exists
+                    if (toggleIndicesBtn) { toggleIndicesBtn.disabled = true; } // Disable toggle if data fails
                 } else {
                     marketIndicesData = await indicesRes.json();
                     console.log("Market indices data loaded.");
                     displayMarketIndices();
-                    marketIndicesDisplayEl.classList.remove('hidden');
+                    // Don't automatically show indices; let user toggle
+                    // marketIndicesDisplayEl.classList.remove('hidden');
+                    if (toggleIndicesBtn) { toggleIndicesBtn.disabled = false; } // Enable toggle
                 }
 
                  if (gameDataRes.error || !gameDataRes.ok) {
@@ -707,8 +724,10 @@
                 showMessage(`Error loading site data: ${error.message}. Please try refreshing.`, 'error', 0);
                 tableWrapperEl.classList.add('hidden');
                 paginationEl.style.display = 'none';
+                // Show indices section with error message
                 marketIndicesDisplayEl.classList.remove('hidden');
                 marketIndicesContainerEl.innerHTML = '<span class="na-value">Error loading site data.</span>';
+                if (toggleIndicesBtn) { toggleIndicesBtn.disabled = true; } // Disable toggle on major error
                 lastUpdateEl.textContent = 'Error';
             }
         }
@@ -747,7 +766,7 @@
         }
 
 
-        // --- Filtering and Sorting (Removed Vendor Sort) ---
+        // --- Filtering and Sorting ---
         function applyFiltersAndSort() {
              let result = [...marketSummary];
              if (currentCategoryFilter !== 'All') { result = result.filter(item => item.category === currentCategoryFilter); }
@@ -783,9 +802,6 @@
                          case 'ask_desc': return sortNum(a.ask, b.ask, false);
                          case 'buy_asc': return sortNum(a.buy, b.buy, true);
                          case 'buy_desc': return sortNum(a.buy, b.buy, false);
-                         // REMOVED: Vendor sort cases
-                         // case 'vendor_asc': return sortNum(a.vendor, b.vendor, true);
-                         // case 'vendor_desc': return sortNum(a.vendor, b.vendor, false);
                          case 'trend_asc': return sortNum(a.trend, b.trend, true);
                          case 'trend_dec': return sortNum(a.trend, b.trend, false);
                          case 'volatility_asc': return sortNum(a.volatility_norm_7d, b.volatility_norm_7d, true);
@@ -797,7 +813,7 @@
              filteredAndSortedSummary = result; currentPage = 1; renderCurrentPage();
         }
 
-        // --- Rendering (Removed Vendor Column) ---
+        // --- Rendering ---
         function renderCurrentPage() {
              tableBodyEl.innerHTML = '';
              if (selectedTableRow) { selectedTableRow.classList.remove('selected-item'); selectedTableRow = null; }
@@ -994,8 +1010,7 @@
                 let newSort;
                 const toggleColumns = ['name', 'trend', 'volatility'];
                 const defaultAscending = ['ask', 'category', 'volatility'];
-                // REMOVED: vendor from defaultDescending
-                const defaultDescending = ['buy', 'trend'];
+                const defaultDescending = ['buy', 'trend']; // Removed vendor
 
                 if (toggleColumns.includes(sortBase)) {
                     const ascSort = sortBase + '_asc';
@@ -1010,7 +1025,6 @@
                          if (defaultAscending.includes(sortBase)) newSort = ascSort;
                      }
                 } else {
-                    // REMOVED: vendor handling
                     if (defaultAscending.includes(sortBase)) newSort = sortBase + '_asc';
                     else if (defaultDescending.includes(sortBase)) newSort = sortBase + '_desc';
                     else newSort = sortBase + '_asc';
@@ -1045,6 +1059,23 @@
                 if (currentChartProduct) { displayChart(currentChartProduct, selectedTableRow); }
             });
         } else { console.error("Scale toggle button not found!"); }
+
+        // NEW: Event listener for Toggle Indices Button
+        if (toggleIndicesBtn) {
+            toggleIndicesBtn.addEventListener('click', () => {
+                const isHidden = marketIndicesDisplayEl.classList.toggle('hidden');
+                const buttonText = toggleIndicesBtn.querySelector('.toggle-text');
+                if (isHidden) {
+                    buttonText.textContent = 'Show Indices';
+                    toggleIndicesBtn.classList.add('indices-hidden'); // For icon styling
+                } else {
+                    buttonText.textContent = 'Hide Indices';
+                    toggleIndicesBtn.classList.remove('indices-hidden'); // For icon styling
+                }
+            });
+        } else {
+            console.error("Toggle indices button (#toggle-indices-btn) not found!");
+        }
 
         // --- Initial Load ---
         document.addEventListener('DOMContentLoaded', () => {
