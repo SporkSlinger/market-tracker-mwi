@@ -45,12 +45,10 @@
             --link-hover-color: var(--accent-hover-color);
             --code-font: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
             --na-value-color: #cdd4de;
-            --vendor-price-color: var(--text-color-secondary);
+            /* --vendor-price-color: var(--text-color-secondary); REMOVED */
             --chart-placeholder-color: #b0b8c2;
-            /* Chart element colors are hardcoded in JS options */
             --pin-color: #d0d7de; /* Color for unpinned star */
             --pin-color-active: #ffab00; /* Color for pinned star (gold) */
-            /* Removed simulation/settings specific variables */
             --message-bg-error: rgba(207, 34, 46, 0.1);
             --message-border-error: var(--negative-color);
             --message-text-error: var(--negative-color);
@@ -98,12 +96,10 @@
             --link-color: var(--accent-color);
             --link-hover-color: var(--accent-hover-color);
             --na-value-color: #484f58;
-            --vendor-price-color: var(--text-color-secondary);
+            /* --vendor-price-color: var(--text-color-secondary); REMOVED */
             --chart-placeholder-color: #6e7681;
-            /* Chart element colors are hardcoded in JS options */
             --pin-color: #484f58; /* Dark mode unpinned star */
             --pin-color-active: #f1e05a; /* Dark mode pinned star (lighter gold) */
-             /* Removed simulation/settings specific variables */
             --message-bg-error: rgba(248, 81, 73, 0.15);
             --message-border-error: var(--negative-color);
             --message-text-error: var(--negative-color);
@@ -311,16 +307,19 @@
         #item-table td:nth-child(2) .item-name-link { color: var(--link-color); cursor: pointer; text-decoration: none; }
         #item-table td:nth-child(2) .item-name-link:hover { text-decoration: underline; color: var(--link-hover-color); }
         #item-table td:nth-child(3) { font-size: 0.9em; color: var(--muted-text-color); max-width: 150px; overflow: hidden; text-overflow: ellipsis; } /* Category */
-        #item-table td:nth-child(n+5):not(:nth-child(8)) { text-align: right; font-family: var(--code-font); font-size: 0.90em; } /* Buy/Vendor/Trend */
+        #item-table td:nth-child(5) { text-align: right; font-family: var(--code-font); font-size: 0.90em; } /* Buy */
+        #item-table td:nth-child(6) { text-align: right; font-family: var(--code-font); font-size: 0.90em; } /* Trend */
         #item-table td:nth-child(4) { text-align: right; font-family: var(--code-font); font-size: 0.90em; } /* Ask */
-        #item-table td:nth-child(8) { text-align: right; font-family: var(--code-font); font-size: 0.90em; } /* Volatility */
+        #item-table td:nth-child(7) { text-align: right; font-family: var(--code-font); font-size: 0.90em; } /* Volatility */
+
 
         /* Trend Styles */
         .trend-value-container { display: flex; align-items: center; justify-content: flex-end; gap: 3px; }
         .trend-icon { width: 14px; height: 14px; vertical-align: text-bottom; }
         .trend-positive { color: var(--positive-color); }
         .trend-negative { color: var(--negative-color); }
-        .vendor-price { color: var(--vendor-price-color); }
+        /* REMOVED: .vendor-price style */
+        /* .vendor-price { ... } */
         .na-value { color: var(--na-value-color); font-style: normal; }
 
         /* Chart Display Styles */
@@ -382,7 +381,7 @@
 
     <div class="container">
         <h1>MWI Market Trends</h1>
-        <p class="subheader">The website will be buggy today while I update it</p>
+        <p class="subheader">Insert text here</p>
         <div class="title-button-container" >
              <button id="theme-toggle-btn" class="action-button" title="Toggle Theme">
                  <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
@@ -415,7 +414,6 @@
                      <button data-sort="category">Category</button>
                      <button data-sort="ask">Ask</button>
                      <button data-sort="buy">Buy</button>
-                     <button data-sort="vendor">Vendor</button>
                      <button data-sort="trend">Trend %</button>
                      <button data-sort="volatility">Volatility</button> </div>
             </div>
@@ -439,7 +437,6 @@
                                 <th>Category</th>
                                 <th>Ask</th>
                                 <th>Buy</th>
-                                <th>Vendor</th>
                                 <th>Trend (24h)</th>
                                 <th>Volatility (7d)</th> </tr>
                         </thead>
@@ -482,16 +479,15 @@
 
         </div> <script>
         // --- Global State ---
-        let allMarketData = {}; // History data { "Product": { buy: [...], ask: [...] } }
-        // Updated marketSummary structure comment
-        let marketSummary = []; // Summary data [ { name, category, buy, ask, vendor, trend, volatility_7d, volatility_norm_7d }, ... ]
-        let marketIndicesData = {}; // To store category indices { "Category": trend, ... }
-        let gameData = { itemDetailMap: {} }; // To store init_client_info.json data (still needed for categories/hrids)
+        let allMarketData = {};
+        let marketSummary = []; // Structure: { name, category, buy, ask, vendor, trend, volatility_7d, volatility_norm_7d }
+        let marketIndicesData = {};
+        let gameData = { itemDetailMap: {} };
         let filteredAndSortedSummary = [];
         let currentChart = null;
         let currentPage = 1;
         const itemsPerPage = 20;
-        let currentSort = 'name_asc'; // Default sort
+        let currentSort = 'name_asc';
         let currentSearch = '';
         let currentCategoryFilter = 'All';
         let selectedTableRow = null;
@@ -501,7 +497,7 @@
         let pinnedItems = [];
         const PINNED_ITEMS_KEY = 'mwiPinnedItems';
         const MAX_PINNED_ITEMS = 10;
-        let messageTimeout = null; // Timeout ID for clearing messages
+        let messageTimeout = null;
 
         // --- DOM Elements ---
         const tableBodyEl = document.getElementById('item-table-body');
@@ -520,11 +516,11 @@
         const chartControlsArea = document.getElementById('chart-controls-area');
         const scaleToggleButton = document.getElementById('scale-toggle-btn');
         const loadingMessageEl = document.getElementById('loading-message');
-        const messageAreaEl = document.getElementById('message-area'); // Message display area
+        const messageAreaEl = document.getElementById('message-area');
         const themeToggleButton = document.getElementById('theme-toggle-btn');
         const lastUpdateEl = document.getElementById('last-update');
-        const marketIndicesDisplayEl = document.getElementById('market-indices-display'); // Indices display area
-        const marketIndicesContainerEl = document.getElementById('market-indices-container'); // Indices container
+        const marketIndicesDisplayEl = document.getElementById('market-indices-display');
+        const marketIndicesContainerEl = document.getElementById('market-indices-container');
 
         // --- SVG Icons for Trends ---
         const trendUpIcon = `<svg class="trend-icon" aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"><path fill="currentColor" d="M8.707 2.293a1 1 0 0 0-1.414 0l-4 4a1 1 0 1 0 1.414 1.414L8 4.414l3.293 3.293a1 1 0 0 0 1.414-1.414l-4-4Z"></path></svg>`;
@@ -543,19 +539,13 @@
             if (isNaN(trendValue)) return '<span class="na-value">--</span>';
             return `<span class="trend-value-container ${trendClass}">${arrow}<span>${trendValue.toFixed(2)}%</span></span>`;
         }
-        // NEW: Format Normalized Volatility (Coefficient of Variation)
         function formatVolatilityNorm(value) {
              if (value === null || value === undefined || isNaN(value)) return '<span class="na-value">--</span>';
              const numValue = Number(value);
              if (isNaN(numValue)) return '<span class="na-value">--</span>';
-             // Format as percentage with 1 decimal place
              return numValue.toFixed(1) + '%';
         }
-        // REMOVED: formatVolatility (absolute std dev)
-        // function formatVolatility(value) { ... }
-
         function timeReadable(sec) {
-             // This might only be used by sim details now, consider removing if unused
              if (sec === null || sec === undefined || isNaN(sec) || sec < 0) return "N/A";
              if (sec === Infinity) return "∞";
              const days = Math.floor(sec / 86400);
@@ -570,42 +560,22 @@
              return parts.join(" ");
         }
 
-        /**
-         * Displays a message in the message area.
-         * @param {string} message - The message text.
-         * @param {'error' | 'warning' | 'info'} type - The message type.
-         * @param {number} duration - How long to display the message in ms (0 = forever).
-         */
+        /** Displays a message in the message area. */
         function showMessage(message, type = 'info', duration = 5000) {
-            if (!messageAreaEl) return; // Exit if the element doesn't exist
-
-            // Clear previous timeout if any
-            if (messageTimeout) {
-                clearTimeout(messageTimeout);
-                messageTimeout = null;
-            }
-
+            if (!messageAreaEl) return;
+            if (messageTimeout) { clearTimeout(messageTimeout); messageTimeout = null; }
             messageAreaEl.textContent = message;
-            messageAreaEl.className = 'visible ' + type; // Set type class and make visible
-
-            // Set timeout to hide the message if duration is > 0
+            messageAreaEl.className = 'visible ' + type;
             if (duration > 0) {
                 messageTimeout = setTimeout(() => {
-                    messageAreaEl.className = ''; // Hide by removing classes
-                    messageTimeout = null;
+                    messageAreaEl.className = ''; messageTimeout = null;
                 }, duration);
             }
         }
-
         /** Hides the message area immediately. */
         function hideMessage() {
-            if (messageTimeout) {
-                clearTimeout(messageTimeout);
-                messageTimeout = null;
-            }
-             if (messageAreaEl) {
-                 messageAreaEl.className = ''; // Hide by removing classes
-            }
+            if (messageTimeout) { clearTimeout(messageTimeout); messageTimeout = null; }
+             if (messageAreaEl) { messageAreaEl.className = ''; }
         }
 
         // --- Pinning Logic ---
@@ -694,7 +664,7 @@
                 const gameDataRes = responses[3];
 
                 if (summaryRes.error || !summaryRes.ok) throw new Error(`Failed to fetch market_summary.json (Status: ${summaryRes.status || summaryRes.statusText || 'fetch_error'})`);
-                marketSummary = await summaryRes.json(); // marketSummary now contains volatility_norm_7d
+                marketSummary = await summaryRes.json();
 
                 if (historyRes.error || !historyRes.ok) {
                     console.warn(`Failed to fetch market_history.json (Status: ${historyRes.status || historyRes.statusText || 'fetch_error'}). Charts may not work.`);
@@ -777,7 +747,7 @@
         }
 
 
-        // --- Filtering and Sorting (Updated to sort by normalized volatility) ---
+        // --- Filtering and Sorting (Removed Vendor Sort) ---
         function applyFiltersAndSort() {
              let result = [...marketSummary];
              if (currentCategoryFilter !== 'All') { result = result.filter(item => item.category === currentCategoryFilter); }
@@ -813,11 +783,11 @@
                          case 'ask_desc': return sortNum(a.ask, b.ask, false);
                          case 'buy_asc': return sortNum(a.buy, b.buy, true);
                          case 'buy_desc': return sortNum(a.buy, b.buy, false);
-                         case 'vendor_asc': return sortNum(a.vendor, b.vendor, true);
-                         case 'vendor_desc': return sortNum(a.vendor, b.vendor, false);
+                         // REMOVED: Vendor sort cases
+                         // case 'vendor_asc': return sortNum(a.vendor, b.vendor, true);
+                         // case 'vendor_desc': return sortNum(a.vendor, b.vendor, false);
                          case 'trend_asc': return sortNum(a.trend, b.trend, true);
                          case 'trend_dec': return sortNum(a.trend, b.trend, false);
-                         // MODIFIED: Sort using volatility_norm_7d field
                          case 'volatility_asc': return sortNum(a.volatility_norm_7d, b.volatility_norm_7d, true);
                          case 'volatility_desc': return sortNum(a.volatility_norm_7d, b.volatility_norm_7d, false);
                          case 'name_asc': default: return sortStr(a.name, b.name, true);
@@ -827,7 +797,7 @@
              filteredAndSortedSummary = result; currentPage = 1; renderCurrentPage();
         }
 
-        // --- Rendering (Updated to display normalized volatility) ---
+        // --- Rendering (Removed Vendor Column) ---
         function renderCurrentPage() {
              tableBodyEl.innerHTML = '';
              if (selectedTableRow) { selectedTableRow.classList.remove('selected-item'); selectedTableRow = null; }
@@ -843,7 +813,7 @@
              if (itemsToDisplay.length === 0) {
                  const message = marketSummary.length === 0 ? 'Loading data or no data available.' : (currentSearch || currentCategoryFilter !== 'All' ? 'No items match your filters.' : 'No market data available.');
                  const tr = document.createElement('tr'); const td = document.createElement('td');
-                 td.colSpan = 8; // Colspan remains 8
+                 td.colSpan = 7; // Reduced colspan
                  td.textContent = message; td.style.textAlign = 'center'; td.style.padding = '20px'; td.style.color = 'var(--muted-text-color)';
                  tr.appendChild(td); tableBodyEl.appendChild(tr);
              } else {
@@ -854,7 +824,6 @@
                      const pinIconClass = isPinned ? 'fas fa-star pin-icon pinned' : 'far fa-star pin-icon';
                      const displayAsk = formatPrice(item.ask);
                      const displayBuy = formatPrice(item.buy);
-                     // MODIFIED: Get normalized volatility value
                      const volatilityNormValue = item.volatility_norm_7d;
 
                      tr.innerHTML = `
@@ -863,7 +832,6 @@
                          <td>${item.category || '<span class="na-value">N/A</span>'}</td>
                          <td class="ask-cell">${displayAsk}</td>
                          <td class="buy-cell">${displayBuy}</td>
-                         <td><span class="vendor-price">${formatPrice(item.vendor)}</span></td>
                          <td>${formatTrend(item.trend)}</td>
                          <td>${formatVolatilityNorm(volatilityNormValue)}</td>
                      `;
@@ -1026,7 +994,8 @@
                 let newSort;
                 const toggleColumns = ['name', 'trend', 'volatility'];
                 const defaultAscending = ['ask', 'category', 'volatility'];
-                const defaultDescending = ['buy', 'vendor', 'trend'];
+                // REMOVED: vendor from defaultDescending
+                const defaultDescending = ['buy', 'trend'];
 
                 if (toggleColumns.includes(sortBase)) {
                     const ascSort = sortBase + '_asc';
@@ -1041,6 +1010,7 @@
                          if (defaultAscending.includes(sortBase)) newSort = ascSort;
                      }
                 } else {
+                    // REMOVED: vendor handling
                     if (defaultAscending.includes(sortBase)) newSort = sortBase + '_asc';
                     else if (defaultDescending.includes(sortBase)) newSort = sortBase + '_desc';
                     else newSort = sortBase + '_asc';
