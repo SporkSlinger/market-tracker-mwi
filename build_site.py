@@ -392,15 +392,20 @@ def calculate_trends(df, products):
     logging.info(f"Finished trend calculation. Calculated trends for {processed_count} out of {len(products)} products.")
     return {k: (v if pd.notna(v) and np.isfinite(v) else None) for k, v in trends.items()}
 
-# --- Volatility Calculation ---
-def calculate_volatility(df, products, days=7):
-    """Calculates price volatility (standard deviation of ask price) over a given period for a list of products."""
-    volatility = {}
+# --- Volatility & CV Calculation ---
+# MODIFIED: Renamed and updated to calculate/return CV as well
+def calculate_volatility_and_cv(df, products, days=7):
+    """
+    Calculates price volatility (std dev) and normalized volatility (CV)
+    of ask price over a given period for a list of products.
+    Returns a dictionary: {product: {'std': std_dev, 'cv': cv_percent}}
+    """
+    results = {}
     if df.empty or not products:
-        logging.warning("Cannot calculate volatility: DataFrame or product list is empty.")
-        return volatility
+        logging.warning("Cannot calculate volatility/CV: DataFrame or product list is empty.")
+        return results
 
-    logging.info(f"Calculating {days}-day volatility for {len(products)} products (using ASK price)...")
+    logging.info(f"Calculating {days}-day volatility & CV for {len(products)} products (using ASK price)...")
     now = datetime.now(timezone.utc)
     time_cutoff = now - timedelta(days=days)
 
@@ -415,48 +420,61 @@ def calculate_volatility(df, products, days=7):
 
         df.dropna(subset=['timestamp'], inplace=True)
         if df.empty:
-             logging.warning("DataFrame is empty after timestamp processing in calculate_volatility.")
-             return volatility
+             logging.warning("DataFrame is empty after timestamp processing in calculate_volatility_and_cv.")
+             return results
 
-        # Filter data for the volatility period
+        # Filter data for the period
         df_period = df[df['timestamp'] >= time_cutoff]
         if df_period.empty:
-            logging.warning(f"No data found within the last {days} days for volatility calculation.")
-            return volatility
+            logging.warning(f"No data found within the last {days} days for volatility/CV calculation.")
+            return results
 
         grouped = df_period.groupby('product')
 
     except Exception as e:
-        logging.error(f"Error preparing data for volatility calculation: {e}", exc_info=True)
-        return volatility
+        logging.error(f"Error preparing data for volatility/CV calculation: {e}", exc_info=True)
+        return results
 
     processed_count = 0
     for product in products: # Iterate only through the filtered list
+        std_dev = None
+        cv_percent = None
+        mean_price = None
         try:
             if product not in grouped.groups: continue # Skip if no data for this product in the period
 
             product_group = grouped.get_group(product)
             valid_ask_period = product_group['ask'].dropna()
 
-            # Standard deviation requires at least 2 data points
+            # Standard deviation and mean require at least 2 data points for std dev
             if len(valid_ask_period) >= 2:
-                std_dev = valid_ask_period.std(ddof=1) # ddof=1 for sample standard deviation
-                volatility[product] = std_dev
+                std_dev = valid_ask_period.std(ddof=1) # Sample standard deviation
+                mean_price = valid_ask_period.mean()
+
+                # Calculate Coefficient of Variation (CV) if mean is not zero
+                if mean_price is not None and not pd.isna(mean_price) and mean_price != 0:
+                    cv = std_dev / mean_price
+                    cv_percent = cv * 100 # Express as percentage
                 processed_count += 1
-            else:
-                volatility[product] = None # Not enough data points to calculate std dev
+            # else: std_dev and cv_percent remain None
 
         except KeyError:
-             logging.warning(f"KeyError processing volatility for filtered product {product}. Skipping.")
+             logging.warning(f"KeyError processing volatility/CV for filtered product {product}. Skipping.")
              continue
         except Exception as e:
-            logging.error(f"Error calculating volatility for {product}: {e}", exc_info=True)
-            volatility[product] = None # Assign None on error
+            logging.error(f"Error calculating volatility/CV for {product}: {e}", exc_info=True)
+            # std_dev and cv_percent remain None
             continue
+        finally:
+            # Store results for the product (even if None)
+            results[product] = {
+                'std': std_dev if pd.notna(std_dev) and np.isfinite(std_dev) else None,
+                'cv': cv_percent if pd.notna(cv_percent) and np.isfinite(cv_percent) else None
+            }
 
-    logging.info(f"Finished volatility calculation. Calculated volatility for {processed_count} products.")
-    # Ensure NaN/Inf are replaced with None for JSON compatibility
-    return {k: (v if pd.notna(v) and np.isfinite(v) else None) for k, v in volatility.items()}
+
+    logging.info(f"Finished volatility/CV calculation. Calculated stats for {processed_count} products with >=2 data points in the period.")
+    return results
 
 # --- Market Index Calculation ---
 def calculate_market_indices(product_trends, item_categories):
@@ -571,28 +589,27 @@ def main():
              filtered_products = []
         else:
             logging.info(f"Applying vendor price filter to {len(all_products_initial)} initial products...")
-            # --- MODIFIED FILTER LOGIC ---
+            # Filter out items with VP=0 or VP=None, except "Bag Of 10 Cowbells"
             filtered_products = [
                 p for p in all_products_initial
                 if p == "Bag Of 10 Cowbells" or ((vp := vendor_prices.get(p)) is not None and vp > 0)
-                # Condition: Keep if name is exception OR (vendor price exists AND is > 0)
             ]
             logging.info(f"Filtered down to {len(filtered_products)} products (Removed items with VP=0 or VP=None, except Cowbells).")
 
 
-        # --- Calculate Trends, Volatility, and Indices for Filtered Products ---
-        # Pass copies to calculation functions as they might modify timezone info or require specific states
+        # --- Calculate Trends, Volatility, CV, and Indices for Filtered Products ---
         df_copy_for_calc = combined_df.copy() if not combined_df.empty else pd.DataFrame()
         # Only calculate for filtered products
         product_trends = calculate_trends(df_copy_for_calc.copy(), filtered_products)
-        product_volatility = calculate_volatility(df_copy_for_calc.copy(), filtered_products, days=VOLATILITY_DAYS)
+        # Get both std dev and CV
+        product_volatility_stats = calculate_volatility_and_cv(df_copy_for_calc.copy(), filtered_products, days=VOLATILITY_DAYS)
         # Indices are based on the trends of the filtered products
         market_indices = calculate_market_indices(product_trends, item_categories)
 
         # --- Generate JSON Data Files ---
         logging.info("--- Generating JSON Data Files ---")
 
-        # 1. Market Summary (Iterate through FILTERED products)
+        # 1. Market Summary (Add Volatility and CV)
         market_summary = []
         if not combined_df.empty:
             try:
@@ -600,14 +617,17 @@ def main():
                 for product in filtered_products: # Use the filtered list here
                     if product in latest_data_map.index:
                         latest = latest_data_map.loc[product]
+                        # Get volatility stats for this product
+                        vol_stats = product_volatility_stats.get(product, {'std': None, 'cv': None})
                         market_summary.append({
                             'name': product,
                             'category': item_categories.get(product, 'Unknown'),
                             'buy': latest['buy'] if pd.notna(latest['buy']) else None,
                             'ask': latest['ask'] if pd.notna(latest['ask']) else None,
                             'vendor': vendor_prices.get(product),
-                            'trend': product_trends.get(product), # Already calculated only for filtered
-                            f'volatility_{VOLATILITY_DAYS}d': product_volatility.get(product) # Already calculated only for filtered
+                            'trend': product_trends.get(product),
+                            f'volatility_{VOLATILITY_DAYS}d': vol_stats['std'], # Absolute volatility
+                            f'volatility_norm_{VOLATILITY_DAYS}d': vol_stats['cv'] # Normalized volatility (CV %)
                         })
                     else:
                          logging.warning(f"Filtered product '{product}' not found in latest_data_map. Skipping summary entry.")
@@ -624,7 +644,7 @@ def main():
             logging.error(f"Error saving market summary JSON to {summary_path}: {e}", exc_info=True)
 
 
-        # 2. Full Historical Data (Generate full, then filter output)
+        # 2. Full Historical Data (Filter output based on filtered_products)
         nested_history_dict = {}
         if not combined_df.empty:
             logging.info("Grouping historical data by product for nested JSON...")
@@ -724,3 +744,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
