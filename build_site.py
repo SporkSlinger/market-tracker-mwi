@@ -3,38 +3,32 @@ import sqlite3
 import json
 import requests
 import pandas as pd
-import numpy as np # Import numpy for NaN/Inf checking/replacement
-from datetime import datetime, timedelta, timezone # Import timezone
+import numpy as np
+from datetime import datetime, timedelta, timezone
 import logging
-import math
-import shutil
 from collections import defaultdict # For grouping trends by category
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound # For rendering HTML template
 
 # --- Configuration --
-# Use INFO for general progress, DEBUG for detailed step-by-step logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [%(funcName)s] %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [%(funcName)s:%(lineno)d] %(message)s') # Added lineno
 
 # Source Data URLs and Paths
 DB_URL = "https://raw.githubusercontent.com/holychikenz/MWIApi/main/market.db"
 JSON_URL = "https://raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json"
-DB_PATH = "market.db" # Downloaded file paths
+DB_PATH = "market.db"
 JSON_PATH = "milkyapi.json"
-CATEGORY_FILE_PATH = "cata.txt" # Path to your category file
+CATEGORY_FILE_PATH = "cata.txt"
 
 # Output directory for static files
 OUTPUT_DIR = "output"
-OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data") # Subdir for data files
-TEMPLATE_DIR = "templates" # Directory for Jinja templates
+OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data")
+TEMPLATE_DIR = "templates"
 
 # History and Trend Settings
-# MODIFIED: Set to a very large number for "all history".
-# Be aware this can significantly increase processing time and memory if the DB is huge.
-# A more robust solution for truly massive DBs might involve chunking or more selective queries.
-HISTORICAL_DAYS = 365 * 5 # Load up to 5 years of data, effectively "all" for most practical purposes
-VOLATILITY_DAYS = 7 # How many days back to calculate volatility
-# NEW: Candlestick intervals to pre-calculate
-CANDLESTICK_INTERVALS = ['1h', '4h', '1D', '7D'] # Define desired intervals, e.g., 1 hour, 4 hours, 1 day, 7 days
+HISTORICAL_DAYS = 365 * 5 # For raw market_history.json (line charts) / general trends
+HISTORICAL_DAYS_FOR_OHLCV = 90 # Shorter period for OHLCV (e.g., 90 days)
+VOLATILITY_DAYS = 7
+CANDLESTICK_INTERVALS = ['1h', '4h', '1D', '7D']
 
 # --- Category Parsing ---
 def parse_categories(filepath):
@@ -42,7 +36,7 @@ def parse_categories(filepath):
     categories = {}
     current_main_category = "Unknown"
     current_sub_category = None
-    current_display_category = "Unknown" # Category name to assign to items
+    current_display_category = "Unknown"
 
     known_main_categories = [
         "Currencies", "Loots", "Resources", "Consumables", "Books", "Keys",
@@ -63,30 +57,25 @@ def parse_categories(filepath):
             for line_num, line in enumerate(f, 1):
                 line = line.strip()
                 if not line or line == '•': continue
-                logging.debug(f"Processing Line {line_num}: '{line}'")
 
                 if line in known_main_categories:
                     current_main_category = line
                     current_sub_category = None
                     current_display_category = current_main_category
-                    logging.debug(f"  -> Matched Main Category: {current_main_category}")
                     continue
 
                 if current_main_category == "Equipment" and line in equipment_subcategories:
                     current_sub_category = line
                     current_display_category = f"Equipment / {current_sub_category}"
-                    logging.debug(f"  -> Matched Equipment Sub Category: {current_sub_category} -> Display: {current_display_category}")
                     continue
 
                 if current_main_category == "Tools" and line in tool_subcategories:
                     current_sub_category = line
                     current_display_category = f"Tools / {current_sub_category}"
-                    logging.debug(f"  -> Matched Tool Sub Category: {current_sub_category} -> Display: {current_display_category}")
                     continue
 
                 item_names = [name.strip() for name in line.split(',') if name.strip()]
                 if not item_names:
-                    logging.warning(f"  -> Line {line_num} parsed as empty item list: '{line}'")
                     continue
 
                 for item_name in item_names:
@@ -94,24 +83,14 @@ def parse_categories(filepath):
                         if current_display_category == "Unknown" and current_main_category != "Unknown":
                              current_display_category = current_main_category
                         categories[item_name] = current_display_category
-                        logging.debug(f"  -> Found Item: '{item_name}' -> '{current_display_category}'")
-                    else:
-                         logging.warning(f"  -> Found empty item name after split/strip on line {line_num}: '{line}'")
-
         logging.info(f"Parsed {len(categories)} items from category file.")
-        sample_items = list(categories.items())[:5] + list(categories.items())[-5:]
-        logging.debug(f"Category parsing sample (first/last 5): {sample_items}")
         return categories
     except FileNotFoundError:
         logging.error(f"Category file not found at {filepath}. Categories will be missing.")
         return {}
-    except IOError as e: # More specific IO error
-        logging.error(f"IOError reading category file {filepath}: {e}", exc_info=True)
-        return {}
-    except Exception as e: # Catch-all for other parsing issues
+    except Exception as e:
         logging.error(f"Unexpected error parsing category file {filepath}: {e}", exc_info=True)
         return {}
-
 
 # --- Data Fetching ---
 def download_file(url, local_path):
@@ -119,101 +98,77 @@ def download_file(url, local_path):
     logging.info(f"Attempting to download {url} to {local_path}")
     try:
         response = requests.get(url, stream=True, timeout=60)
-        response.raise_for_status() # Raises HTTPError for bad responses (4xx or 5xx)
+        response.raise_for_status()
         with open(local_path, 'wb') as f:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
         logging.info(f"Successfully downloaded {local_path}")
         return True
-    except requests.exceptions.RequestException as e: # Catch specific requests errors
+    except requests.exceptions.RequestException as e:
         logging.error(f"Network error downloading {url}: {e}")
         return False
-    except IOError as e: # Catch file writing errors
-        logging.error(f"IOError saving file to {local_path}: {e}")
-        return False
-    except Exception as e: # Catch unexpected errors during download/save
+    except Exception as e:
         logging.error(f"Unexpected error downloading {url}: {e}", exc_info=True)
         return False
 
 # --- Data Loading and Processing ---
-def load_historical_data(days_to_load):
-    """Loads historical data from the SQLite database."""
-    logging.info(f"Loading historical data for up to {days_to_load} days from {DB_PATH}")
+def load_historical_data(days_to_load=0, for_ohlcv=False):
+    load_period_desc = f"up to {days_to_load} days" if days_to_load > 0 else "ALL"
+    purpose_desc = "for OHLCV" if for_ohlcv else "for general history"
+    logging.info(f"Loading {load_period_desc} historical data {purpose_desc} from {DB_PATH}")
+
     if not os.path.exists(DB_PATH):
-        logging.warning(f"{DB_PATH} not found.")
+        logging.warning(f"{DB_PATH} not found ({purpose_desc}).")
         return pd.DataFrame()
 
     try:
         with sqlite3.connect(DB_PATH) as conn:
-            if days_to_load > 0: # Only apply cutoff if days_to_load is positive
-                cutoff_timestamp = (datetime.now() - timedelta(days=days_to_load)).timestamp()
+            if days_to_load > 0:
+                cutoff_timestamp = (datetime.now(timezone.utc) - timedelta(days=days_to_load)).timestamp()
                 ask_query = "SELECT * FROM ask WHERE time >= ?"
                 bid_query = "SELECT * FROM bid WHERE time >= ?"
                 ask_df_wide = pd.read_sql_query(ask_query, conn, params=(cutoff_timestamp,))
                 bid_df_wide = pd.read_sql_query(bid_query, conn, params=(cutoff_timestamp,))
-            else: # Load all data
-                logging.info("Loading ALL historical data (days_to_load <= 0). This may take time for large DBs.")
+            else: # Load all data (or effectively all if HISTORICAL_DAYS is large)
                 ask_query = "SELECT * FROM ask"
                 bid_query = "SELECT * FROM bid"
                 ask_df_wide = pd.read_sql_query(ask_query, conn)
                 bid_df_wide = pd.read_sql_query(bid_query, conn)
 
-    except sqlite3.Error as e:
-        logging.error(f"Database error accessing {DB_PATH}: {e}", exc_info=True)
-        return pd.DataFrame()
-    except Exception as e:
-        logging.error(f"Unexpected error connecting to or reading {DB_PATH}: {e}", exc_info=True)
-        return pd.DataFrame()
+        logging.info(f"DB Query ({purpose_desc}): Loaded {len(ask_df_wide)} wide ask, {len(bid_df_wide)} wide bid records.")
+        if ask_df_wide.empty and bid_df_wide.empty:
+            return pd.DataFrame()
 
-    logging.info(f"DB Query: Loaded {len(ask_df_wide)} wide ask, {len(bid_df_wide)} wide bid records.")
-    if ask_df_wide.empty and bid_df_wide.empty:
-        return pd.DataFrame()
+        ask_df_long = pd.DataFrame()
+        if not ask_df_wide.empty and 'time' in ask_df_wide.columns:
+            item_columns_ask = [col for col in ask_df_wide.columns if col.lower() != 'time']
+            if item_columns_ask:
+                try:
+                    ask_df_long = ask_df_wide.melt(id_vars=['time'], value_vars=item_columns_ask, var_name='product', value_name='ask')
+                    ask_df_long['timestamp'] = pd.to_datetime(ask_df_long['time'], unit='s', errors='coerce').dt.tz_localize('UTC') # Localize to UTC immediately
+                    ask_df_long['ask'] = pd.to_numeric(ask_df_long['ask'], errors='coerce').replace(-1, pd.NA)
+                    ask_df_long.drop(columns=['time'], inplace=True)
+                    ask_df_long.dropna(subset=['timestamp', 'product'], inplace=True)
+                    ask_df_long = ask_df_long[['product', 'ask', 'timestamp']]
+                except Exception as e: logging.error(f"Error processing 'ask' data ({purpose_desc}): {e}", exc_info=True)
+            else: logging.warning(f"No item columns found in 'ask' table ({purpose_desc}).")
+        del ask_df_wide
 
-    # Process Ask Data
-    ask_df_long = pd.DataFrame()
-    if not ask_df_wide.empty and 'time' in ask_df_wide.columns:
-        item_columns_ask = [col for col in ask_df_wide.columns if col.lower() != 'time']
-        if item_columns_ask:
-            try:
-                logging.info(f"Melting 'ask' table ({len(ask_df_wide)} rows)...")
-                ask_df_long = ask_df_wide.melt(id_vars=['time'], value_vars=item_columns_ask, var_name='product', value_name='ask')
-                ask_df_long['timestamp'] = pd.to_datetime(ask_df_long['time'], unit='s', errors='coerce')
-                ask_df_long['ask'] = pd.to_numeric(ask_df_long['ask'], errors='coerce')
-                ask_df_long['ask'] = ask_df_long['ask'].replace(-1, pd.NA)
-                ask_df_long.drop(columns=['time'], inplace=True)
-                ask_df_long.dropna(subset=['timestamp'], inplace=True)
-                ask_df_long = ask_df_long[['product', 'ask', 'timestamp']]
-            except (TypeError, ValueError, KeyError, AttributeError) as melt_error:
-                logging.error(f"Error processing 'ask' data during melt/conversion: {melt_error}", exc_info=True)
-            except Exception as e:
-                 logging.error(f"Unexpected error processing 'ask' data: {e}", exc_info=True)
-        else: logging.warning("No item columns found in 'ask' table.")
-    del ask_df_wide
+        bid_df_long = pd.DataFrame()
+        if not bid_df_wide.empty and 'time' in bid_df_wide.columns:
+            item_columns_bid = [col for col in bid_df_wide.columns if col.lower() != 'time']
+            if item_columns_bid:
+                try:
+                    bid_df_long = bid_df_wide.melt(id_vars=['time'], value_vars=item_columns_bid, var_name='product', value_name='buy')
+                    bid_df_long['timestamp'] = pd.to_datetime(bid_df_long['time'], unit='s', errors='coerce').dt.tz_localize('UTC') # Localize to UTC
+                    bid_df_long['buy'] = pd.to_numeric(bid_df_long['buy'], errors='coerce').replace(-1, pd.NA)
+                    bid_df_long.drop(columns=['time'], inplace=True)
+                    bid_df_long.dropna(subset=['timestamp', 'product'], inplace=True)
+                    bid_df_long = bid_df_long[['product', 'buy', 'timestamp']]
+                except Exception as e: logging.error(f"Error processing 'bid' data ({purpose_desc}): {e}", exc_info=True)
+            else: logging.warning(f"No item columns found in 'bid' table ({purpose_desc}).")
+        del bid_df_wide
 
-    # Process Bid Data
-    bid_df_long = pd.DataFrame()
-    if not bid_df_wide.empty and 'time' in bid_df_wide.columns:
-        item_columns_bid = [col for col in bid_df_wide.columns if col.lower() != 'time']
-        if item_columns_bid:
-            try:
-                logging.info(f"Melting 'bid' table ({len(bid_df_wide)} rows)...")
-                bid_df_long = bid_df_wide.melt(id_vars=['time'], value_vars=item_columns_bid, var_name='product', value_name='buy')
-                bid_df_long['timestamp'] = pd.to_datetime(bid_df_long['time'], unit='s', errors='coerce')
-                bid_df_long['buy'] = pd.to_numeric(bid_df_long['buy'], errors='coerce')
-                bid_df_long['buy'] = bid_df_long['buy'].replace(-1, pd.NA)
-                bid_df_long.drop(columns=['time'], inplace=True)
-                bid_df_long.dropna(subset=['timestamp'], inplace=True)
-                bid_df_long = bid_df_long[['product', 'buy', 'timestamp']]
-            except (TypeError, ValueError, KeyError, AttributeError) as melt_error:
-                logging.error(f"Error processing 'bid' data during melt/conversion: {melt_error}", exc_info=True)
-            except Exception as e:
-                 logging.error(f"Unexpected error processing 'bid' data: {e}", exc_info=True)
-        else: logging.warning("No item columns found in 'bid' table.")
-    del bid_df_wide
-
-    # Merge Ask and Bid Data
-    logging.info("Merging melted ask and bid data...")
-    try:
         if not ask_df_long.empty and not bid_df_long.empty:
             merged_df = pd.merge(ask_df_long, bid_df_long, on=['product', 'timestamp'], how='outer')
         elif not ask_df_long.empty:
@@ -221,29 +176,31 @@ def load_historical_data(days_to_load):
         elif not bid_df_long.empty:
             merged_df = bid_df_long.copy(); merged_df['ask'] = pd.NA
         else:
-            merged_df = pd.DataFrame()
+            return pd.DataFrame() # Both were empty
         del ask_df_long, bid_df_long
 
         if not merged_df.empty:
-             logging.info(f"Sorting merged data ({len(merged_df)} records)...")
-             merged_df.sort_values(by=['product', 'timestamp'], inplace=True)
-             final_cols = ['product', 'buy', 'ask', 'timestamp']
-             for col in final_cols:
-                 if col not in merged_df.columns: merged_df[col] = pd.NA
-             merged_df = merged_df[final_cols]
-        logging.info(f"Finished historical data processing. Records: {len(merged_df)}")
+            # Timestamps should already be UTC from above
+            merged_df.sort_values(by=['product', 'timestamp'], inplace=True)
+            final_cols = ['product', 'buy', 'ask', 'timestamp'] # Ensure consistent column order
+            for col in final_cols:
+                if col not in merged_df.columns: merged_df[col] = pd.NA
+            merged_df = merged_df[final_cols]
+        logging.info(f"Finished historical data processing ({purpose_desc}). Records: {len(merged_df)}")
         return merged_df
-    except (pd.errors.MergeError, KeyError, ValueError) as merge_error:
-        logging.error(f"Error merging historical dataframes: {merge_error}", exc_info=True)
+
+    except sqlite3.Error as e:
+        logging.error(f"Database error accessing {DB_PATH} ({purpose_desc}): {e}", exc_info=True)
         return pd.DataFrame()
     except Exception as e:
-        logging.error(f"Unexpected error during historical data merge/sort: {e}", exc_info=True)
+        logging.error(f"Unexpected error reading {DB_PATH} ({purpose_desc}): {e}", exc_info=True)
         return pd.DataFrame()
 
 def load_live_data():
     """Loads live market data and vendor prices from the JSON file."""
     logging.info(f"Loading live data from {JSON_PATH}")
-    vendor_prices = {}; live_records = []
+    vendor_prices = {}
+    live_records = []
     if not os.path.exists(JSON_PATH):
         logging.warning(f"{JSON_PATH} not found.")
         return pd.DataFrame(), {}
@@ -257,7 +214,7 @@ def load_live_data():
             return pd.DataFrame(), {}
 
         market_data = data['market']
-        current_time = datetime.now(timezone.utc) 
+        current_time_utc = datetime.now(timezone.utc) # Use timezone-aware timestamp
 
         for product_name, price_info in market_data.items():
             if isinstance(price_info, dict) and 'ask' in price_info and 'bid' in price_info:
@@ -269,189 +226,50 @@ def load_live_data():
                     'product': product_name,
                     'buy': buy_price,
                     'ask': ask_price,
-                    'timestamp': current_time
+                    'timestamp': current_time_utc # Assign UTC timestamp
                 })
+
                 if vendor_price == -1 or vendor_price is None or pd.isna(vendor_price):
                     vendor_prices[product_name] = None
                 else:
                     try:
                         vendor_prices[product_name] = int(vendor_price)
                     except (ValueError, TypeError):
-                        logging.warning(f"Could not convert vendor price '{vendor_price}' to int for product '{product_name}'. Setting to None.")
                         vendor_prices[product_name] = None
-            else:
-                logging.warning(f"Skipping invalid/incomplete market data item in JSON: '{product_name}'")
+            # else: logging.debug(f"Skipping invalid/incomplete market data item in JSON: '{product_name}'") # Too verbose for INFO
 
         live_records_df = pd.DataFrame(live_records)
         if not live_records_df.empty:
             live_records_df['buy'] = pd.to_numeric(live_records_df['buy'], errors='coerce')
             live_records_df['ask'] = pd.to_numeric(live_records_df['ask'], errors='coerce')
-            live_records_df['timestamp'] = pd.to_datetime(live_records_df['timestamp'], errors='coerce')
-            live_records_df.dropna(subset=['timestamp'], inplace=True) 
-            live_records_df = live_records_df[['product', 'buy', 'ask', 'timestamp']] 
+            # Timestamp is already datetime and UTC
+            live_records_df = live_records_df[['product', 'buy', 'ask', 'timestamp']]
 
         logging.info(f"Loaded {len(live_records_df)} live records and {len(vendor_prices)} vendor prices.")
         return live_records_df, vendor_prices
-
-    except json.JSONDecodeError as e:
-        logging.error(f"Error decoding JSON from {JSON_PATH}: {e}", exc_info=True)
-        return pd.DataFrame(), {}
-    except FileNotFoundError: 
-        logging.error(f"File not found at {JSON_PATH} despite initial check.")
-        return pd.DataFrame(), {}
-    except IOError as e:
-        logging.error(f"IOError reading live data file {JSON_PATH}: {e}", exc_info=True)
-        return pd.DataFrame(), {}
-    except Exception as e: 
-        logging.error(f"Unexpected error loading live data: {e}", exc_info=True)
-        return pd.DataFrame(), {}
-
-
-# --- NEW: OHLCV Calculation ---
-def calculate_ohlcv_data(df, products, intervals):
-    """
-    Calculates OHLCV (Open, High, Low, Close, Volume) data for specified products and intervals.
-    'Volume' here is a proxy: the number of 'ask' data points in the interval.
-    Returns a dictionary: {product: {interval: [{t, o, h, l, c, v}, ...]}}
-    """
-    ohlcv_results = defaultdict(lambda: defaultdict(list))
-    if df.empty or not products or not intervals:
-        logging.warning("Cannot calculate OHLCV: DataFrame, product list, or interval list is empty.")
-        return ohlcv_results
-
-    logging.info(f"Calculating OHLCV data for {len(products)} products over intervals: {intervals}")
-
-    # Ensure timestamp is datetime and UTC
-    try:
-        if not pd.api.types.is_datetime64_any_dtype(df['timestamp']):
-            df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
-        if df['timestamp'].dt.tz is None:
-            df['timestamp'] = df['timestamp'].dt.tz_localize('UTC')
-        else:
-            df['timestamp'] = df['timestamp'].dt.tz_convert('UTC')
-        df.dropna(subset=['timestamp', 'product'], inplace=True) # Ensure essential columns for grouping are not NA
-        # Use 'ask' price for OHLC. Coerce to numeric.
-        df['ask'] = pd.to_numeric(df['ask'], errors='coerce')
-
-        if df.empty:
-            logging.warning("DataFrame became empty after timestamp/product/ask processing in calculate_ohlcv_data.")
-            return ohlcv_results
     except Exception as e:
-        logging.error(f"Error preparing data for OHLCV calculation: {e}", exc_info=True)
-        return ohlcv_results
-
-    # Filter DataFrame for relevant products only to reduce processing
-    df_filtered = df[df['product'].isin(products)].copy()
-    if df_filtered.empty:
-        logging.warning("No data found for the specified products in OHLCV calculation.")
-        return ohlcv_results
-    
-    df_filtered.set_index('timestamp', inplace=True)
-    
-    grouped_by_product = df_filtered.groupby('product')
-
-    for product_name, group in grouped_by_product:
-        logging.debug(f"Processing OHLCV for product: {product_name}")
-        if group.empty:
-            continue
-        for interval_str in intervals:
-            try:
-                # Resample 'ask' prices
-                resampled_ask = group['ask'].resample(interval_str)
-                
-                # Aggregate
-                ohlc = resampled_ask.ohlc() # open, high, low, close
-                volume = resampled_ask.count() # count of non-NA 'ask' prices as volume proxy
-
-                # Combine and format
-                interval_data = []
-                for timestamp, ohlc_row in ohlc.iterrows():
-                    if ohlc_row.isnull().all(): # Skip if all ohlc values are NaN for this period
-                        continue
-                    
-                    # Ensure o,h,l,c are not NaN/Inf before converting to int/float if necessary
-                    o = ohlc_row['open']
-                    h = ohlc_row['high']
-                    l = ohlc_row['low']
-                    c = ohlc_row['close']
-                    v = volume.get(timestamp, 0) # Get volume for this timestamp, default to 0
-
-                    # Replace NaN/Inf with None for JSON compatibility
-                    o = None if pd.isna(o) or not np.isfinite(o) else float(o)
-                    h = None if pd.isna(h) or not np.isfinite(h) else float(h)
-                    l = None if pd.isna(l) or not np.isfinite(l) else float(l)
-                    c = None if pd.isna(c) or not np.isfinite(c) else float(c)
-                    v = 0 if pd.isna(v) or not np.isfinite(v) else int(v)
-
-
-                    # Only add if there's at least a close price (or any valid OHLC value)
-                    if c is not None or o is not None or h is not None or l is not None:
-                        interval_data.append({
-                            't': int(timestamp.timestamp()), # Unix timestamp (seconds)
-                            'o': o,
-                            'h': h,
-                            'l': l,
-                            'c': c,
-                            'v': v
-                        })
-                
-                if interval_data: # Only add if we got some data for this interval
-                    ohlcv_results[product_name][interval_str] = interval_data
-                    logging.debug(f"  - {product_name} [{interval_str}]: {len(interval_data)} candles")
-
-            except Exception as e:
-                logging.error(f"Error calculating OHLCV for {product_name} at interval {interval_str}: {e}", exc_info=True)
-                continue
-    
-    logging.info(f"Finished OHLCV calculation. Processed data for {len(ohlcv_results)} products.")
-    return ohlcv_results
-
+        logging.error(f"Unexpected error loading live data from {JSON_PATH}: {e}", exc_info=True)
+        return pd.DataFrame(), {}
 
 # --- Trend Calculation ---
 def calculate_trends(df, products):
-    """
-    Calculates 24h trend based on 'ask' price for a given list of products.
-    Refined Logic:
-    - If >1 point in last 24h: Use 24h average 'ask'.
-    - If =1 point in last 24h: Use that single 'ask' price.
-    - If 0 points in last 24h: Use 7d average 'ask'.
-    - If 0 points in last 7d: No trend.
-    """
-    trends = {}; processed_count = 0
+    trends = {}
     if df.empty or not products: return trends
-
     now = datetime.now(timezone.utc)
     twenty_four_hours_ago = now - timedelta(hours=24)
     seven_days_ago = now - timedelta(days=7)
+    logging.info(f"Calculating trends for {len(products)} products...")
 
-    logging.info(f"Calculating trends for {len(products)} products relative to {now.strftime('%Y-%m-%d %H:%M:%S %Z')} using refined averaging logic (ASK price)")
+    # Ensure timestamp is UTC (should be already if processed correctly)
+    if df['timestamp'].dt.tz != timezone.utc:
+        df['timestamp'] = df['timestamp'].dt.tz_convert('UTC')
 
-    try:
-        if not pd.api.types.is_datetime64_any_dtype(df['timestamp']):
-            df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
-        if df['timestamp'].dt.tz is None:
-            df['timestamp'] = df['timestamp'].dt.tz_localize('UTC')
-        else:
-            df['timestamp'] = df['timestamp'].dt.tz_convert('UTC')
-        df.dropna(subset=['timestamp'], inplace=True)
-        if df.empty:
-            logging.warning("DataFrame is empty after timestamp processing in calculate_trends.")
-            return trends
-    except Exception as e:
-        logging.error(f"Error preparing timestamp column for trend calculation: {e}", exc_info=True)
-        return trends
-
-    try:
-        grouped = df.groupby('product')
-    except KeyError:
-        logging.error("Column 'product' not found for grouping in calculate_trends.")
-        return trends
-
-    for product in products: 
+    grouped = df.groupby('product')
+    processed_count = 0
+    for product in products:
         try:
             product_group = grouped.get_group(product)
             if product_group.empty: continue
-
             latest_data = product_group.iloc[-1]
             current_price = latest_data['ask']
             if pd.isna(current_price): continue
@@ -459,249 +277,282 @@ def calculate_trends(df, products):
             previous_price = pd.NA
             df_last_24h = product_group[product_group['timestamp'] >= twenty_four_hours_ago]
             valid_ask_24h = df_last_24h['ask'].dropna()
-            num_points_24h = len(valid_ask_24h)
-
-            if num_points_24h > 1:
-                previous_price = valid_ask_24h.mean()
-                logging.debug(f"Trend for '{product}': Using 24h avg ({num_points_24h} points) = {previous_price}")
-            elif num_points_24h == 1:
-                previous_price = valid_ask_24h.iloc[0]
-                logging.debug(f"Trend for '{product}': Using single 24h point = {previous_price}")
+            if len(valid_ask_24h) > 1: previous_price = valid_ask_24h.mean()
+            elif len(valid_ask_24h) == 1: previous_price = valid_ask_24h.iloc[0]
             else:
                 df_last_7d = product_group[product_group['timestamp'] >= seven_days_ago]
                 valid_ask_7d = df_last_7d['ask'].dropna()
-                if len(valid_ask_7d) > 0:
-                    previous_price = valid_ask_7d.mean()
-                    logging.debug(f"Trend for '{product}': Using 7d avg ({len(valid_ask_7d)} points) = {previous_price}")
-                else:
-                    logging.debug(f"Trend for '{product}': No valid ask price found in last 7 days.")
-                    previous_price = pd.NA
+                if len(valid_ask_7d) > 0: previous_price = valid_ask_7d.mean()
 
-            if pd.isna(previous_price): continue
-
-            if previous_price != 0:
-                change_pct = ((current_price - previous_price) / previous_price) * 100
-                trends[product] = change_pct
-                processed_count += 1
-            else:
-                trends[product] = float('inf') if current_price > 0 else 0.0
-
-        except KeyError:
-            logging.warning(f"KeyError processing trend for filtered product {product}. Skipping.")
-            continue
-        except Exception as e:
-            logging.error(f"Error calculating trend for {product}: {e}", exc_info=True)
-            continue
-
-    logging.info(f"Finished trend calculation. Calculated trends for {processed_count} out of {len(products)} products.")
+            if pd.notna(previous_price):
+                if previous_price != 0:
+                    trends[product] = ((current_price - previous_price) / previous_price) * 100
+                else: trends[product] = float('inf') if current_price > 0 else 0.0
+                processed_count +=1
+        except KeyError: continue # Product not in df
+        except Exception as e: logging.error(f"Trend error for {product}: {e}")
+    logging.info(f"Finished trend calculation. Trends for {processed_count} products.")
     return {k: (v if pd.notna(v) and np.isfinite(v) else None) for k, v in trends.items()}
 
 
+# --- Volatility & CV Calculation ---
 def calculate_volatility_and_cv(df, products, days=7):
-    """
-    Calculates price volatility (std dev) and normalized volatility (CV)
-    of ask price over a given period for a list of products.
-    Returns a dictionary: {product: {'std': std_dev, 'cv': cv_percent}}
-    """
     results = {}
-    if df.empty or not products:
-        logging.warning("Cannot calculate volatility/CV: DataFrame or product list is empty.")
-        return results
-
-    logging.info(f"Calculating {days}-day volatility & CV for {len(products)} products (using ASK price)...")
+    if df.empty or not products: return results
+    logging.info(f"Calculating {days}-day volatility & CV for {len(products)} products...")
     now = datetime.now(timezone.utc)
     time_cutoff = now - timedelta(days=days)
 
-    try:
-        if not pd.api.types.is_datetime64_any_dtype(df['timestamp']):
-            df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
-        if df['timestamp'].dt.tz is None:
-            df['timestamp'] = df['timestamp'].dt.tz_localize('UTC')
-        else:
-            df['timestamp'] = df['timestamp'].dt.tz_convert('UTC')
-
-        df.dropna(subset=['timestamp'], inplace=True)
-        if df.empty:
-             logging.warning("DataFrame is empty after timestamp processing in calculate_volatility_and_cv.")
-             return results
-        df_period = df[df['timestamp'] >= time_cutoff]
-        if df_period.empty:
-            logging.warning(f"No data found within the last {days} days for volatility/CV calculation.")
-            return results
-        grouped = df_period.groupby('product')
-
-    except Exception as e:
-        logging.error(f"Error preparing data for volatility/CV calculation: {e}", exc_info=True)
-        return results
-
+    if df['timestamp'].dt.tz != timezone.utc:
+        df['timestamp'] = df['timestamp'].dt.tz_convert('UTC')
+    df_period = df[df['timestamp'] >= time_cutoff]
+    if df_period.empty: return results
+    
+    grouped = df_period.groupby('product')['ask'] # Group by product and select 'ask' series
     processed_count = 0
-    for product in products: 
-        std_dev = None
-        cv_percent = None
-        mean_price = None
-        try:
-            if product not in grouped.groups: continue 
-
-            product_group = grouped.get_group(product)
-            valid_ask_period = product_group['ask'].dropna()
-            if len(valid_ask_period) >= 2:
-                std_dev = valid_ask_period.std(ddof=1) 
-                mean_price = valid_ask_period.mean()
-                if mean_price is not None and not pd.isna(mean_price) and mean_price != 0:
-                    cv = std_dev / mean_price
-                    cv_percent = cv * 100 
-                processed_count += 1
-        except KeyError:
-             logging.warning(f"KeyError processing volatility/CV for filtered product {product}. Skipping.")
-             continue
-        except Exception as e:
-            logging.error(f"Error calculating volatility/CV for {product}: {e}", exc_info=True)
-            continue
-        finally:
-            results[product] = {
+    for product_name, ask_series in grouped:
+        if product_name not in products: continue # Only for filtered products
+        valid_ask_period = ask_series.dropna()
+        if len(valid_ask_period) >= 2:
+            std_dev = valid_ask_period.std(ddof=1)
+            mean_price = valid_ask_period.mean()
+            cv_percent = (std_dev / mean_price * 100) if mean_price and mean_price != 0 else None
+            results[product_name] = {
                 'std': std_dev if pd.notna(std_dev) and np.isfinite(std_dev) else None,
                 'cv': cv_percent if pd.notna(cv_percent) and np.isfinite(cv_percent) else None
             }
-    logging.info(f"Finished volatility/CV calculation. Calculated stats for {processed_count} products with >=2 data points in the period.")
+            processed_count +=1
+    logging.info(f"Finished volatility/CV. Stats for {processed_count} products.")
     return results
 
+# --- Market Index Calculation ---
 def calculate_market_indices(product_trends, item_categories):
-    """Calculates the average trend for each item category based on provided trends."""
-    if not product_trends or not item_categories:
-        logging.warning("Cannot calculate market indices: Missing product trends or item categories.")
-        return {}
-
+    if not product_trends or not item_categories: return {}
     logging.info("Calculating market indices by category...")
-    category_trends = defaultdict(list) 
-
-    for product, trend in product_trends.items():
-        if trend is not None: 
+    category_trends = defaultdict(list)
+    for product, trend_val in product_trends.items():
+        if trend_val is not None: # Trend must be valid
             category = item_categories.get(product)
-            if category and category != "Unknown": 
-                category_trends[category].append(trend)
-
-    market_indices = {}
-    for category, trends_list in category_trends.items():
-        if trends_list: 
-            try:
-                average_trend = sum(trends_list) / len(trends_list)
-                market_indices[category] = average_trend
-            except ZeroDivisionError:
-                 market_indices[category] = None
-            except Exception as e:
-                 logging.error(f"Error calculating average trend for category '{category}': {e}")
-                 market_indices[category] = None
-        else:
-            market_indices[category] = None 
-
+            if category and category != "Unknown":
+                category_trends[category].append(trend_val)
+    
+    market_indices = {
+        cat: (sum(trends) / len(trends)) if trends else None
+        for cat, trends in category_trends.items()
+    }
     logging.info(f"Calculated market indices for {len(market_indices)} categories.")
     return {k: (v if pd.notna(v) and np.isfinite(v) else None) for k, v in market_indices.items()}
 
 
+# --- OPTIMIZED OHLCV Calculation ---
+def calculate_ohlcv_data_optimized(df_source, products, intervals):
+    ohlcv_results = defaultdict(lambda: defaultdict(list))
+    if df_source.empty or not products or not intervals:
+        logging.warning("OHLCV: Source DataFrame or products/intervals list is empty.")
+        return ohlcv_results
+
+    logging.info(f"OHLCV: Starting calculation for {len(products)} products, intervals: {intervals}.")
+    df = df_source.copy() # Work on a copy
+
+    # Ensure timestamp is datetime64[ns, UTC] and 'ask' is numeric
+    if not pd.api.types.is_datetime64_ns_dtype(df['timestamp']) or df['timestamp'].dt.tz != timezone.utc:
+        logging.debug("OHLCV: Timestamp column re-processing for UTC.")
+        df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce').dt.tz_convert('UTC')
+    df['ask'] = pd.to_numeric(df['ask'], errors='coerce')
+    df.dropna(subset=['timestamp', 'product', 'ask'], inplace=True)
+
+    if df.empty:
+        logging.warning("OHLCV: DataFrame empty after initial cleaning.")
+        return ohlcv_results
+
+    df_filtered = df[df['product'].isin(products)].set_index('timestamp')
+    if df_filtered.empty:
+        logging.warning("OHLCV: No data for specified products after filtering.")
+        return ohlcv_results
+    
+    logging.info(f"OHLCV: Filtered data size for OHLCV: {len(df_filtered)} records.")
+    grouped_by_product = df_filtered.groupby('product')['ask']
+    
+    product_count = 0
+    total_products_with_data = len(grouped_by_product)
+
+    for product_name, ask_series in grouped_by_product:
+        product_count += 1
+        if product_count % 50 == 0 or product_count == 1 or product_count == total_products_with_data:
+             logging.info(f"OHLCV: Processing product {product_count}/{total_products_with_data}: {product_name} (Data points: {len(ask_series)})")
+
+        if ask_series.empty: continue
+
+        for interval_str in intervals:
+            try:
+                resampler = ask_series.resample(interval_str)
+                ohlc_df = resampler.ohlc()
+                ohlc_df.dropna(how='all', inplace=True)
+                if ohlc_df.empty: continue
+
+                volume_series = resampler.count().reindex(ohlc_df.index).fillna(0).astype(int)
+                
+                ohlc_df['t'] = (ohlc_df.index.astype(np.int64) // 10**9)
+                ohlc_df.rename(columns={'open': 'o', 'high': 'h', 'low': 'l', 'close': 'c'}, inplace=True)
+                ohlc_df['v'] = volume_series
+                
+                cols_for_dict = ['t', 'o', 'h', 'l', 'c', 'v']
+                # Ensure all columns exist, add if missing (e.g., if ohlc returns empty for a perfect interval match)
+                for col in cols_for_dict:
+                    if col not in ohlc_df.columns: ohlc_df[col] = np.nan if col != 'v' else 0
+
+
+                final_candles_df = ohlc_df[cols_for_dict].copy() # Use .copy() before modifying for np.where
+
+                for col in ['o', 'h', 'l', 'c']:
+                    # Using .loc to avoid SettingWithCopyWarning if final_candles_df was a slice
+                    final_candles_df.loc[:, col] = np.where(np.isfinite(final_candles_df[col]), final_candles_df[col], None)
+                
+                # Volume should be fine, but ensure it's int, handle potential NaNs from merge if any
+                final_candles_df.loc[:, 'v'] = final_candles_df['v'].fillna(0).astype(int)
+
+
+                records_list = final_candles_df.to_dict('records')
+                if records_list:
+                    ohlcv_results[product_name][interval_str] = records_list
+            except Exception as e:
+                logging.error(f"OHLCV: Error for {product_name} interval {interval_str}: {e}", exc_info=True)
+    
+    logging.info(f"OHLCV: Finished calculation. Populated OHLCV for {len(ohlcv_results)} products.")
+    return ohlcv_results
+
+
+# --- Main Build Process ---
 def main():
-    """Main build process."""
     logging.info("--- Starting Static Site Build ---")
-    try: 
+    try:
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         os.makedirs(OUTPUT_DATA_DIR, exist_ok=True)
         logging.info(f"Output directory '{OUTPUT_DIR}' ensured.")
 
         item_categories = parse_categories(CATEGORY_FILE_PATH)
         if not item_categories:
-            logging.warning("Category data is empty or failed to load. Categories will be missing in output.")
+            logging.warning("Category data is empty. Categories will be missing.")
 
         logging.info("--- Downloading Data ---")
         db_ok = download_file(DB_URL, DB_PATH)
         json_ok = download_file(JSON_URL, JSON_PATH)
+
         if not json_ok:
-            logging.error("Failed to download critical live data (milkyapi.json). Cannot proceed.")
-            return 
+            logging.error("Failed to download milkyapi.json. Critical live data missing. Cannot proceed.")
+            return
         if not db_ok:
-            logging.warning("Failed to download market.db. Historical data and trends might be incomplete.")
+            logging.warning("Failed to download market.db. Historical data might be incomplete.")
 
         logging.info("--- Loading Data ---")
-        # MODIFIED: Pass HISTORICAL_DAYS (which is now larger)
-        historical_df = load_historical_data(days_to_load=HISTORICAL_DAYS)
-        live_df, vendor_prices = load_live_data() 
+        # Load full history for general trends, market_history.json
+        historical_df_full = load_historical_data(days_to_load=HISTORICAL_DAYS, for_ohlcv=False)
+        # Load shorter history specifically for OHLCV calculations
+        historical_df_ohlcv_source = load_historical_data(days_to_load=HISTORICAL_DAYS_FOR_OHLCV, for_ohlcv=True)
+        
+        live_df, vendor_prices = load_live_data()
 
-        if historical_df.empty and live_df.empty:
-             logging.error("Both historical and live data sources are empty. Cannot build site.")
-             combined_df = pd.DataFrame() 
+        # --- Combine data for general calculations (trends, volatility, summary) ---
+        # This uses the FULL historical data + live data
+        if historical_df_full.empty and live_df.empty:
+             logging.warning("Both FULL historical and live data are empty. Most calculations will be skipped.")
+             combined_df_full = pd.DataFrame()
         elif live_df.empty:
-             logging.warning("Live data is empty, using only historical data. Trends might be inaccurate.")
-             combined_df = historical_df.copy()
-        elif historical_df.empty:
-             logging.warning("Historical data is empty, using only live data. Trends and volatility cannot be calculated.")
-             combined_df = live_df.copy() 
+            logging.info("Live data is empty, using only FULL historical data for general calculations.")
+            combined_df_full = historical_df_full.copy()
+        elif historical_df_full.empty:
+            logging.warning("FULL Historical data is empty, using only live data for general calculations.")
+            combined_df_full = live_df.copy()
         else:
-             logging.info("Concatenating historical and live data...")
-             combined_df = pd.concat([historical_df, live_df], ignore_index=True)
-
-        if not combined_df.empty:
-            logging.info(f"Processing combined data ({len(combined_df)} records)...")
-            try:
-                combined_df['timestamp'] = pd.to_datetime(combined_df['timestamp'], errors='coerce')
-                combined_df.dropna(subset=['timestamp'], inplace=True)
-
-                if not combined_df.empty: 
-                    if combined_df['timestamp'].dt.tz is None:
-                        combined_df['timestamp'] = combined_df['timestamp'].dt.tz_localize('UTC')
-                    else:
-                        combined_df['timestamp'] = combined_df['timestamp'].dt.tz_convert('UTC')
-
-                    combined_df.sort_values(by=['product', 'timestamp'], inplace=True)
-                    combined_df.drop_duplicates(subset=['product', 'timestamp'], keep='last', inplace=True)
-                    combined_df['buy'] = pd.to_numeric(combined_df['buy'], errors='coerce')
-                    combined_df['ask'] = pd.to_numeric(combined_df['ask'], errors='coerce')
-                    logging.info(f"Final processed data size: {len(combined_df)} records.")
+            logging.info("Concatenating FULL historical and live data for general calculations...")
+            combined_df_full = pd.concat([historical_df_full, live_df], ignore_index=True)
+        
+        # Process combined_df_full
+        if not combined_df_full.empty:
+            logging.info(f"Processing combined_df_full ({len(combined_df_full)} records)...")
+            # Standardize: Ensure 'timestamp' is datetime and UTC, sort, drop duplicates
+            combined_df_full['timestamp'] = pd.to_datetime(combined_df_full['timestamp'], errors='coerce')
+            combined_df_full.dropna(subset=['timestamp'], inplace=True)
+            if not combined_df_full.empty: # Check again after dropna
+                if combined_df_full['timestamp'].dt.tz is None:
+                    combined_df_full['timestamp'] = combined_df_full['timestamp'].dt.tz_localize('UTC')
                 else:
-                    logging.warning("Combined DataFrame became empty after timestamp processing.")
+                    combined_df_full['timestamp'] = combined_df_full['timestamp'].dt.tz_convert('UTC')
+                combined_df_full.sort_values(by=['product', 'timestamp'], inplace=True)
+                combined_df_full.drop_duplicates(subset=['product', 'timestamp'], keep='last', inplace=True)
+                for col_type in ['buy', 'ask']:
+                    combined_df_full[col_type] = pd.to_numeric(combined_df_full[col_type], errors='coerce')
+            logging.info(f"Final processed combined_df_full size: {len(combined_df_full)} records.")
 
-            except Exception as e:
-                logging.error(f"Error during combined data processing (timestamps, types, duplicates): {e}", exc_info=True)
-                combined_df = pd.DataFrame() 
 
+        # --- Prepare data for OHLCV (shorter history + live data) ---
+        if historical_df_ohlcv_source.empty and live_df.empty:
+            logging.warning("Both OHLCV historical source and live data are empty. OHLCV will be empty.")
+            combined_df_ohlcv = pd.DataFrame()
+        elif live_df.empty:
+            logging.info("Live data is empty, using only OHLCV historical source for OHLCV.")
+            combined_df_ohlcv = historical_df_ohlcv_source.copy()
+        elif historical_df_ohlcv_source.empty:
+            logging.warning("OHLCV historical source is empty, using only live data for OHLCV.")
+            combined_df_ohlcv = live_df.copy()
         else:
-            logging.warning("Combined data is empty before processing.")
+            logging.info("Concatenating OHLCV historical source and live data...")
+            combined_df_ohlcv = pd.concat([historical_df_ohlcv_source, live_df], ignore_index=True)
 
-        all_products_initial = sorted(list(combined_df['product'].unique())) if not combined_df.empty else []
+        # Process combined_df_ohlcv
+        if not combined_df_ohlcv.empty:
+            logging.info(f"Processing combined_df_ohlcv ({len(combined_df_ohlcv)} records)...")
+            combined_df_ohlcv['timestamp'] = pd.to_datetime(combined_df_ohlcv['timestamp'], errors='coerce')
+            combined_df_ohlcv.dropna(subset=['timestamp'], inplace=True)
+            if not combined_df_ohlcv.empty:
+                if combined_df_ohlcv['timestamp'].dt.tz is None:
+                    combined_df_ohlcv['timestamp'] = combined_df_ohlcv['timestamp'].dt.tz_localize('UTC')
+                else:
+                    combined_df_ohlcv['timestamp'] = combined_df_ohlcv['timestamp'].dt.tz_convert('UTC')
+                combined_df_ohlcv.sort_values(by=['product', 'timestamp'], inplace=True)
+                combined_df_ohlcv.drop_duplicates(subset=['product', 'timestamp'], keep='last', inplace=True)
+                for col_type in ['buy', 'ask']:
+                     combined_df_ohlcv[col_type] = pd.to_numeric(combined_df_ohlcv[col_type], errors='coerce')
+            logging.info(f"Final processed combined_df_ohlcv size: {len(combined_df_ohlcv)} records.")
+
+
+        # --- Filter Products (based on vendor price, using combined_df_full for most comprehensive product list) ---
+        all_products_initial = sorted(list(combined_df_full['product'].unique())) if not combined_df_full.empty else []
         if not all_products_initial:
-             logging.warning("No products found in combined data to process.")
+             logging.warning("No products found in combined_df_full to process. Most outputs will be empty.")
              filtered_products = []
         else:
             logging.info(f"Applying vendor price filter to {len(all_products_initial)} initial products...")
             filtered_products = [
                 p for p in all_products_initial
                 if p == "Bag Of 10 Cowbells" or ((vp := vendor_prices.get(p)) is not None and vp > 0)
-            ]
-            logging.info(f"Filtered down to {len(filtered_products)} products (Removed items with VP=0 or VP=None, except Cowbells).")
+            ] # This logic is from your original script
+            logging.info(f"Filtered down to {len(filtered_products)} products based on vendor price.")
 
-        df_copy_for_calc = combined_df.copy() if not combined_df.empty else pd.DataFrame()
-        product_trends = calculate_trends(df_copy_for_calc.copy(), filtered_products)
-        product_volatility_stats = calculate_volatility_and_cv(df_copy_for_calc.copy(), filtered_products, days=VOLATILITY_DAYS)
+        # --- Calculations ---
+        # Trends, Volatility, Summary use combined_df_full
+        product_trends = calculate_trends(combined_df_full.copy() if not combined_df_full.empty else pd.DataFrame(), filtered_products)
+        product_volatility_stats = calculate_volatility_and_cv(combined_df_full.copy() if not combined_df_full.empty else pd.DataFrame(), filtered_products, days=VOLATILITY_DAYS)
         market_indices = calculate_market_indices(product_trends, item_categories)
 
-        # --- NEW: Calculate OHLCV Data ---
-        # Use the combined_df (already processed) and filtered_products list.
-        # Pass the CANDLESTICK_INTERVALS defined at the top.
+        # OHLCV Data uses combined_df_ohlcv
         product_ohlcv_data = {}
-        if not combined_df.empty and filtered_products:
-            logging.info("Calculating OHLCV data...")
-            # Pass a copy of combined_df to avoid modifications if any
-            product_ohlcv_data = calculate_ohlcv_data(combined_df.copy(), filtered_products, CANDLESTICK_INTERVALS)
+        if not combined_df_ohlcv.empty and filtered_products:
+            logging.info("Calculating OPTIMIZED OHLCV data...")
+            product_ohlcv_data = calculate_ohlcv_data_optimized(combined_df_ohlcv, filtered_products, CANDLESTICK_INTERVALS)
         else:
-            logging.warning("Skipping OHLCV calculation as combined data or filtered products list is empty.")
-
+            logging.warning("Skipping OHLCV calculation: OHLCV source data or filtered products list is empty.")
 
         # --- Generate JSON Data Files ---
         logging.info("--- Generating JSON Data Files ---")
 
-        # 1. Market Summary
+        # 1. Market Summary (uses latest from combined_df_full)
         market_summary = []
-        if not combined_df.empty:
+        if not combined_df_full.empty and filtered_products:
             try:
-                latest_data_map = combined_df.groupby('product').last()
-                for product in filtered_products: 
+                # Get latest data for each product from the FULL dataset
+                latest_data_map = combined_df_full.groupby('product').last()
+                for product in filtered_products:
                     if product in latest_data_map.index:
                         latest = latest_data_map.loc[product]
                         vol_stats = product_volatility_stats.get(product, {'std': None, 'cv': None})
@@ -710,128 +561,86 @@ def main():
                             'category': item_categories.get(product, 'Unknown'),
                             'buy': latest['buy'] if pd.notna(latest['buy']) else None,
                             'ask': latest['ask'] if pd.notna(latest['ask']) else None,
-                            'vendor': vendor_prices.get(product),
+                            'vendor': vendor_prices.get(product), # From live_data
                             'trend': product_trends.get(product),
-                            f'volatility_{VOLATILITY_DAYS}d': vol_stats['std'], 
-                            f'volatility_norm_{VOLATILITY_DAYS}d': vol_stats['cv'] 
+                            f'volatility_{VOLATILITY_DAYS}d': vol_stats['std'],
+                            f'volatility_norm_{VOLATILITY_DAYS}d': vol_stats['cv']
                         })
-                    else:
-                         logging.warning(f"Filtered product '{product}' not found in latest_data_map. Skipping summary entry.")
             except Exception as e:
                 logging.error(f"Error creating market summary list: {e}", exc_info=True)
-                market_summary = []
-
+        
         summary_path = os.path.join(OUTPUT_DATA_DIR, 'market_summary.json')
         try:
-            with open(summary_path, 'w') as f:
-                json.dump(market_summary, f, allow_nan=False, default=str)
+            with open(summary_path, 'w') as f: json.dump(market_summary, f, allow_nan=False)
             logging.info(f"Saved market summary ({len(market_summary)} items) to {summary_path}")
-        except (IOError, TypeError, ValueError) as e:
-            logging.error(f"Error saving market summary JSON to {summary_path}: {e}", exc_info=True)
+        except Exception as e: logging.error(f"Error saving market summary JSON: {e}", exc_info=True)
 
-        # 2. Full Historical Data (for line charts)
+        # 2. Full Historical Data (market_history.json, uses combined_df_full)
         nested_history_dict = {}
-        if not combined_df.empty:
-            logging.info("Grouping historical data by product for nested JSON...")
+        if not combined_df_full.empty:
             try:
-                if combined_df['timestamp'].dt.tz is None or str(combined_df['timestamp'].dt.tz) != 'UTC':
-                     logging.warning("Timestamps in combined_df are not UTC timezone-aware before history generation. Re-converting...")
-                     if combined_df['timestamp'].dt.tz is None:
-                         combined_df['timestamp'] = combined_df['timestamp'].dt.tz_localize('UTC')
-                     else:
-                         combined_df['timestamp'] = combined_df['timestamp'].dt.tz_convert('UTC')
-
-                grouped_history = combined_df.groupby('product')
+                grouped_history = combined_df_full.groupby('product')
                 for product_name, group_df in grouped_history:
-                    buy_data = group_df[['timestamp', 'buy']]
-                    buy_list = [
-                        {"timestamp": int(ts.timestamp()), "price": price if pd.notna(price) else None}
-                        for ts, price in zip(buy_data['timestamp'], buy_data['buy'])
-                        if pd.isna(price) or (pd.notna(price) and np.isfinite(price))
-                    ]
-                    ask_data = group_df[['timestamp', 'ask']]
-                    ask_list = [
-                        {"timestamp": int(ts.timestamp()), "price": price if pd.notna(price) else None}
-                        for ts, price in zip(ask_data['timestamp'], ask_data['ask'])
-                        if pd.isna(price) or (pd.notna(price) and np.isfinite(price))
-                    ]
-                    if buy_list or ask_list:
+                    if product_name not in filtered_products: continue # Only for filtered products
+                    
+                    buy_list = [{"timestamp": int(ts.timestamp()), "price": p if pd.notna(p) and np.isfinite(p) else None}
+                                for ts, p in zip(group_df['timestamp'], group_df['buy'])]
+                    ask_list = [{"timestamp": int(ts.timestamp()), "price": p if pd.notna(p) and np.isfinite(p) else None}
+                                for ts, p in zip(group_df['timestamp'], group_df['ask'])]
+                    if buy_list or ask_list: # Only add if there's some data
                          nested_history_dict[product_name] = {"buy": buy_list, "ask": ask_list}
             except Exception as e:
-                logging.error(f"Error processing data for market history JSON: {e}", exc_info=True)
-                nested_history_dict = {} 
+                logging.error(f"Error processing data for market_history.json: {e}", exc_info=True)
 
-        filtered_nested_history = {
-            p: data for p, data in nested_history_dict.items() if p in filtered_products
-        }
         history_path = os.path.join(OUTPUT_DATA_DIR, 'market_history.json')
         try:
-            logging.info(f"Attempting to save FILTERED nested market history JSON ({len(filtered_nested_history)} products)...")
-            with open(history_path, 'w') as f:
-                json.dump(filtered_nested_history, f, allow_nan=False)
-            logging.info(f"Saved filtered market history to {history_path}")
-        except (IOError, TypeError, ValueError) as e:
-            logging.error(f"Error saving market history JSON to {history_path}: {e}", exc_info=True)
+            with open(history_path, 'w') as f: json.dump(nested_history_dict, f, allow_nan=False)
+            logging.info(f"Saved market history ({len(nested_history_dict)} products) to {history_path}")
+        except Exception as e: logging.error(f"Error saving market history JSON: {e}", exc_info=True)
 
-        # 3. Market Indices JSON
+        # 3. Market Indices JSON (already calculated)
         indices_path = os.path.join(OUTPUT_DATA_DIR, 'market_indices.json')
         try:
-            with open(indices_path, 'w') as f:
-                json.dump(market_indices, f, allow_nan=False, default=str)
+            with open(indices_path, 'w') as f: json.dump(market_indices, f, allow_nan=False)
             logging.info(f"Saved market indices ({len(market_indices)} categories) to {indices_path}")
-        except (IOError, TypeError, ValueError) as e:
-            logging.error(f"Error saving market indices JSON to {indices_path}: {e}", exc_info=True)
+        except Exception as e: logging.error(f"Error saving market indices JSON: {e}", exc_info=True)
 
-        # --- NEW: 4. Save OHLCV Data ---
+        # 4. OHLCV Data JSON (already calculated from product_ohlcv_data)
         ohlcv_path = os.path.join(OUTPUT_DATA_DIR, 'market_ohlcv.json')
         try:
-            # product_ohlcv_data is already filtered by `filtered_products` indirectly
-            # because `calculate_ohlcv_data` received `filtered_products`
-            logging.info(f"Attempting to save OHLCV data JSON ({len(product_ohlcv_data)} products)...")
-            with open(ohlcv_path, 'w') as f:
-                # The structure is already {product: {interval: [data]}}, which is good.
-                json.dump(product_ohlcv_data, f, allow_nan=False)
-            logging.info(f"Saved OHLCV data to {ohlcv_path}")
-        except (IOError, TypeError, ValueError) as e:
-            logging.error(f"Error saving OHLCV data JSON to {ohlcv_path}: {e}", exc_info=True)
+            with open(ohlcv_path, 'w') as f: json.dump(product_ohlcv_data, f, allow_nan=False)
+            logging.info(f"Saved OHLCV data ({len(product_ohlcv_data)} products) to {ohlcv_path}")
+        except Exception as e: logging.error(f"Error saving OHLCV data JSON: {e}", exc_info=True)
 
 
+        # --- Render HTML Template ---
         logging.info("--- Rendering HTML Template ---")
         try:
-            unique_categories = sorted(list(set(item_categories.values()))) if item_categories else []
+            unique_categories = sorted(list(set(cat for cat in item_categories.values() if cat != "Unknown")))
             if not os.path.isdir(TEMPLATE_DIR):
                  logging.error(f"Template directory '{TEMPLATE_DIR}' not found!")
             else:
-                template_file_path = os.path.join(TEMPLATE_DIR, 'index.html')
-                if not os.path.isfile(template_file_path):
-                    logging.warning(f"HTML template file '{template_file_path}' not found! Skipping HTML rendering.")
-                else:
-                    env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
-                    template = env.get_template('index.html')
-                    html_context = {
-                        'last_update': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                        'categories': unique_categories,
-                        # NEW: Add a note about data freshness to the template context
-                        'data_freshness_note': "Note: Market data is updated periodically and may be up to 12 hours old."
-                        }
-                    html_content = template.render(html_context)
-                    html_path = os.path.join(OUTPUT_DIR, 'index.html')
-                    with open(html_path, 'w', encoding='utf-8') as f:
-                        f.write(html_content)
-                    logging.info(f"Saved main HTML to {html_path}")
-
+                env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
+                template = env.get_template('index.html') # Assumes index.html is your main template
+                html_context = {
+                    'last_update': datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC'), # Be explicit about UTC
+                    'categories': unique_categories,
+                    'data_freshness_note': "Note: Market data is updated periodically and may be up to 12 hours old."
+                }
+                html_content = template.render(html_context)
+                html_path = os.path.join(OUTPUT_DIR, 'index.html')
+                with open(html_path, 'w', encoding='utf-8') as f:
+                    f.write(html_content)
+                logging.info(f"Saved main HTML to {html_path}")
         except TemplateNotFound as e:
              logging.error(f"Jinja2 template not found: {e}", exc_info=True)
-        except IOError as e:
-             logging.error(f"IOError rendering or saving HTML template: {e}", exc_info=True)
-        except Exception as e: 
+        except Exception as e:
             logging.error(f"Unexpected error rendering or saving HTML template: {e}", exc_info=True)
 
-    except Exception as e: 
-         logging.critical(f"An critical error occurred during the main build process: {e}", exc_info=True)
+    except Exception as e:
+         logging.critical(f"A critical error occurred during the main build process: {e}", exc_info=True)
     finally:
         logging.info("--- Static Site Build Finished ---")
-
 
 if __name__ == '__main__':
     main()
