@@ -34,7 +34,7 @@ TEMPLATE_DIR = "templates" # Directory for Jinja templates
 HISTORICAL_DAYS = 365 * 5 # Load up to 5 years of data, effectively "all" for most practical purposes
 VOLATILITY_DAYS = 7 # How many days back to calculate volatility
 # NEW: Candlestick intervals to pre-calculate
-CANDLESTICK_INTERVALS = ['1H', '4H', '1D', '7D'] # Define desired intervals, e.g., 1 hour, 4 hours, 1 day, 7 days
+CANDLESTICK_INTERVALS = ['1h', '4h', '1D', '7D'] # Define desired intervals, e.g., 1 hour, 4 hours, 1 day, 7 days
 
 # --- Category Parsing ---
 def parse_categories(filepath):
