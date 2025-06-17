@@ -234,7 +234,8 @@ def load_historical_data(days_to_load):
 def load_live_data():
     """Loads live market data and vendor prices from the JSON file."""
     logging.info(f"Loading live data from {JSON_PATH}")
-    vendor_prices = {}; live_records = []
+    vendor_prices = {}
+    live_records = []
     if not os.path.exists(JSON_PATH):
         logging.warning(f"{JSON_PATH} not found.")
         return pd.DataFrame(), {}
@@ -243,61 +244,55 @@ def load_live_data():
         with open(JSON_PATH, 'r') as f:
             data = json.load(f)
 
-        if 'market' not in data or not isinstance(data['market'], dict):
-            logging.error(f"Invalid JSON structure in {JSON_PATH}: 'market' key missing or not a dictionary.")
+        if 'marketData' not in data or not isinstance(data['marketData'], dict):
+            logging.error(f"Invalid JSON structure in {JSON_PATH}: 'marketData' key missing or not a dictionary.")
             return pd.DataFrame(), {}
 
-        market_data = data['market']
-        current_time = datetime.now(timezone.utc) # Use timezone-aware timestamp
+        market_data = data['marketData']
+        current_time = datetime.now(timezone.utc)
 
-        for product_name, price_info in market_data.items():
-            if isinstance(price_info, dict) and 'ask' in price_info and 'bid' in price_info:
-                # Convert -1 to pd.NA for internal processing
-                ask_price = pd.NA if price_info['ask'] == -1 else price_info['ask']
-                buy_price = pd.NA if price_info['bid'] == -1 else price_info['bid']
-                vendor_price = price_info.get('vendor', pd.NA) # Use NA for missing vendor price
+        for product_path, tiers in market_data.items():
+            if not isinstance(tiers, dict):
+                continue
+
+            for tier_str, prices in tiers.items():
+                if not isinstance(prices, dict):
+                    continue
+
+                ask_price = prices.get('a', -1)
+                buy_price = prices.get('b', -1)
+
+                ask = pd.NA if ask_price == -1 else ask_price
+                buy = pd.NA if buy_price == -1 else buy_price
 
                 live_records.append({
-                    'product': product_name,
-                    'buy': buy_price,
-                    'ask': ask_price,
+                    'product': product_path,
+                    'buy': buy,
+                    'ask': ask,
                     'timestamp': current_time
                 })
 
-                # Store vendor price (handle -1 and non-integer values)
-                if vendor_price == -1 or vendor_price is None or pd.isna(vendor_price):
-                    vendor_prices[product_name] = None
-                else:
-                    try:
-                        vendor_prices[product_name] = int(vendor_price)
-                    except (ValueError, TypeError):
-                        logging.warning(f"Could not convert vendor price '{vendor_price}' to int for product '{product_name}'. Setting to None.")
-                        vendor_prices[product_name] = None
-            else:
-                logging.warning(f"Skipping invalid/incomplete market data item in JSON: '{product_name}'")
-
         live_records_df = pd.DataFrame(live_records)
         if not live_records_df.empty:
-            # Convert types after DataFrame creation
             live_records_df['buy'] = pd.to_numeric(live_records_df['buy'], errors='coerce')
             live_records_df['ask'] = pd.to_numeric(live_records_df['ask'], errors='coerce')
             live_records_df['timestamp'] = pd.to_datetime(live_records_df['timestamp'], errors='coerce')
-            live_records_df.dropna(subset=['timestamp'], inplace=True) # Ensure timestamp is valid
-            live_records_df = live_records_df[['product', 'buy', 'ask', 'timestamp']] # Ensure column order
+            live_records_df.dropna(subset=['timestamp'], inplace=True)
+            live_records_df = live_records_df[['product', 'buy', 'ask', 'timestamp']]
 
-        logging.info(f"Loaded {len(live_records_df)} live records and {len(vendor_prices)} vendor prices.")
+        logging.info(f"Loaded {len(live_records_df)} live records.")
         return live_records_df, vendor_prices
 
     except json.JSONDecodeError as e:
         logging.error(f"Error decoding JSON from {JSON_PATH}: {e}", exc_info=True)
         return pd.DataFrame(), {}
-    except FileNotFoundError: # Should be caught by os.path.exists, but good practice
+    except FileNotFoundError:
         logging.error(f"File not found at {JSON_PATH} despite initial check.")
         return pd.DataFrame(), {}
     except IOError as e:
         logging.error(f"IOError reading live data file {JSON_PATH}: {e}", exc_info=True)
         return pd.DataFrame(), {}
-    except Exception as e: # Catch-all for other issues (e.g., unexpected structure)
+    except Exception as e:
         logging.error(f"Unexpected error loading live data: {e}", exc_info=True)
         return pd.DataFrame(), {}
 
