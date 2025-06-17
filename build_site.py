@@ -17,9 +17,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [%
 
 # Source Data URLs and Paths
 DB_URL = "https://raw.githubusercontent.com/holychikenz/MWIApi/main/market.db"
-JSON_URL = "https://raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json"
+JSON_URL = "https://www.milkywayidle.com/game_data/marketplace.json"
 DB_PATH = "market.db" # Downloaded file paths
-JSON_PATH = "milkyapi.json"
+JSON_PATH = "marketplace.json"
 CATEGORY_FILE_PATH = "cata.txt" # Path to your category file
 
 # Output directory for static files
@@ -532,7 +532,7 @@ def main():
         db_ok = download_file(DB_URL, DB_PATH)
         json_ok = download_file(JSON_URL, JSON_PATH)
         if not json_ok:
-            logging.error("Failed to download critical live data (milkyapi.json). Cannot proceed.")
+            logging.error("Failed to download critical live data (marketplace.json). Cannot proceed.")
             return # Stop execution if live data fails
         if not db_ok:
             logging.warning("Failed to download market.db. Historical data and trends might be incomplete.")
