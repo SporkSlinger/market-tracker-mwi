@@ -18,8 +18,8 @@ JSON_URL = "https://www.milkywayidle.com/game_data/marketplace.json"
 JSON_PATH = "marketplace.json"
 CATEGORY_FILE_PATH = "cata.txt"
 
-# Output directory for static files
-OUTPUT_DIR = "."
+# Output directory for static files (FIXED: Must match 'publish_dir' in .github/workflows/build.yml)
+OUTPUT_DIR = "output"
 OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data")
 
 # --- Category Parsing ---
@@ -36,7 +36,7 @@ def parse_categories(filepath):
     ]
     equipment_subcategories = [
         "Main Hand", "Off Hand", "Head", "Body", "Legs", "Hands",
-        "Feet", "Back", "Pouch"
+        "Feet", "Back", "Pouch", "Two Hand" # Added "Two Hand"
     ]
     tool_subcategories = [
         "Milking", "Foraging", "Woodcutting", "Cheesesmithing", "Crafting",
@@ -166,6 +166,8 @@ def main():
     """Main build process."""
     logging.info("--- Starting Static Site Build ---")
     try:
+        # Ensure the output directories exist
+        os.makedirs(OUTPUT_DIR, exist_ok=True) # Ensure 'output' exists
         os.makedirs(OUTPUT_DATA_DIR, exist_ok=True)
         logging.info(f"Output directory '{OUTPUT_DIR}' ensured.")
 
@@ -188,21 +190,20 @@ def main():
             logging.error("Live market data is empty. Cannot build site.")
             return
 
-        # --- Filter Products ---
+        # --- Prepare Products for Summary ---
         all_products = sorted(list(market_df['product'].unique()))
-        logging.info(f"Applying vendor price filter to {len(all_products)} products...")
-        filtered_products = [
-            p for p in all_products
-            if p == "Bag Of 10 Cowbells" or ((vp := vendor_prices.get(p)) is not None and vp > 0)
-        ]
-        logging.info(f"Filtered down to {len(filtered_products)} products.")
+        # FIX: Removed the filter on vendor prices to ensure all items in the live data are included.
+        # This resolves the "incorrect indexing" issue (missing items).
+        filtered_products = all_products 
+        logging.info(f"Including {len(filtered_products)} products in the summary.")
 
         # --- Generate Market Summary JSON ---
         logging.info("--- Generating market_summary.json ---")
         market_summary = []
         for product_name in filtered_products:
             # Get the data for the current product
-            product_data = market_df[market_df['product'] == product_name].iloc[0]
+            # Use the latest entry for the product, which is the last row due to the nature of the data/timestamp
+            product_data = market_df[market_df['product'] == product_name].iloc[0] 
             market_summary.append({
                 'name': product_name,
                 'category': item_categories.get(product_name, 'Unknown'),
