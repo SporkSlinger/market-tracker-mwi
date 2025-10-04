@@ -8,7 +8,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script> <!-- Added Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- FIX: Added Chart.js Date Adapter for time scale functionality -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
     <style>
         /* --- CSS Variables for Theming --- */
@@ -94,7 +96,7 @@
         .modal-header h2 { margin: 0; font-size: 1.5em; font-weight: 600; color: var(--accent-color); }
         .close-btn { color: var(--muted-text-color); font-size: 28px; font-weight: bold; cursor: pointer; transition: color 0.15s ease; }
         .close-btn:hover, .close-btn:focus { color: var(--negative-color); text-decoration: none; }
-        .chart-container { height: 300px; width: 100%; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; background-color: var(--bg-color); }
+        .chart-container { position: relative; height: 300px; width: 100%; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; background-color: var(--bg-color); }
         .enhanced-data { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 10px; }
         .enhanced-tier { background-color: var(--bg-color); padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.9em; }
         .tier-label { font-weight: 600; color: var(--text-color-primary); margin-bottom: 4px; }
@@ -163,8 +165,8 @@
                         <th data-translate-key="colCategory">Category</th>
                         <th data-translate-key="colAsk">Ask</th>
                         <th data-translate-key="colBuy">Buy</th>
-                        <th data-translate-key="colTrend">24h Trend</th> <!-- New Column -->
-                        <th data-translate-key="colVolatility">7d Volatility</th> <!-- New Column -->
+                        <th data-translate-key="colTrend">24h Trend</th>
+                        <th data-translate-key="colVolatility">7d Volatility</th>
                     </tr>
                 </thead>
                 <tbody id="item-table-body"></tbody>
@@ -199,7 +201,7 @@
                 </div>
                 
                 <h3>Price History (Last 30 Days)</h3>
-                <div class="chart-container">
+                <div class="chart-container" id="chart-parent">
                     <canvas id="priceChart"></canvas>
                 </div>
 
@@ -213,7 +215,7 @@
 
     <script>
         // --- Global Constants ---
-        const VOLATILITY_DAYS = 7; // Fix: Added missing constant declaration.
+        const VOLATILITY_DAYS = 7;
         
         // --- Global State ---
         let marketSummary = [];
@@ -228,7 +230,6 @@
         let currentLanguage = 'en';
         const LANG_STORAGE_KEY = 'mwiMarketLang';
         
-        // --- NEW GLOBAL STATE FOR GRAPH/ENHANCED DATA ---
         let enhancedData = {};
         let historyData = {};
         let indexData = {}; // Currently unused but fetched
@@ -263,7 +264,8 @@
                 'pageInfo': 'Page {currentPage} of {totalPages}', 'prevPage': '« Previous', 'nextPage': 'Next »', 
                 'footerMadeBy': 'Made by Sporky with AI', 'footerStatus': 'Data Fetched:', 'footerRepo': 'GitHub Repo', 
                 'pinActionPin': 'Pin Item', 'pinActionUnpin': 'Unpin Item', 'vendorPrice': 'Vendor Price',
-                'volatilityTitle': 'Volatility (7d CV)', 'categoryInfo': 'Category: {category}', 'askPrice': 'Ask', 'buyPrice': 'Buy'
+                'volatilityTitle': 'Volatility (7d CV)', 'categoryInfo': 'Category: {category}', 'askPrice': 'Ask', 'buyPrice': 'Buy',
+                'noEnhancedData': 'No enhanced price data available.', 'noHistoryData': 'Not enough historical data available for this item.'
             },
             'zh': {
                 'mainTitle': 'MWI 市场数据', 'subHeaderText': '显示当前市场价格。', 'toggleTheme': '切换主题',
@@ -274,7 +276,8 @@
                 'pageInfo': '第 {currentPage} 页 / 共 {totalPages} 页', 'prevPage': '« 上一页', 'nextPage': '下一页 »', 
                 'footerMadeBy': '由 Sporky 与 AI 制作', 'footerStatus': '数据获取时间:', 'footerRepo': 'GitHub 仓库', 
                 'pinActionPin': '置顶物品', 'pinActionUnpin': '取消置顶', 'vendorPrice': '商店价格',
-                'volatilityTitle': '波动率 (7日CV)', 'categoryInfo': '类别: {category}', 'askPrice': '卖价', 'buyPrice': '买价'
+                'volatilityTitle': '波动率 (7日CV)', 'categoryInfo': '类别: {category}', 'askPrice': '卖价', 'buyPrice': '买价',
+                'noEnhancedData': '没有可用的强化价格数据。', 'noHistoryData': '此物品没有足够的历史数据。'
             }
         };
 
@@ -310,7 +313,6 @@
         // --- Utility Functions ---
         function formatPrice(price) {
             if (price === null || price === undefined) return '<span class="na-value">--</span>';
-            // Use currentLanguage for locale-aware number formatting
             return price.toLocaleString(currentLanguage);
         }
         
@@ -345,13 +347,13 @@
         // --- Theme Switching Logic ---
         const THEME_KEY = 'mwi-market-theme';
         function applyTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : null);
-            if(theme !== 'dark') document.documentElement.removeAttribute('data-theme');
+            document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem(THEME_KEY, theme);
         }
         function initTheme() {
             const savedTheme = localStorage.getItem(THEME_KEY);
-            applyTheme(savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
         }
 
         // --- Data Fetching ---
@@ -364,18 +366,18 @@
             try {
                 pinnedItems = getPinnedItems();
                 
-                // Fetch all four generated data files in parallel
+                // FIX: Added cache-busting query parameter to fetch requests
+                const cacheBuster = '?t=' + Date.now();
                 const [summaryRes, enhancedRes, historyRes, indexRes] = await Promise.all([
-                    fetch('./data/market_summary.json?t=' + Date.now()),
-                    fetch('./data/market_enhanced.json?t=' + Date.now()),
-                    fetch('./data/market_history.json?t=' + Date.now()),
-                    fetch('./data/market_indices.json?t=' + Date.now()),
+                    fetch('./data/market_summary.json' + cacheBuster),
+                    fetch('./data/market_enhanced.json' + cacheBuster),
+                    fetch('./data/market_history.json' + cacheBuster),
+                    fetch('./data/market_indices.json' + cacheBuster),
                 ]);
                 
                 if (!summaryRes.ok) throw new Error(`Failed to fetch summary data (Status: ${summaryRes.status})`);
                 
                 marketSummary = await summaryRes.json();
-                // Store new data globally
                 enhancedData = await enhancedRes.json();
                 historyData = await historyRes.json();
                 indexData = await indexRes.json();
@@ -395,7 +397,6 @@
         
         // --- Populate Category Filter ---
         function populateCategoryFilter() {
-            // Use the categories present in the current summary
             const categories = [...new Set(marketSummary.map(item => item.category).filter(Boolean))].sort();
             const currentValue = categoryFilterEl.value;
             categoryFilterEl.innerHTML = `<option value="All" data-translate-key="allCategories">${getTranslation('allCategories')}</option>`;
@@ -424,15 +425,13 @@
                 const [sortKey, direction] = currentSort.split('_');
                 const asc = direction === 'asc';
                 
-                // Trend, Volatility, Ask, Buy keys might be dynamic (e.g., volatility_norm_7d)
-                const keyA = sortKey === 'volatility' ? `volatility_norm_${VOLATILITY_DAYS}d` : sortKey;
-                const keyB = sortKey === 'volatility' ? `volatility_norm_${VOLATILITY_DAYS}d` : sortKey;
+                const keyA_raw = sortKey === 'volatility' ? `volatility_norm_${VOLATILITY_DAYS}d` : sortKey;
+                const keyB_raw = sortKey === 'volatility' ? `volatility_norm_${VOLATILITY_DAYS}d` : sortKey;
                 
-                const valA = a[keyA];
-                const valB = b[keyB];
+                const valA = a[keyA_raw];
+                const valB = b[keyB_raw];
 
-                if (typeof valA === 'number' || typeof valB === 'number' || sortKey === 'ask' || sortKey === 'buy') {
-                    // Treat null/undefined values as Infinity or -Infinity for sorting price/trend/volatility
+                if (['ask', 'buy', 'trend', 'volatility'].includes(sortKey)) {
                     const numA = valA ?? (asc ? Infinity : -Infinity);
                     const numB = valB ?? (asc ? Infinity : -Infinity);
                     return asc ? numA - numB : numB - numA;
@@ -455,7 +454,7 @@
             const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
             currentPage = Math.max(1, Math.min(currentPage, totalPages));
             const itemsToDisplay = filteredAndSortedSummary.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-            const volatilityKey = `volatility_norm_${VOLATILITY_DAYS}d`; // Uses the global constant
+            const volatilityKey = `volatility_norm_${VOLATILITY_DAYS}d`;
 
             if (itemsToDisplay.length === 0) {
                 const tr = document.createElement('tr');
@@ -467,18 +466,17 @@
                     const isPinned = pinnedItems.includes(item.name);
                     const pinIconClass = isPinned ? 'fas fa-thumbtack pin-icon pinned' : 'far fa-thumbtack pin-icon';
                     
-                    tr.setAttribute('data-item-name', item.name); // CRITICAL: Add item name for modal click
+                    tr.setAttribute('data-item-name', item.name);
                     
                     tr.innerHTML = `
-                        <td class="pin-cell"><i class="${pinIconClass}" data-item-name="${item.name}" title="${getTranslation(isPinned ? 'pinActionUnpin' : 'pinActionPin')}"></i></td>
+                        <td class="pin-cell"><i class="${pinIconClass}" data-item-name="${item.name}" title="${getTranslation(isPinned ? 'pinActionUnpin' : 'pinActionUnpin')}"></i></td>
                         <td>${item.name}</td>
                         <td>${item.category || '<span class="na-value">N/A</span>'}</td>
-                        <td>${formatPrice(item.ask)}</td>
-                        <td>${formatPrice(item.buy)}</td>
-                        <td>${formatTrend(item.trend)}</td> <!-- New column -->
-                        <td>${formatVolatility(item[volatilityKey])}</td> <!-- New column -->
+                        <td style="text-align:right;">${formatPrice(item.ask)}</td>
+                        <td style="text-align:right;">${formatPrice(item.buy)}</td>
+                        <td style="text-align:right;">${formatTrend(item.trend)}</td>
+                        <td style="text-align:right;">${formatVolatility(item[volatilityKey])}</td>
                     `;
-                    // Note: Pin click handler must use stopPropagation to prevent modal opening when pinning
                     tr.querySelector('.pin-icon').addEventListener('click', (e) => {
                         e.stopPropagation(); 
                         togglePin(e.target.dataset.itemName);
@@ -510,12 +508,11 @@
             const enhanced = enhancedData[itemName];
             const history = historyData[itemName];
             
-            if (!itemSummary) return; // Should not happen
+            if (!itemSummary) return;
 
             document.getElementById('modal-item-name').textContent = itemName;
             document.getElementById('modal-category-info').innerHTML = getTranslation('categoryInfo', {category: itemSummary.category || 'N/A'});
             
-            // Volatility and Vendor Price
             const volatilityKey = `volatility_norm_${VOLATILITY_DAYS}d`;
             document.getElementById('modal-volatility').innerHTML = 
                 `${getTranslation('volatilityTitle')}: <strong>${formatVolatility(itemSummary[volatilityKey])}</strong>`;
@@ -526,8 +523,8 @@
             const enhancedContainer = document.getElementById('enhanced-prices-container');
             enhancedContainer.innerHTML = '';
             
-            if (enhanced && enhanced.tiers) {
-                // Sort tiers numerically (keys are strings "0", "1", etc.)
+            // FIX: Corrected logic to show "no data" message
+            if (enhanced && enhanced.tiers && Object.keys(enhanced.tiers).length > 0) {
                 const sortedTiers = Object.keys(enhanced.tiers).sort((a, b) => parseInt(a) - parseInt(b));
                 
                 sortedTiers.forEach(tier => {
@@ -544,7 +541,7 @@
                     enhancedContainer.appendChild(tierDiv);
                 });
             } else {
-                enhancedContainer.innerHTML = `<div style="grid-column: 1 / -1; color: var(--muted-text-color);">No enhanced price data available.</div>`;
+                enhancedContainer.innerHTML = `<div style="grid-column: 1 / -1; color: var(--muted-text-color);">${getTranslation('noEnhancedData')}</div>`;
             }
 
             // Price History Chart
@@ -553,57 +550,44 @@
             modalEl.style.display = 'block';
         }
         
-        function renderChart(historyData) {
-            if (priceChartInstance) priceChartInstance.destroy(); // Destroy previous chart
+        function renderChart(itemHistoryData) {
+            if (priceChartInstance) priceChartInstance.destroy();
             
+            const chartParent = document.getElementById('chart-parent');
+            // Reset parent content in case a "no data" message was previously inserted
+            chartParent.innerHTML = '<canvas id="priceChart"></canvas>';
             const canvasEl = document.getElementById('priceChart');
-            if (!historyData || historyData.length === 0) {
-                canvasEl.style.display = 'none';
-                canvasEl.parentElement.innerHTML = `<p style="text-align:center; color: var(--muted-text-color); padding: 50px 0;">Not enough historical data available for this item.</p>`;
+
+            if (!itemHistoryData || itemHistoryData.length === 0) {
+                chartParent.innerHTML = `<p style="text-align:center; color: var(--muted-text-color); padding: 50px 0;">${getTranslation('noHistoryData')}</p>`;
                 return;
             }
-            canvasEl.style.display = 'block';
             
-            const dataPoints = historyData.map(point => ({
-                x: point[0], // timestamp
-                ask: point[1], // ask
-                buy: point[2]  // buy
-            }));
-            
-            // Filter out points where both ask and buy are null
-            const validDataPoints = dataPoints.filter(p => p.ask !== null || p.buy !== null);
-            
-            const dates = validDataPoints.map(p => p.x);
-            const askPrices = validDataPoints.map(p => p.ask);
-            const buyPrices = validDataPoints.map(p => p.buy);
-            
-            const borderColor = document.documentElement.getAttribute('data-theme') === 'dark' 
-                ? 'rgba(88, 166, 255, 0.7)' : 'rgba(9, 105, 218, 0.7)';
-            const backgroundColor = document.documentElement.getAttribute('data-theme') === 'dark' 
-                ? 'rgba(88, 166, 255, 0.1)' : 'rgba(9, 105, 218, 0.1)';
+            const validDataPoints = itemHistoryData
+                .map(p => ({ x: p[0], ask: p[1], buy: p[2] }))
+                .filter(p => p.ask !== null || p.buy !== null);
 
             priceChartInstance = new Chart(canvasEl, {
                 type: 'line',
                 data: {
-                    labels: dates, // Chart.js uses this if no x-axis data is defined
                     datasets: [
                         {
                             label: getTranslation('askPrice'),
-                            data: askPrices,
+                            data: validDataPoints.map(p => ({ x: p.x, y: p.ask })),
                             borderColor: 'var(--negative-color)',
                             backgroundColor: 'rgba(207, 34, 46, 0.1)',
-                            fill: false,
                             tension: 0.1,
-                            pointRadius: 0
+                            pointRadius: 1,
+                            spanGaps: true
                         },
                         {
                             label: getTranslation('buyPrice'),
-                            data: buyPrices,
+                            data: validDataPoints.map(p => ({ x: p.x, y: p.buy })),
                             borderColor: 'var(--positive-color)',
                             backgroundColor: 'rgba(26, 127, 55, 0.1)',
-                            fill: false,
                             tension: 0.1,
-                            pointRadius: 0
+                            pointRadius: 1,
+                            spanGaps: true
                         }
                     ]
                 },
@@ -615,65 +599,44 @@
                             type: 'time',
                             time: {
                                 unit: 'day',
-                                tooltipFormat: 'MMM D, YYYY h:mm A'
+                                tooltipFormat: 'MMM d, yyyy h:mm a'
                             },
-                            title: {
-                                display: true,
-                                text: 'Date'
-                            },
-                            ticks: {
-                                color: 'var(--text-color-secondary)'
-                            },
-                            grid: {
-                                color: 'var(--border-color)'
-                            }
+                            title: { display: false },
+                            ticks: { color: 'var(--text-color-secondary)' },
+                            grid: { color: 'var(--border-color)' }
                         },
                         y: {
-                            title: {
-                                display: true,
-                                text: 'Price (Coin)'
-                            },
+                            title: { display: false },
                             ticks: {
-                                callback: function(value, index, values) { return value.toLocaleString(currentLanguage); },
+                                callback: function(value) { return value.toLocaleString(currentLanguage); },
                                 color: 'var(--text-color-secondary)'
                             },
-                            grid: {
-                                color: 'var(--border-color)'
-                            }
+                            grid: { color: 'var(--border-color)' }
                         }
                     },
                     plugins: {
-                        legend: {
-                            labels: {
-                                color: 'var(--text-color-primary)'
-                            }
-                        }
+                        legend: { labels: { color: 'var(--text-color-primary)' } },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
                     }
                 }
             });
         }
         
-        // Allow closing modal by clicking outside
-        window.onclick = function(event) {
-            if (event.target == modalEl) {
-                closeModal();
-            }
-        }
-        
-        // Allow closing modal by pressing ESC key
+        window.onclick = function(event) { if (event.target == modalEl) closeModal(); }
         document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape' && modalEl.style.display === 'block') {
-                closeModal();
-            }
+            if (event.key === 'Escape' && modalEl.style.display === 'block') closeModal();
         });
-
 
         // --- Event Handlers ---
         searchInput.addEventListener('input', e => { currentSearch = e.target.value; applyFiltersAndSort(); });
         categoryFilterEl.addEventListener('change', e => { currentCategoryFilter = e.target.value; applyFiltersAndSort(); });
         prevButton.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderCurrentPage(); tableWrapperEl.scrollTop = 0; } });
         nextButton.addEventListener('click', () => { const totalPages = Math.ceil(filteredAndSortedSummary.length / itemsPerPage); if (currentPage < totalPages) { currentPage++; renderCurrentPage(); tableWrapperEl.scrollTop = 0; } });
-        themeToggleButton.addEventListener('click', () => applyTheme(document.documentElement.hasAttribute('data-theme') ? 'light' : 'dark'));
+        themeToggleButton.addEventListener('click', () => applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
         languageSelector.addEventListener('change', e => setLanguage(e.target.value));
 
         sortOptionsEl.addEventListener('click', e => {
@@ -688,14 +651,11 @@
             }
         });
         
-        // New click handler for table rows (excluding the pin icon)
         tableBodyEl.addEventListener('click', (e) => {
             let row = e.target.closest('tr');
             if (row && !e.target.closest('.pin-cell')) {
                 const itemName = row.getAttribute('data-item-name');
-                if (itemName) {
-                    showItemDetails(itemName);
-                }
+                if (itemName) showItemDetails(itemName);
             }
         });
 
