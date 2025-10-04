@@ -10,7 +10,7 @@ import shutil
 from collections import defaultdict
 from jinja2 import Environment, FileSystemLoader
 
-# --- Configuration --
+# --- Configuration -
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [%(funcName)s] %(message)s')
 
 # Source Data URL and Paths (Historical DB is removed)
