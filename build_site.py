@@ -203,7 +203,7 @@ def main():
             product_data = market_df[market_df['product'] == product_name].iloc[0] 
             market_summary.append({
                 'name': product_name,
-                'category': item_categories.get(product_name, 'Unknown'),
+                'category': item_categories.get(product_name.lower(), 'Unknown'),
                 'buy': product_data['buy'] if pd.notna(product_data['buy']) else None,
                 'ask': product_data['ask'] if pd.notna(product_data['ask']) else None,
                 'vendor': vendor_prices.get(product_name)
