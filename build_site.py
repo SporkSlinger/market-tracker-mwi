@@ -22,9 +22,9 @@ CATEGORY_FILE_PATH = "cata.txt"
 OUTPUT_DIR = "output" 
 OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data")
 
-# --- Category Parsing ---
+# build_site.py (REPLACE THE ENTIRE parse_categories FUNCTION)
 def parse_categories(filepath):
-    """Parses the cata.txt file into a dictionary {item_name: category}."""
+    """Parses the cata.txt file into a dictionary {lowercase_item_name: category}."""
     categories = {}
     current_main_category = "Unknown"
     current_sub_category = None
@@ -34,7 +34,7 @@ def parse_categories(filepath):
         "Currencies", "Loots", "Resources", "Consumables", "Books", "Keys",
         "Equipment", "Jewelry", "Trinket", "Tools"
     ]
-    equipment_subcategories = [ 
+    equipment_subcategories = [
         "Main Hand", "Off Hand", "Head", "Body", "Legs", "Hands",
         "Feet", "Back", "Pouch", "Two Hand"
     ]
@@ -71,7 +71,9 @@ def parse_categories(filepath):
                     if item_name:
                         if current_display_category == "Unknown" and current_main_category != "Unknown":
                             current_display_category = current_main_category
-                        categories[item_name] = current_display_category
+                        
+                        # FIX: Store item name as lowercase key for robust matching
+                        categories[item_name.lower()] = current_display_category
 
         logging.info(f"Parsed {len(categories)} items from category file.")
         return categories
