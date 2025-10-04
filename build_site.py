@@ -10,7 +10,7 @@ import shutil
 from collections import defaultdict
 from jinja2 import Environment, FileSystemLoader
 
-# --- Configuration -
+# --- Configuration --
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [%(funcName)s] %(message)s')
 
 # Source Data URL and Paths (Historical DB is removed)
@@ -18,13 +18,16 @@ JSON_URL = "https://www.milkywayidle.com/game_data/marketplace.json"
 JSON_PATH = "marketplace.json"
 CATEGORY_FILE_PATH = "cata.txt"
 
-# Output directory for static files (FIX: Must match 'publish_dir' in .github/workflows/build.yml)
+# Output directory for static files (FIXED: Must match 'publish_dir' in .github/workflows/build.yml)
 OUTPUT_DIR = "output" 
 OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data")
 
-# build_site.py (REPLACE THE ENTIRE parse_categories FUNCTION)
+# --- Category Parsing ---
 def parse_categories(filepath):
-    """Parses the cata.txt file into a dictionary {lowercase_item_name: category}."""
+    """
+    Parses the cata.txt file into a dictionary {lowercase_item_name: category}.
+    (FIX: Makes keys lowercase and cleans up non-standard spaces for robust matching.)
+    """
     categories = {}
     current_main_category = "Unknown"
     current_sub_category = None
@@ -47,7 +50,8 @@ def parse_categories(filepath):
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             for line in f:
-                line = line.strip()
+                # FIX: Aggressive cleanup of line whitespace, including non-breaking space (u'\xa0')
+                line = line.strip().replace(u'\xa0', u' ')
                 if not line or line == '•': continue
 
                 if line in known_main_categories:
@@ -72,7 +76,7 @@ def parse_categories(filepath):
                         if current_display_category == "Unknown" and current_main_category != "Unknown":
                             current_display_category = current_main_category
                         
-                        # FIX: Store item name as lowercase key for robust matching
+                        # FIX: Store item name as lowercase key for robust matching against API data
                         categories[item_name.lower()] = current_display_category
 
         logging.info(f"Parsed {len(categories)} items from category file.")
@@ -84,7 +88,7 @@ def parse_categories(filepath):
         logging.error(f"Unexpected error parsing category file {filepath}: {e}", exc_info=True)
         return {}
 
-# --- Data Fetching ---
+# --- Data Fetching (Unchanged) ---
 def download_file(url, local_path):
     """Downloads a file from a URL to a local path."""
     logging.info(f"Attempting to download {url} to {local_path}")
@@ -103,7 +107,7 @@ def download_file(url, local_path):
         logging.error(f"Unexpected error downloading {url}: {e}", exc_info=True)
         return False
 
-# --- Data Loading and Processing ---
+# --- Data Loading and Processing (Unchanged) ---
 def load_live_data():
     """Loads live market data and vendor prices from the JSON file."""
     logging.info(f"Loading live data from {JSON_PATH}")
@@ -171,7 +175,7 @@ def main():
         os.makedirs(OUTPUT_DATA_DIR, exist_ok=True)
         logging.info(f"Output directory '{OUTPUT_DIR}' ensured.")
 
-        # --- Parse Categories ---
+        # --- Parse Categories (Uses New Robust Logic) ---
         item_categories = parse_categories(CATEGORY_FILE_PATH)
         if not item_categories:
             logging.warning("Category data is empty. Categories will be missing in output.")
@@ -192,7 +196,6 @@ def main():
 
         # --- Prepare Products for Summary (Fixes "Incorrect Indexing" / 0 Products) ---
         all_products = sorted(list(market_df['product'].unique()))
-        # Including all products from the live market data.
         filtered_products = all_products
         logging.info(f"Including {len(filtered_products)} products in the summary.")
 
@@ -203,7 +206,8 @@ def main():
             product_data = market_df[market_df['product'] == product_name].iloc[0] 
             market_summary.append({
                 'name': product_name,
-                'category': item_categories.get(product_name.lower(), 'Unknown'),
+                # FIX: Look up category using lowercase product name for case-insensitive matching
+                'category': item_categories.get(product_name.lower(), 'Unknown'), 
                 'buy': product_data['buy'] if pd.notna(product_data['buy']) else None,
                 'ask': product_data['ask'] if pd.notna(product_data['ask']) else None,
                 'vendor': vendor_prices.get(product_name)
@@ -214,13 +218,18 @@ def main():
             json.dump(market_summary, f, allow_nan=False, default=str)
         logging.info(f"Saved market summary ({len(market_summary)} items) to {summary_path}")
 
-        # --- FINAL FIX: Copy index.html to output directory (Resolves 404) ---
-        # The deploy action expects index.html at the root of the publish_dir (output/).
+        # --- Copy HTML files (Ensures site loads, resolving 404) ---
         try:
             shutil.copyfile("templates/index.html", os.path.join(OUTPUT_DIR, "index.html"))
             logging.info(f"Copied index.html to {OUTPUT_DIR}/index.html")
+            
+            # Assuming you created a 404.html template in the previous step:
+            if os.path.exists("templates/404.html"):
+                shutil.copyfile("templates/404.html", os.path.join(OUTPUT_DIR, "404.html"))
+                logging.info(f"Copied 404.html to {OUTPUT_DIR}/404.html")
+            
         except FileNotFoundError:
-            logging.error("Could not find templates/index.html. Site will be missing HTML file. Ensure the template exists.")
+            logging.error("Could not find required HTML template file in the 'templates/' folder. Please check file names.")
 
         logging.info("--- Static Site Build Finished Successfully ---")
 
