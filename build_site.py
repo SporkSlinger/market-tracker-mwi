@@ -18,8 +18,8 @@ JSON_URL = "https://www.milkywayidle.com/game_data/marketplace.json"
 JSON_PATH = "marketplace.json"
 CATEGORY_FILE_PATH = "cata.txt"
 
-# Output directory for static files (FIXED: Must match 'publish_dir' in .github/workflows/build.yml)
-OUTPUT_DIR = "output"
+# Output directory for static files (FIX: Must match 'publish_dir' in .github/workflows/build.yml)
+OUTPUT_DIR = "output" 
 OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data")
 
 # --- Category Parsing ---
@@ -34,9 +34,9 @@ def parse_categories(filepath):
         "Currencies", "Loots", "Resources", "Consumables", "Books", "Keys",
         "Equipment", "Jewelry", "Trinket", "Tools"
     ]
-    equipment_subcategories = [
+    equipment_subcategories = [ 
         "Main Hand", "Off Hand", "Head", "Body", "Legs", "Hands",
-        "Feet", "Back", "Pouch", "Two Hand" # Added "Two Hand"
+        "Feet", "Back", "Pouch", "Two Hand"
     ]
     tool_subcategories = [
         "Milking", "Foraging", "Woodcutting", "Cheesesmithing", "Crafting",
@@ -113,9 +113,8 @@ def load_live_data():
         with open(JSON_PATH, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
-        # CORRECTED: Properly load vendor prices from the JSON
         vendor_prices = {}
-        if 'vendorPrice' in data and isinstance(data['vendorPrice'], dict):
+        if 'vendorPrice' in data and isinstance(data['vendorPrice'], dict): 
             vendor_prices = data['vendorPrice']
             logging.info(f"Loaded {len(vendor_prices)} vendor prices.")
         else:
@@ -134,7 +133,6 @@ def load_live_data():
             for tier_str, prices in tiers.items():
                 if not isinstance(prices, dict): continue
 
-                # Use .get() with a default to avoid errors if keys are missing
                 ask_price = prices.get('a', -1)
                 buy_price = prices.get('b', -1)
 
@@ -167,7 +165,7 @@ def main():
     logging.info("--- Starting Static Site Build ---")
     try:
         # Ensure the output directories exist
-        os.makedirs(OUTPUT_DIR, exist_ok=True) # Ensure 'output' exists
+        os.makedirs(OUTPUT_DIR, exist_ok=True) 
         os.makedirs(OUTPUT_DATA_DIR, exist_ok=True)
         logging.info(f"Output directory '{OUTPUT_DIR}' ensured.")
 
@@ -190,19 +188,16 @@ def main():
             logging.error("Live market data is empty. Cannot build site.")
             return
 
-        # --- Prepare Products for Summary ---
+        # --- Prepare Products for Summary (Fixes "Incorrect Indexing" / 0 Products) ---
         all_products = sorted(list(market_df['product'].unique()))
-        # FIX: Removed the filter on vendor prices to ensure all items in the live data are included.
-        # This resolves the "incorrect indexing" issue (missing items).
-        filtered_products = all_products 
+        # Including all products from the live market data.
+        filtered_products = all_products
         logging.info(f"Including {len(filtered_products)} products in the summary.")
 
         # --- Generate Market Summary JSON ---
         logging.info("--- Generating market_summary.json ---")
         market_summary = []
         for product_name in filtered_products:
-            # Get the data for the current product
-            # Use the latest entry for the product, which is the last row due to the nature of the data/timestamp
             product_data = market_df[market_df['product'] == product_name].iloc[0] 
             market_summary.append({
                 'name': product_name,
@@ -217,8 +212,13 @@ def main():
             json.dump(market_summary, f, allow_nan=False, default=str)
         logging.info(f"Saved market summary ({len(market_summary)} items) to {summary_path}")
 
-        # The rest of the script (generating HTML, etc.) would go here.
-        # This corrected version focuses on fixing the data processing pipeline.
+        # --- FINAL FIX: Copy index.html to output directory (Resolves 404) ---
+        # The deploy action expects index.html at the root of the publish_dir (output/).
+        try:
+            shutil.copyfile("templates/index.html", os.path.join(OUTPUT_DIR, "index.html"))
+            logging.info(f"Copied index.html to {OUTPUT_DIR}/index.html")
+        except FileNotFoundError:
+            logging.error("Could not find templates/index.html. Site will be missing HTML file. Ensure the template exists.")
 
         logging.info("--- Static Site Build Finished Successfully ---")
 
