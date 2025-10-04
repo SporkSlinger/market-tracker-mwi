@@ -1,20 +1,21 @@
-import os
-import sqlite3
-import json
-import requests
-import pandas as pd
-import numpy as np
+import os 
+import sqlite3 
+import json 
+import requests 
+import pandas as pd 
+import numpy as np # Import numpy for NaN/Inf checking/replacement 
 from datetime import datetime, timedelta, timezone # Import timezone and timedelta
 import logging # Import logging
 import math # Import math
-import shutil
-from collections import defaultdict
-from jinja2 import Environment, FileSystemLoader
+import shutil 
+from collections import defaultdict # For grouping trends by category 
+from jinja2 import Environment, FileSystemLoader, TemplateNotFound # For rendering HTML template 
 
-# --- Configuration --
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [%(funcName)s] %(message)s')
+# --- Configuration -- 
+# Use INFO for general progress, DEBUG for detailed step-by-step logging 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [%(funcName)s] %(message)s') 
 
-# Source Data URL and Paths
+# Source Data URLs and Paths 
 DB_URL = "https://raw.githubusercontent.com/holychikenz/MWIApi/main/market.db" # Added back historical DB
 JSON_URL = "https://www.milkywayidle.com/game_data/marketplace.json"
 DB_PATH = "market.db"
@@ -22,8 +23,8 @@ JSON_PATH = "marketplace.json"
 CATEGORY_FILE_PATH = "cata.txt"
 
 # Output directory for static files 
-OUTPUT_DIR = "output" 
-OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data")
+OUTPUT_DIR = "output" # CRITICAL FIX: Ensures output goes to the deployment folder
+OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data") # Subdir for data files 
 TEMPLATE_DIR = "templates" # Added back template dir
 
 # History and Trend Settings
@@ -325,7 +326,7 @@ def load_live_data():
         logging.error(f"Unexpected error loading live data: {e}", exc_info=True) 
         return pd.DataFrame(), pd.DataFrame(), vendor_prices
 
-# --- Trend Calculation (Restored from Original) --- 
+# --- Trend Calculation (Restored) --- 
 def calculate_trends(df, products): 
     """ 
     Calculates 24h trend based on 'ask' price for a given list of products. 
@@ -404,7 +405,7 @@ def calculate_trends(df, products):
     logging.info(f"Finished trend calculation. Calculated trends for {processed_count} out of {len(products)} products.") 
     return {k: (v if pd.notna(v) and np.isfinite(v) else None) for k, v in trends.items()} 
 
-# --- Volatility & CV Calculation (Restored from Original) --- 
+# --- Volatility & CV Calculation (Restored) --- 
 def calculate_volatility_and_cv(df, products, days=7): 
     """ 
     Calculates price volatility (std dev) and normalized volatility (CV) 
@@ -478,7 +479,7 @@ def calculate_volatility_and_cv(df, products, days=7):
     logging.info(f"Finished volatility/CV calculation. Calculated stats for {processed_count} products with >=2 data points in the period.") 
     return results 
 
-# --- Market Index Calculation (Restored from Original) --- 
+# --- Market Index Calculation (Restored) --- 
 def calculate_market_indices(product_trends, item_categories): 
     """Calculates the average trend for each item category based on provided trends.""" 
     if not product_trends or not item_categories: 
@@ -491,8 +492,7 @@ def calculate_market_indices(product_trends, item_categories):
     # Group valid trends by category 
     for product, trend in product_trends.items(): 
         if trend is not None: 
-            # FIX: We need to use the category key (lowercase) here for the lookup!
-            # The 'product' argument here is the raw HRID (e.g. /items/milk) from trend calculation
+            # FIX: Use the category key (lowercase) here for the lookup!
             human_name, category_key = get_item_name_from_hrid(product)
             
             category = item_categories.get(category_key) 
@@ -539,7 +539,7 @@ def main():
             logging.warning("Failed to download market.db. Historical data and trends might be incomplete.") 
 
         logging.info("--- Loading Data ---") 
-        # FIX: load_live_data now returns (base_df, all_tiers_df, vendor_prices)
+        # load_live_data returns (base_df, all_tiers_df, vendor_prices)
         base_live_df, all_tiers_live_df, vendor_prices = load_live_data() 
         historical_df = load_historical_data(days_to_load=HISTORICAL_DAYS) 
 
@@ -578,20 +578,21 @@ def main():
         # --- Filter Products for Display (Uses the raw HRID list) --- 
         all_product_hrids = sorted(list(combined_df['product'].unique())) if not combined_df.empty else [] 
         
-        # NOTE: The original script applied a filter based on vendor prices which caused the 0 product bug.
-        # We restore the filter, but recognize that if vendorPrice is missing from JSON, this will filter heavily.
-        # Given the request to restore original functionality, we re-apply the filter on the raw HRID (product)
+        # CRITICAL FIX: DISABLE VENDOR FILTERING UNTIL VENDOR DATA IS AVAILABLE.
+        # This ensures ALL 800+ products are included, preventing the "Filtered down to 1 products" error.
         if not all_product_hrids: 
               logging.warning("No products found in combined data to process.") 
               filtered_products = [] 
         else: 
-            logging.info(f"Applying vendor price filter to {len(all_product_hrids)} initial products...") 
-            filtered_products = [ 
-                p for p in all_product_hrids 
-                # This filter uses the raw HRID (product) key to check vendor prices.
-                if p == "/items/bag_of_10_cowbells" or ((vp := vendor_prices.get(p)) is not None and vp > 0) 
-            ] 
-            logging.info(f"Filtered down to {len(filtered_products)} products.") 
+            logging.info(f"Disabling vendor price filter. Including all {len(all_product_hrids)} products...") 
+            filtered_products = all_product_hrids # Include ALL products
+            
+            # The original destructive filter (COMMENTED OUT):
+            # filtered_products = [ 
+            #     p for p in all_product_hrids 
+            #     if p == "/items/bag_of_10_cowbells" or ((vp := vendor_prices.get(p)) is not None and vp > 0) 
+            # ] 
+            logging.info(f"Filtered list size: {len(filtered_products)} products.") 
 
 
         # --- Calculate Trends, Volatility, CV, and Indices for Filtered Products --- 
@@ -607,7 +608,6 @@ def main():
         uncategorized_items = [] 
         if not combined_df.empty: 
             try: 
-                # Get the absolute last record for each product (which is the live price due to sorting/concatenation)
                 latest_data_map = combined_df.groupby('product').last() 
                 
                 for product_hrid in filtered_products: 
@@ -652,12 +652,10 @@ def main():
             logging.info("All products successfully categorized.")
             
         # 2. Enhanced Item Prices (NEW FEATURE)
-        # Process the all_tiers_live_df to create a simple dictionary: {human_readable_name: {tier: {ask: price, buy: price}, ...}}
         logging.info("Generating enhanced item price data (market_enhanced.json)...")
         enhanced_data = defaultdict(lambda: {'tiers': {}})
         
-        # Filter all_tiers_live_df to only include items that passed the vendor filter in combined_df
-        # Use the list of raw HRIDs (filtered_products)
+        # Filter all_tiers_live_df to only include items that passed the vendor filter (i.e., all included items)
         enhanced_df = all_tiers_live_df[all_tiers_live_df['product'].isin(filtered_products)].copy()
         
         for index, row in enhanced_df.iterrows():
@@ -670,7 +668,6 @@ def main():
                 'buy': row['buy'] if pd.notna(row['buy']) else None
             }
             
-        # Convert defaultdict to regular dict for final JSON output
         enhanced_json_output = {k: dict(v) for k, v in enhanced_data.items()}
 
         enhanced_path = os.path.join(OUTPUT_DATA_DIR, 'market_enhanced.json')
@@ -679,7 +676,6 @@ def main():
         logging.info(f"Saved enhanced item data ({len(enhanced_json_output)} items) to {enhanced_path}")
         
         # 3. Full Historical Data (Filtered)
-        # Use the combined_df (which is already filtered by vendor price/base item status)
         logging.info("Generating full historical data (market_history.json)...")
         nested_history_dict = {}
         history_df = combined_df[combined_df['product'].isin(filtered_products)].copy()
@@ -689,17 +685,13 @@ def main():
             # Map raw HRID to human-readable name for frontend consumption
             history_df['name'] = history_df['product'].apply(lambda x: get_item_name_from_hrid(x)[0])
             
-            # Group by human-readable name and format for JSON
             history_grouped = history_df.groupby('name')
             
             for name, group in history_grouped:
-                # Prepare data points: [timestamp_ms, ask_price, buy_price]
                 history_points = []
-                # Ensure the data is sorted by timestamp just in case
                 group = group.sort_values(by='timestamp') 
                 
                 for index, row in group.iterrows():
-                    # Convert pandas datetime object to UTC milliseconds since epoch (required for JS charts)
                     timestamp_ms = int(row['timestamp'].value / 10**6) 
                     
                     history_points.append([
@@ -712,7 +704,6 @@ def main():
 
         history_path = os.path.join(OUTPUT_DATA_DIR, 'market_history.json')
         with open(history_path, 'w') as f:
-            # Note: We do not dump the index (keys are product names)
             json.dump(nested_history_dict, f, allow_nan=False, default=str)
         logging.info(f"Saved historical data for {len(nested_history_dict)} products to {history_path}")
 
@@ -725,11 +716,11 @@ def main():
 
         # --- Copy HTML files (Ensures site loads) ---
         try:
-            shutil.copyfile("templates/index.html", os.path.join(OUTPUT_DIR, "index.html"))
+            shutil.copyfile(os.path.join(TEMPLATE_DIR, "index.html"), os.path.join(OUTPUT_DIR, "index.html"))
             logging.info(f"Copied index.html to {OUTPUT_DIR}/index.html")
             
-            if os.path.exists("templates/404.html"):
-                shutil.copyfile("templates/404.html", os.path.join(OUTPUT_DIR, "404.html"))
+            if os.path.exists(os.path.join(TEMPLATE_DIR, "404.html")):
+                shutil.copyfile(os.path.join(TEMPLATE_DIR, "404.html"), os.path.join(OUTPUT_DIR, "404.html"))
                 logging.info(f"Copied 404.html to {OUTPUT_DIR}/404.html")
             
         except FileNotFoundError:
