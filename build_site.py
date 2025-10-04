@@ -9,23 +9,22 @@ import logging # Import logging
 import math # Import math
 import shutil 
 from collections import defaultdict # For grouping trends by category 
-from jinja2 import Environment, FileSystemLoader, TemplateNotFound # For rendering HTML template 
+# Removed unused jinja2 import
 
-# --- Configuration - 
-# Use INFO for general progress, DEBUG for detailed step-by-step logging 
+# --- Configuration -- 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [%(funcName)s] %(message)s') 
 
 # Source Data URLs and Paths 
-DB_URL = "https://raw.githubusercontent.com/holychikenz/MWIApi/main/market.db" # Added back historical DB
+DB_URL = "https://raw.githubusercontent.com/holychikenz/MWIApi/main/market.db" 
 JSON_URL = "https://www.milkywayidle.com/game_data/marketplace.json"
 DB_PATH = "market.db"
 JSON_PATH = "marketplace.json"
 CATEGORY_FILE_PATH = "cata.txt"
 
 # Output directory for static files 
-OUTPUT_DIR = "output" # CRITICAL FIX: Ensures output goes to the deployment folder
-OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data") # Subdir for data files 
-TEMPLATE_DIR = "templates" # Added back template dir
+OUTPUT_DIR = "output" 
+OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data") 
+TEMPLATE_DIR = "templates" 
 
 # History and Trend Settings
 HISTORICAL_DAYS = 30 # How much history to process
@@ -46,93 +45,93 @@ def get_item_name_from_hrid(product_hrid):
     return human_readable_name, category_key
 
 
-# --- Category Parsing ---
-def parse_categories(filepath):
+# --- Category Parsing --- 
+def parse_categories(filepath): 
     """
     Parses the cata.txt file into a dictionary {lowercase_item_name: category}.
     (FIX: Makes keys lowercase and cleans up non-standard spaces for robust matching.)
     """
-    categories = {}
-    current_main_category = "Unknown"
-    current_sub_category = None
-    current_display_category = "Unknown"
+    categories = {} 
+    current_main_category = "Unknown" 
+    current_sub_category = None 
+    current_display_category = "Unknown" 
 
-    known_main_categories = [
-        "Currencies", "Loots", "Resources", "Consumables", "Books", "Keys",
-        "Equipment", "Jewelry", "Trinket", "Tools"
-    ]
-    equipment_subcategories = [
-        "Main Hand", "Off Hand", "Head", "Body", "Legs", "Hands",
+    known_main_categories = [ 
+        "Currencies", "Loots", "Resources", "Consumables", "Books", "Keys", 
+        "Equipment", "Jewelry", "Trinket", "Tools" 
+    ] 
+    equipment_subcategories = [ 
+        "Main Hand", "Off Hand", "Head", "Body", "Legs", "Hands", 
         "Feet", "Back", "Pouch", "Two Hand"
-    ]
-    tool_subcategories = [
-        "Milking", "Foraging", "Woodcutting", "Cheesesmithing", "Crafting",
-        "Tailoring", "Cooking", "Brewing", "Alchemy", "Enhancing"
-    ]
+    ] 
+    tool_subcategories = [ 
+        "Milking", "Foraging", "Woodcutting", "Cheesesmithing", "Crafting", 
+        "Tailoring", "Cooking", "Brewing", "Alchemy", "Enhancing" 
+    ] 
 
-    logging.info(f"Attempting to parse category file: {filepath}")
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            for line in f:
-                # FIX: Aggressive cleanup of line whitespace, including non-breaking space (u'\xa0')
+    logging.info(f"Attempting to parse category file: {filepath}") 
+    try: 
+        with open(filepath, 'r', encoding='utf-8') as f: 
+            for line in f: 
                 line = line.strip().replace(u'\xa0', u' ')
-                if not line or line == '•': continue
+                if not line or line == '•': continue 
+                
+                if line in known_main_categories: 
+                    current_main_category = line 
+                    current_sub_category = None 
+                    current_display_category = current_main_category 
+                    continue 
 
-                if line in known_main_categories:
-                    current_main_category = line
-                    current_sub_category = None
-                    current_display_category = current_main_category
-                    continue
+                if current_main_category == "Equipment" and line in equipment_subcategories: 
+                    current_sub_category = line 
+                    current_display_category = f"Equipment / {current_sub_category}" 
+                    continue 
 
-                if current_main_category == "Equipment" and line in equipment_subcategories:
-                    current_sub_category = line
-                    current_display_category = f"Equipment / {current_sub_category}"
-                    continue
+                if current_main_category == "Tools" and line in tool_subcategories: 
+                    current_sub_category = line 
+                    current_display_category = f"Tools / {current_sub_category}" 
+                    continue 
 
-                if current_main_category == "Tools" and line in tool_subcategories:
-                    current_sub_category = line
-                    current_display_category = f"Tools / {current_sub_category}"
-                    continue
+                item_names = [name.strip() for name in line.split(',') if name.strip()] 
+                if not item_names: continue 
 
-                item_names = [name.strip() for name in line.split(',') if name.strip()]
-                for item_name in item_names:
-                    if item_name:
-                        if current_display_category == "Unknown" and current_main_category != "Unknown":
-                            current_display_category = current_main_category
-                        
-                        # FIX: Store item name as lowercase key for robust matching against API data
-                        categories[item_name.lower()] = current_display_category
+                for item_name in item_names: 
+                    if item_name: 
+                        if current_display_category == "Unknown" and current_main_category != "Unknown": 
+                             current_display_category = current_main_category 
+                        categories[item_name.lower()] = current_display_category 
+ 
+        logging.info(f"Parsed {len(categories)} items from category file.") 
+        return categories 
+    except FileNotFoundError: 
+        logging.error(f"Category file not found at {filepath}. Categories will be missing.") 
+        return {} 
+    except Exception as e: 
+        logging.error(f"Unexpected error parsing category file {filepath}: {e}", exc_info=True) 
+        return {} 
 
-        logging.info(f"Parsed {len(categories)} items from category file.")
-        return categories
-    except FileNotFoundError:
-        logging.error(f"Category file not found at {filepath}. Categories will be missing.")
-        return {}
-    except Exception as e:
-        logging.error(f"Unexpected error parsing category file {filepath}: {e}", exc_info=True)
-        return {}
 
-# --- Data Fetching ---
-def download_file(url, local_path):
-    """Downloads a file from a URL to a local path."""
-    logging.info(f"Attempting to download {url} to {local_path}")
-    try:
-        response = requests.get(url, stream=True, timeout=60)
-        response.raise_for_status() # Raises HTTPError for bad responses (4xx or 5xx)
-        with open(local_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-        logging.info(f"Successfully downloaded {local_path}")
-        return True
-    except requests.exceptions.RequestException as e: # Catch specific requests errors
-        logging.error(f"Network error downloading {url}: {e}")
-        return False
-    except IOError as e: # Catch file writing errors
-        logging.error(f"IOError saving file to {local_path}: {e}")
-        return False
-    except Exception as e: # Catch unexpected errors during download/save
-        logging.error(f"Unexpected error downloading {url}: {e}", exc_info=True)
-        return False
+# --- Data Fetching --- 
+def download_file(url, local_path): 
+    """Downloads a file from a URL to a local path.""" 
+    logging.info(f"Attempting to download {url} to {local_path}") 
+    try: 
+        response = requests.get(url, stream=True, timeout=60) 
+        response.raise_for_status() 
+        with open(local_path, 'wb') as f: 
+            for chunk in response.iter_content(chunk_size=8192): 
+                f.write(chunk) 
+        logging.info(f"Successfully downloaded {local_path}") 
+        return True 
+    except requests.exceptions.RequestException as e: 
+        logging.error(f"Network error downloading {url}: {e}") 
+        return False 
+    except IOError as e: 
+        logging.error(f"IOError saving file to {local_path}: {e}") 
+        return False 
+    except Exception as e: 
+        logging.error(f"Unexpected error downloading {url}: {e}", exc_info=True) 
+        return False 
 
 # --- Data Loading and Processing --- 
 def load_historical_data(days_to_load): 
@@ -286,7 +285,6 @@ def load_live_data():
                 
                 # CRITICAL FIX #2: Filter for base item (Tier "0") for the main market summary
                 if tier_str == "0":
-                    # For the base DF, we don't need the 'tier' column initially, but it won't hurt
                     base_records.append(record)
 
 
@@ -534,12 +532,11 @@ def main():
         json_ok = download_file(JSON_URL, JSON_PATH) 
         if not json_ok: 
             logging.error("Failed to download critical live data (marketplace.json). Cannot proceed.") 
-            return # Stop execution if live data fails 
+            return 
         if not db_ok: 
             logging.warning("Failed to download market.db. Historical data and trends might be incomplete.") 
 
         logging.info("--- Loading Data ---") 
-        # load_live_data returns (base_df, all_tiers_df, vendor_prices)
         base_live_df, all_tiers_live_df, vendor_prices = load_live_data() 
         historical_df = load_historical_data(days_to_load=HISTORICAL_DAYS) 
 
@@ -579,19 +576,12 @@ def main():
         all_product_hrids = sorted(list(combined_df['product'].unique())) if not combined_df.empty else [] 
         
         # CRITICAL FIX: DISABLE VENDOR FILTERING UNTIL VENDOR DATA IS AVAILABLE.
-        # This ensures ALL 800+ products are included, preventing the "Filtered down to 1 products" error.
         if not all_product_hrids: 
               logging.warning("No products found in combined data to process.") 
               filtered_products = [] 
         else: 
             logging.info(f"Disabling vendor price filter. Including all {len(all_product_hrids)} products...") 
-            filtered_products = all_product_hrids # Include ALL products
-            
-            # The original destructive filter (COMMENTED OUT):
-            # filtered_products = [ 
-            #     p for p in all_product_hrids 
-            #     if p == "/items/bag_of_10_cowbells" or ((vp := vendor_prices.get(p)) is not None and vp > 0) 
-            # ] 
+            filtered_products = all_product_hrids 
             logging.info(f"Filtered list size: {len(filtered_products)} products.") 
 
 
@@ -624,8 +614,8 @@ def main():
                         vol_stats = product_volatility_stats.get(product_hrid, {'std': None, 'cv': None}) 
                         
                         market_summary.append({ 
-                            'name': human_readable_name, # Display name
-                            'category': category_name, # Categorized name
+                            'name': human_readable_name, 
+                            'category': category_name, 
                             'buy': latest['buy'] if pd.notna(latest['buy']) else None, 
                             'ask': latest['ask'] if pd.notna(latest['ask']) else None, 
                             'vendor': vendor_prices.get(product_hrid), 
@@ -655,7 +645,6 @@ def main():
         logging.info("Generating enhanced item price data (market_enhanced.json)...")
         enhanced_data = defaultdict(lambda: {'tiers': {}})
         
-        # Filter all_tiers_live_df to only include items that passed the vendor filter (i.e., all included items)
         enhanced_df = all_tiers_live_df[all_tiers_live_df['product'].isin(filtered_products)].copy()
         
         for index, row in enhanced_df.iterrows():
@@ -717,12 +706,10 @@ def main():
         # --- Copy HTML files (Ensures site loads) ---
         try:
             shutil.copyfile(os.path.join(TEMPLATE_DIR, "index.html"), os.path.join(OUTPUT_DIR, "index.html"))
-            logging.info(f"Copied index.html to {OUTPUT_DIR}/index.html")
             
             if os.path.exists(os.path.join(TEMPLATE_DIR, "404.html")):
                 shutil.copyfile(os.path.join(TEMPLATE_DIR, "404.html"), os.path.join(OUTPUT_DIR, "404.html"))
-                logging.info(f"Copied 404.html to {OUTPUT_DIR}/404.html")
-            
+                
         except FileNotFoundError:
             logging.error("Could not find required HTML template file in the 'templates/' folder. Please check file names.")
 
