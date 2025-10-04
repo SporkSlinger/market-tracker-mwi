@@ -174,4 +174,233 @@
         const sortOptionsEl = document.getElementById('sort-options');
         const loadingMessageEl = document.getElementById('loading-message');
         const themeToggleButton = document.getElementById('theme-toggle-btn');
-        const lastUpdateEl = document.
+        const lastUpdateEl = document.getElementById('last-update');
+        const languageSelector = document.getElementById('language-selector');
+
+        // --- Translations ---
+        const translations = {
+            'en': {
+                'mainTitle': 'MWI Market Data', 'subHeaderText': 'Displaying current market prices.', 'toggleTheme': 'Toggle Theme',
+                'searchLabel': 'Search', 'searchPlaceholder': 'Product Name...', 'categoryLabel': 'Category',
+                'allCategories': 'All Categories', 'sortBy': 'Sort By:', 'sortName': 'Name', 'sortCategory': 'Category',
+                'sortAsk': 'Ask', 'sortBuy': 'Buy', 'tableLoading': 'Loading market data...', 'colName': 'Name',
+                'colCategory': 'Category', 'colAsk': 'Ask', 'colBuy': 'Buy', 'pageInfo': 'Page {currentPage} of {totalPages}',
+                'prevPage': '« Previous', 'nextPage': 'Next »', 'footerMadeBy': 'Made by Sporky with AI',
+                'footerStatus': 'Data Fetched:', 'footerRepo': 'GitHub Repo', 'pinActionPin': 'Pin Item', 'pinActionUnpin': 'Unpin Item',
+            },
+            'zh': {
+                'mainTitle': 'MWI 市场数据', 'subHeaderText': '显示当前市场价格。', 'toggleTheme': '切换主题',
+                'searchLabel': '搜索', 'searchPlaceholder': '物品名称...', 'categoryLabel': '类别',
+                'allCategories': '所有类别', 'sortBy': '排序方式:', 'sortName': '名称', 'sortCategory': '类别',
+                'sortAsk': '卖价', 'sortBuy': '买价', 'tableLoading': '正在加载市场数据...', 'colName': '名称',
+                'colCategory': '类别', 'colAsk': '卖价', 'colBuy': '买价', 'pageInfo': '第 {currentPage} 页 / 共 {totalPages} 页',
+                'prevPage': '« 上一页', 'nextPage': '下一页 »', 'footerMadeBy': '由 Sporky 与 AI 制作',
+                'footerStatus': '数据获取时间:', 'footerRepo': 'GitHub 仓库', 'pinActionPin': '置顶物品', 'pinActionUnpin': '取消置顶',
+            }
+        };
+
+        // --- Internationalization (i18n) Functions ---
+        function getTranslation(key, replacements = {}) {
+            const langDict = translations[currentLanguage] || translations['en'];
+            let text = langDict[key] || `[${key}]`;
+            for (const placeholder in replacements) {
+                text = text.replace(`{${placeholder}}`, replacements[placeholder]);
+            }
+            return text;
+        }
+
+        function translatePage() {
+            document.querySelectorAll('[data-translate-key]').forEach(el => { el.textContent = getTranslation(el.dataset.translateKey); });
+            document.querySelectorAll('[data-translate-key-placeholder]').forEach(el => { el.placeholder = getTranslation(el.dataset.translateKeyPlaceholder); });
+            document.title = getTranslation('mainTitle');
+            renderPagination(Math.ceil(filteredAndSortedSummary.length / itemsPerPage));
+        }
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem(LANG_STORAGE_KEY, lang);
+            document.documentElement.lang = lang;
+            if (languageSelector) languageSelector.value = lang;
+            translatePage();
+        }
+
+        function getInitialLanguage() {
+            return localStorage.getItem(LANG_STORAGE_KEY) || (navigator.language.startsWith('zh') ? 'zh' : 'en');
+        }
+
+        // --- Utility Functions ---
+        function formatPrice(price) {
+            if (price === null || price === undefined) return '<span class="na-value">--</span>';
+            return price.toLocaleString(currentLanguage);
+        }
+
+        // --- Pinning Logic ---
+        function getPinnedItems() {
+            try { return JSON.parse(localStorage.getItem(PINNED_ITEMS_KEY)) || []; } catch (e) { return []; }
+        }
+        function savePinnedItems(items) { localStorage.setItem(PINNED_ITEMS_KEY, JSON.stringify(items)); }
+
+        function togglePin(itemName) {
+            let currentPins = getPinnedItems();
+            const index = currentPins.indexOf(itemName);
+            if (index > -1) { currentPins.splice(index, 1); } else { currentPins.push(itemName); }
+            savePinnedItems(currentPins);
+            pinnedItems = currentPins;
+            applyFiltersAndSort();
+        }
+
+        // --- Theme Switching Logic ---
+        const THEME_KEY = 'mwi-market-theme';
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : null);
+            if(theme !== 'dark') document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem(THEME_KEY, theme);
+        }
+        function initTheme() {
+            const savedTheme = localStorage.getItem(THEME_KEY);
+            applyTheme(savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+        }
+
+        // --- Data Fetching ---
+        async function loadData() {
+            loadingMessageEl.style.display = 'block';
+            tableWrapperEl.classList.add('hidden');
+            paginationEl.style.display = 'none';
+            lastUpdateEl.textContent = 'Loading...';
+
+            try {
+                pinnedItems = getPinnedItems();
+                // ONLY fetch the summary file. The other files no longer exist.
+                const response = await fetch('./data/market_summary.json?t=' + Date.now());
+                if (!response.ok) throw new Error(`Failed to fetch market data (Status: ${response.status})`);
+                
+                marketSummary = await response.json();
+                
+                populateCategoryFilter();
+                applyFiltersAndSort();
+                loadingMessageEl.style.display = 'none';
+                tableWrapperEl.classList.remove('hidden');
+                paginationEl.style.display = 'flex';
+                lastUpdateEl.textContent = new Date().toLocaleString(currentLanguage);
+
+            } catch (error) {
+                console.error("Error loading site data:", error);
+                loadingMessageEl.textContent = `Error: ${error.message}. Please refresh.`;
+            }
+        }
+        
+        // --- Populate Category Filter ---
+        function populateCategoryFilter() {
+            const categories = [...new Set(marketSummary.map(item => item.category).filter(Boolean))].sort();
+            const currentValue = categoryFilterEl.value;
+            categoryFilterEl.innerHTML = `<option value="All" data-translate-key="allCategories">${getTranslation('allCategories')}</option>`;
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryFilterEl.appendChild(option);
+            });
+            if (categoryFilterEl.querySelector(`option[value="${currentValue}"]`)) {
+                categoryFilterEl.value = currentValue;
+            }
+        }
+
+        // --- Filtering and Sorting ---
+        function applyFiltersAndSort() {
+            let result = [...marketSummary];
+            if (currentCategoryFilter !== 'All') { result = result.filter(item => item.category === currentCategoryFilter); }
+            if (currentSearch) { result = result.filter(item => item.name.toLowerCase().includes(currentSearch.toLowerCase())); }
+            
+            result.sort((a, b) => {
+                const isAPinned = pinnedItems.includes(a.name);
+                const isBPinned = pinnedItems.includes(b.name);
+                if (isAPinned !== isBPinned) return isAPinned ? -1 : 1;
+
+                const [sortKey, direction] = currentSort.split('_');
+                const asc = direction === 'asc';
+                const valA = a[sortKey];
+                const valB = b[sortKey];
+
+                if (typeof valA === 'number' || typeof valB === 'number') {
+                    const numA = valA ?? (asc ? Infinity : -Infinity);
+                    const numB = valB ?? (asc ? Infinity : -Infinity);
+                    return asc ? numA - numB : numB - numA;
+                } else {
+                    const strA = (valA ?? '').toLowerCase();
+                    const strB = (valB ?? '').toLowerCase();
+                    return asc ? strA.localeCompare(strB) : strB.localeCompare(strA);
+                }
+            });
+
+            filteredAndSortedSummary = result;
+            currentPage = 1;
+            renderCurrentPage();
+        }
+
+        // --- Rendering ---
+        function renderCurrentPage() {
+            tableBodyEl.innerHTML = '';
+            const totalItems = filteredAndSortedSummary.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            currentPage = Math.max(1, Math.min(currentPage, totalPages));
+            const itemsToDisplay = filteredAndSortedSummary.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+            if (itemsToDisplay.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="5" style="text-align:center; padding: 20px;">No items match your filters.</td>`;
+                tableBodyEl.appendChild(tr);
+            } else {
+                itemsToDisplay.forEach(item => {
+                    const tr = document.createElement('tr');
+                    const isPinned = pinnedItems.includes(item.name);
+                    const pinIconClass = isPinned ? 'fas fa-star pin-icon pinned' : 'far fa-star pin-icon';
+                    tr.innerHTML = `
+                        <td class="pin-cell"><i class="${pinIconClass}" data-item-name="${item.name}" title="${getTranslation(isPinned ? 'pinActionUnpin' : 'pinActionPin')}"></i></td>
+                        <td>${item.name}</td>
+                        <td>${item.category || '<span class="na-value">N/A</span>'}</td>
+                        <td>${formatPrice(item.ask)}</td>
+                        <td>${formatPrice(item.buy)}</td>
+                    `;
+                    tr.querySelector('.pin-icon').addEventListener('click', (e) => togglePin(e.target.dataset.itemName));
+                    tableBodyEl.appendChild(tr);
+                });
+            }
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            pageInfoEl.textContent = getTranslation('pageInfo', { currentPage, totalPages });
+            prevButton.disabled = currentPage <= 1;
+            nextButton.disabled = currentPage >= totalPages;
+            paginationEl.style.display = totalPages > 1 ? 'flex' : 'none';
+        }
+
+        // --- Event Handlers ---
+        searchInput.addEventListener('input', e => { currentSearch = e.target.value; applyFiltersAndSort(); });
+        categoryFilterEl.addEventListener('change', e => { currentCategoryFilter = e.target.value; applyFiltersAndSort(); });
+        prevButton.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderCurrentPage(); tableWrapperEl.scrollTop = 0; } });
+        nextButton.addEventListener('click', () => { const totalPages = Math.ceil(filteredAndSortedSummary.length / itemsPerPage); if (currentPage < totalPages) { currentPage++; renderCurrentPage(); tableWrapperEl.scrollTop = 0; } });
+        themeToggleButton.addEventListener('click', () => applyTheme(document.documentElement.hasAttribute('data-theme') ? 'light' : 'dark'));
+        languageSelector.addEventListener('change', e => setLanguage(e.target.value));
+
+        sortOptionsEl.addEventListener('click', e => {
+            if (e.target.tagName === 'BUTTON') {
+                const sortKey = e.target.dataset.sort;
+                const [currentKey, currentDir] = currentSort.split('_');
+                const newDir = (currentKey === sortKey && currentDir === 'asc') ? 'desc' : 'asc';
+                currentSort = `${sortKey}_${newDir}`;
+                sortOptionsEl.querySelectorAll('button').forEach(btn => btn.classList.remove('current-sort'));
+                e.target.classList.add('current-sort');
+                applyFiltersAndSort();
+            }
+        });
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setLanguage(getInitialLanguage());
+            initTheme();
+            loadData();
+        });
+    </script>
+</body>
+</html>
