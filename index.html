@@ -344,6 +344,7 @@
         let currentPage = 1, currentSort = 'name_asc', currentSearch = '', currentCategoryFilter = 'All', currentView = 'market';
         let searchDebounceTimeout, currentItemInModal = null, flipperSortBy = 'marketMargin', lastFocusedElement = null;
         
+        const itemsPerPage = 50;
         const PINNED_ITEMS_KEY = 'mwiPinnedItems', THEME_KEY = 'mwi-market-theme';
         const PORTFOLIO_KEY = 'mwiPortfolio', ALERTS_KEY = 'mwiPriceAlerts';
         const FILTERS_KEY = 'mwiSessionFilters';
