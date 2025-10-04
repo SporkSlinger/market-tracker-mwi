@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MWI Market Data</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        /* --- CSS Variables for Theming --- */
+        :root {
+            /* Light Theme Definitions */
+            --bg-color: #f6f8fa; --card-bg-color: #ffffff; --text-color-primary: #24292f;
+            --text-color-secondary: #57606a; --muted-text-color: #57606a; --border-color: #d0d7de;
+            --accent-color: #0969da; --positive-color: #1a7f37; --negative-color: #cf222e;
+            --button-bg-color: #f6f8fa; --button-hover-bg-color: #f0f2f4; --button-border-color: rgba(27, 31, 36, 0.15);
+            --button-active-bg-color: var(--accent-color); --button-active-text-color: #ffffff; --button-active-border-color: var(--accent-color);
+            --input-bg-color: var(--card-bg-color); --input-border-color: var(--border-color); --input-focus-border-color: var(--accent-color);
+            --input-focus-shadow-color: rgba(9, 105, 218, 0.3); --table-header-bg: #f6f8fa;
+            --table-row-hover-bg: #f6f8fa; --table-row-selected-bg: #ddf4ff; --link-color: var(--accent-color);
+            --code-font: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            --na-value-color: #cdd4de; --pin-color: #d0d7de; --pin-color-active: #ffab00;
+        }
+        html[data-theme="dark"] {
+            /* Dark Theme Overrides */
+            --bg-color: #0d1117; --card-bg-color: #161b22; --text-color-primary: #c9d1d9;
+            --text-color-secondary: #8b949e; --muted-text-color: #8b949e; --border-color: #30363d;
+            --accent-color: #58a6ff; --positive-color: #3fb950; --negative-color: #f85149;
+            --button-bg-color: #21262d; --button-hover-bg-color: #30363d; --button-border-color: #30363d;
+            --button-active-bg-color: var(--accent-color); --button-active-text-color: #ffffff; --button-active-border-color: var(--accent-color);
+            --input-bg-color: var(--card-bg-color); --input-border-color: var(--border-color); --input-focus-border-color: var(--accent-color);
+            --input-focus-shadow-color: rgba(88, 166, 255, 0.3); --table-header-bg: #161b22;
+            --table-row-hover-bg: #21262d; --table-row-selected-bg: #1f6feb; --link-color: var(--accent-color);
+            --na-value-color: #484f58; --pin-color: #484f58; --pin-color-active: #f1e05a;
+        }
+        /* --- General Styles --- */
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-color-primary); line-height: 1.5; font-size: 14px; }
+        .container { max-width: 1280px; margin: 25px auto; padding: 0 25px; }
+        h1 { text-align: center; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.8em; }
+        .subheader { text-align: center; color: var(--text-color-secondary); margin-top: 0; margin-bottom: 1.5rem; font-size: 1.1em; }
+        .title-button-container { text-align: center; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .action-button, #language-selector { padding: 6px 16px; font-size: 0.9em; font-weight: 500; background-color: var(--button-bg-color); color: var(--text-color-primary); border: 1px solid var(--button-border-color); border-radius: 6px; cursor: pointer; transition: background-color 0.15s ease; }
+        .action-button:hover { background-color: var(--button-hover-bg-color); }
+        #theme-toggle-btn .fa-sun { display: none; }
+        html[data-theme="dark"] #theme-toggle-btn .fa-sun { display: inline-block; }
+        html[data-theme="dark"] #theme-toggle-btn .fa-moon { display: none; }
+        .controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 16px 20px; margin-bottom: 20px; gap: 15px; background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; }
+        .controls-left, .controls-right { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+        label { margin-bottom: 0.25rem; font-size: 0.875rem; font-weight: 500; color: var(--text-color-secondary); }
+        input[type="text"], select { width: 100%; padding: 0.5rem 0.75rem; font-size: 0.875rem; color: var(--text-color-primary); background-color: var(--input-bg-color); border: 1px solid var(--input-border-color); border-radius: 0.375rem; transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out; }
+        input[type="text"]:focus, select:focus { border-color: var(--input-focus-border-color); outline: 0; box-shadow: 0 0 0 0.25rem var(--input-focus-shadow-color); }
+        .search-form input[type="text"] { min-width: 200px; }
+        .category-filter select { min-width: 180px; }
+        .sort-options button { padding: 5px 12px; background-color: var(--button-bg-color); border-radius: 6px; font-size: 0.9em; border: 1px solid var(--button-border-color); cursor: pointer; font-weight: 500; }
+        .sort-options button:hover { background-color: var(--button-hover-bg-color); }
+        .sort-options button.current-sort { background-color: var(--button-active-bg-color); color: var(--button-active-text-color); border-color: var(--button-active-border-color); font-weight: 600; }
+        .table-wrapper { max-height: 75vh; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--card-bg-color); }
+        #item-table { width: 100%; border-collapse: collapse; }
+        #item-table th, #item-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; font-size: 0.90em; }
+        #item-table th { background-color: var(--table-header-bg); font-weight: 600; font-size: 0.75em; text-transform: uppercase; color: var(--muted-text-color); position: sticky; top: 0; z-index: 1; }
+        #item-table th.pin-header, #item-table td.pin-cell { width: 35px; text-align: center; padding: 10px 5px; }
+        .pin-icon { cursor: pointer; color: var(--pin-color); font-size: 1.1em; }
+        .pin-icon.pinned { color: var(--pin-color-active); }
+        #item-table tbody tr:hover { background-color: var(--table-row-hover-bg); }
+        #item-table td:nth-child(2) { font-weight: 500; } /* Name */
+        #item-table td:nth-child(3) { color: var(--muted-text-color); } /* Category */
+        #item-table td:nth-child(4), #item-table td:nth-child(5) { text-align: right; font-family: var(--code-font); } /* Ask, Buy */
+        .na-value { color: var(--na-value-color); }
+        .pagination { text-align: center; margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .pagination button { padding: 7px 14px; background-color: var(--button-bg-color); border: 1px solid var(--button-border-color); color: var(--accent-color); border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.9em; }
+        .pagination button:hover:not(:disabled) { background-color: var(--button-hover-bg-color); }
+        .pagination button:disabled { color: var(--muted-text-color); opacity: 0.6; cursor: not-allowed; }
+        .loading-message { text-align: center; padding: 40px; font-size: 1.1em; color: var(--muted-text-color); }
+        .hidden { display: none; }
+        footer { text-align: center; margin-top: 40px; padding: 25px 0; font-size: 0.8em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); }
+        footer a { color: var(--muted-text-color); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 data-translate-key="mainTitle">MWI Market Data</h1>
+        <p class="subheader" data-translate-key="subHeaderText">Displaying current market prices.</p>
+        <div class="title-button-container">
+            <button id="theme-toggle-btn" class="action-button" title="Toggle Theme">
+                <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
+                <span data-translate-key="toggleTheme">Toggle Theme</span>
+            </button>
+            <select id="language-selector" title="Select Language">
+                <option value="en">English</option>
+                <option value="zh">中文</option>
+            </select>
+        </div>
+
+        <div class="controls">
+            <div class="controls-left">
+                <div class="search-form">
+                    <label for="search-input" data-translate-key="searchLabel">Search</label>
+                    <input type="text" id="search-input" data-translate-key-placeholder="searchPlaceholder" placeholder="Product Name...">
+                </div>
+                <div class="category-filter">
+                    <label for="category-filter" data-translate-key="categoryLabel">Category</label>
+                    <select id="category-filter">
+                        <option value="All" data-translate-key="allCategories">All Categories</option>
+                    </select>
+                </div>
+            </div>
+            <div class="controls-right">
+                <div class="sort-options" id="sort-options">
+                    <span data-translate-key="sortBy">Sort By:</span>
+                    <button data-sort="name" class="current-sort" data-translate-key="sortName">Name</button>
+                    <button data-sort="category" data-translate-key="sortCategory">Category</button>
+                    <button data-sort="ask" data-translate-key="sortAsk">Ask</button>
+                    <button data-sort="buy" data-translate-key="sortBuy">Buy</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading-message" class="loading-message" data-translate-key="tableLoading">Loading market data...</div>
+        <div class="table-wrapper hidden">
+            <table id="item-table">
+                <thead>
+                    <tr>
+                        <th class="pin-header" title="Pin Item"><i class="fas fa-thumbtack"></i></th>
+                        <th data-translate-key="colName">Name</th>
+                        <th data-translate-key="colCategory">Category</th>
+                        <th data-translate-key="colAsk">Ask</th>
+                        <th data-translate-key="colBuy">Buy</th>
+                    </tr>
+                </thead>
+                <tbody id="item-table-body"></tbody>
+            </table>
+        </div>
+        <div class="pagination" id="pagination" style="display: none;">
+            <button id="prev-page" disabled data-translate-key="prevPage">&laquo; Previous</button>
+            <span id="page-info">Page 1 of 1</span>
+            <button id="next-page" disabled data-translate-key="nextPage">Next &raquo;</button>
+        </div>
+
+        <footer>
+            <span data-translate-key="footerMadeBy">Made by Sporky with AI</span> |
+            <span class="status"><span data-translate-key="footerStatus">Data Fetched:</span> <span id="last-update">N/A</span></span> |
+            <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer" data-translate-key="footerRepo">GitHub Repo</a>
+        </footer>
+    </div>
+
+    <script>
+        // --- Global State ---
+        let marketSummary = [];
+        let filteredAndSortedSummary = [];
+        let currentPage = 1;
+        const itemsPerPage = 25; // Increased for better viewing
+        let currentSort = 'name_asc';
+        let currentSearch = '';
+        let currentCategoryFilter = 'All';
+        let pinnedItems = [];
+        const PINNED_ITEMS_KEY = 'mwiPinnedItems';
+        let currentLanguage = 'en';
+        const LANG_STORAGE_KEY = 'mwiMarketLang';
+
+        // --- DOM Elements ---
+        const tableBodyEl = document.getElementById('item-table-body');
+        const tableWrapperEl = document.querySelector('.table-wrapper');
+        const paginationEl = document.getElementById('pagination');
+        const pageInfoEl = document.getElementById('page-info');
+        const prevButton = document.getElementById('prev-page');
+        const nextButton = document.getElementById('next-page');
+        const searchInput = document.getElementById('search-input');
+        const categoryFilterEl = document.getElementById('category-filter');
+        const sortOptionsEl = document.getElementById('sort-options');
+        const loadingMessageEl = document.getElementById('loading-message');
+        const themeToggleButton = document.getElementById('theme-toggle-btn');
+        const lastUpdateEl = document.getElementById('last-update');
+        const languageSelector = document.getElementById('language-selector');
+
+        // --- Translations ---
+        const translations = {
+            'en': {
+                'mainTitle': 'MWI Market Data', 'subHeaderText': 'Displaying current market prices.', 'toggleTheme': 'Toggle Theme',
+                'searchLabel': 'Search', 'searchPlaceholder': 'Product Name...', 'categoryLabel': 'Category',
+                'allCategories': 'All Categories', 'sortBy': 'Sort By:', 'sortName': 'Name', 'sortCategory': 'Category',
+                'sortAsk': 'Ask', 'sortBuy': 'Buy', 'tableLoading': 'Loading market data...', 'colName': 'Name',
+                'colCategory': 'Category', 'colAsk': 'Ask', 'colBuy': 'Buy', 'pageInfo': 'Page {currentPage} of {totalPages}',
+                'prevPage': '« Previous', 'nextPage': 'Next »', 'footerMadeBy': 'Made by Sporky with AI',
+                'footerStatus': 'Data Fetched:', 'footerRepo': 'GitHub Repo', 'pinActionPin': 'Pin Item', 'pinActionUnpin': 'Unpin Item',
+            },
+            'zh': {
+                'mainTitle': 'MWI 市场数据', 'subHeaderText': '显示当前市场价格。', 'toggleTheme': '切换主题',
+                'searchLabel': '搜索', 'searchPlaceholder': '物品名称...', 'categoryLabel': '类别',
+                'allCategories': '所有类别', 'sortBy': '排序方式:', 'sortName': '名称', 'sortCategory': '类别',
+                'sortAsk': '卖价', 'sortBuy': '买价', 'tableLoading': '正在加载市场数据...', 'colName': '名称',
+                'colCategory': '类别', 'colAsk': '卖价', 'colBuy': '买价', 'pageInfo': '第 {currentPage} 页 / 共 {totalPages} 页',
+                'prevPage': '« 上一页', 'nextPage': '下一页 »', 'footerMadeBy': '由 Sporky 与 AI 制作',
+                'footerStatus': '数据获取时间:', 'footerRepo': 'GitHub 仓库', 'pinActionPin': '置顶物品', 'pinActionUnpin': '取消置顶',
+            }
+        };
+
+        // --- Internationalization (i18n) Functions ---
+        function getTranslation(key, replacements = {}) {
+            const langDict = translations[currentLanguage] || translations['en'];
+            let text = langDict[key] || `[${key}]`;
+            for (const placeholder in replacements) {
+                text = text.replace(`{${placeholder}}`, replacements[placeholder]);
+            }
+            return text;
+        }
+
+        function translatePage() {
+            document.querySelectorAll('[data-translate-key]').forEach(el => { el.textContent = getTranslation(el.dataset.translateKey); });
+            document.querySelectorAll('[data-translate-key-placeholder]').forEach(el => { el.placeholder = getTranslation(el.dataset.translateKeyPlaceholder); });
+            document.title = getTranslation('mainTitle');
+            renderPagination(Math.ceil(filteredAndSortedSummary.length / itemsPerPage));
+        }
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem(LANG_STORAGE_KEY, lang);
+            document.documentElement.lang = lang;
+            if (languageSelector) languageSelector.value = lang;
+            translatePage();
+        }
+
+        function getInitialLanguage() {
+            return localStorage.getItem(LANG_STORAGE_KEY) || (navigator.language.startsWith('zh') ? 'zh' : 'en');
+        }
+
+        // --- Utility Functions ---
+        function formatPrice(price) {
+            if (price === null || price === undefined) return '<span class="na-value">--</span>';
+            return price.toLocaleString(currentLanguage);
+        }
+
+        // --- Pinning Logic ---
+        function getPinnedItems() {
+            try { return JSON.parse(localStorage.getItem(PINNED_ITEMS_KEY)) || []; } catch (e) { return []; }
+        }
+        function savePinnedItems(items) { localStorage.setItem(PINNED_ITEMS_KEY, JSON.stringify(items)); }
+
+        function togglePin(itemName) {
+            let currentPins = getPinnedItems();
+            const index = currentPins.indexOf(itemName);
+            if (index > -1) { currentPins.splice(index, 1); } else { currentPins.push(itemName); }
+            savePinnedItems(currentPins);
+            pinnedItems = currentPins;
+            applyFiltersAndSort();
+        }
+
+        // --- Theme Switching Logic ---
+        const THEME_KEY = 'mwi-market-theme';
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : null);
+            if(theme !== 'dark') document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem(THEME_KEY, theme);
+        }
+        function initTheme() {
+            const savedTheme = localStorage.getItem(THEME_KEY);
+            applyTheme(savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+        }
+
+        // --- Data Fetching ---
+        async function loadData() {
+            loadingMessageEl.style.display = 'block';
+            tableWrapperEl.classList.add('hidden');
+            paginationEl.style.display = 'none';
+            lastUpdateEl.textContent = 'Loading...';
+
+            try {
+                pinnedItems = getPinnedItems();
+                // ONLY fetch the summary file. The other files no longer exist.
+                const response = await fetch('./data/market_summary.json?t=' + Date.now());
+                if (!response.ok) throw new Error(`Failed to fetch market data (Status: ${response.status})`);
+                
+                marketSummary = await response.json();
+                
+                populateCategoryFilter();
+                applyFiltersAndSort();
+                loadingMessageEl.style.display = 'none';
+                tableWrapperEl.classList.remove('hidden');
+                paginationEl.style.display = 'flex';
+                lastUpdateEl.textContent = new Date().toLocaleString(currentLanguage);
+
+            } catch (error) {
+                console.error("Error loading site data:", error);
+                loadingMessageEl.textContent = `Error: ${error.message}. Please refresh.`;
+            }
+        }
+        
+        // --- Populate Category Filter ---
+        function populateCategoryFilter() {
+            const categories = [...new Set(marketSummary.map(item => item.category).filter(Boolean))].sort();
+            const currentValue = categoryFilterEl.value;
+            categoryFilterEl.innerHTML = `<option value="All" data-translate-key="allCategories">${getTranslation('allCategories')}</option>`;
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryFilterEl.appendChild(option);
+            });
+            if (categoryFilterEl.querySelector(`option[value="${currentValue}"]`)) {
+                categoryFilterEl.value = currentValue;
+            }
+        }
+
+        // --- Filtering and Sorting ---
+        function applyFiltersAndSort() {
+            let result = [...marketSummary];
+            if (currentCategoryFilter !== 'All') { result = result.filter(item => item.category === currentCategoryFilter); }
+            if (currentSearch) { result = result.filter(item => item.name.toLowerCase().includes(currentSearch.toLowerCase())); }
+            
+            result.sort((a, b) => {
+                const isAPinned = pinnedItems.includes(a.name);
+                const isBPinned = pinnedItems.includes(b.name);
+                if (isAPinned !== isBPinned) return isAPinned ? -1 : 1;
+
+                const [sortKey, direction] = currentSort.split('_');
+                const asc = direction === 'asc';
+                const valA = a[sortKey];
+                const valB = b[sortKey];
+
+                if (typeof valA === 'number' || typeof valB === 'number') {
+                    const numA = valA ?? (asc ? Infinity : -Infinity);
+                    const numB = valB ?? (asc ? Infinity : -Infinity);
+                    return asc ? numA - numB : numB - numA;
+                } else {
+                    const strA = (valA ?? '').toLowerCase();
+                    const strB = (valB ?? '').toLowerCase();
+                    return asc ? strA.localeCompare(strB) : strB.localeCompare(strA);
+                }
+            });
+
+            filteredAndSortedSummary = result;
+            currentPage = 1;
+            renderCurrentPage();
+        }
+
+        // --- Rendering ---
+        function renderCurrentPage() {
+            tableBodyEl.innerHTML = '';
+            const totalItems = filteredAndSortedSummary.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            currentPage = Math.max(1, Math.min(currentPage, totalPages));
+            const itemsToDisplay = filteredAndSortedSummary.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+            if (itemsToDisplay.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="5" style="text-align:center; padding: 20px;">No items match your filters.</td>`;
+                tableBodyEl.appendChild(tr);
+            } else {
+                itemsToDisplay.forEach(item => {
+                    const tr = document.createElement('tr');
+                    const isPinned = pinnedItems.includes(item.name);
+                    const pinIconClass = isPinned ? 'fas fa-star pin-icon pinned' : 'far fa-star pin-icon';
+                    tr.innerHTML = `
+                        <td class="pin-cell"><i class="${pinIconClass}" data-item-name="${item.name}" title="${getTranslation(isPinned ? 'pinActionUnpin' : 'pinActionPin')}"></i></td>
+                        <td>${item.name}</td>
+                        <td>${item.category || '<span class="na-value">N/A</span>'}</td>
+                        <td>${formatPrice(item.ask)}</td>
+                        <td>${formatPrice(item.buy)}</td>
+                    `;
+                    tr.querySelector('.pin-icon').addEventListener('click', (e) => togglePin(e.target.dataset.itemName));
+                    tableBodyEl.appendChild(tr);
+                });
+            }
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            pageInfoEl.textContent = getTranslation('pageInfo', { currentPage, totalPages });
+            prevButton.disabled = currentPage <= 1;
+            nextButton.disabled = currentPage >= totalPages;
+            paginationEl.style.display = totalPages > 1 ? 'flex' : 'none';
+        }
+
+        // --- Event Handlers ---
+        searchInput.addEventListener('input', e => { currentSearch = e.target.value; applyFiltersAndSort(); });
+        categoryFilterEl.addEventListener('change', e => { currentCategoryFilter = e.target.value; applyFiltersAndSort(); });
+        prevButton.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderCurrentPage(); tableWrapperEl.scrollTop = 0; } });
+        nextButton.addEventListener('click', () => { const totalPages = Math.ceil(filteredAndSortedSummary.length / itemsPerPage); if (currentPage < totalPages) { currentPage++; renderCurrentPage(); tableWrapperEl.scrollTop = 0; } });
+        themeToggleButton.addEventListener('click', () => applyTheme(document.documentElement.hasAttribute('data-theme') ? 'light' : 'dark'));
+        languageSelector.addEventListener('change', e => setLanguage(e.target.value));
+
+        sortOptionsEl.addEventListener('click', e => {
+            if (e.target.tagName === 'BUTTON') {
+                const sortKey = e.target.dataset.sort;
+                const [currentKey, currentDir] = currentSort.split('_');
+                const newDir = (currentKey === sortKey && currentDir === 'asc') ? 'desc' : 'asc';
+                currentSort = `${sortKey}_${newDir}`;
+                sortOptionsEl.querySelectorAll('button').forEach(btn => btn.classList.remove('current-sort'));
+                e.target.classList.add('current-sort');
+                applyFiltersAndSort();
+            }
+        });
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setLanguage(getInitialLanguage());
+            initTheme();
+            loadData();
+        });
+    </script>
+</body>
+</html>
