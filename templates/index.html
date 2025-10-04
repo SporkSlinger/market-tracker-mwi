@@ -49,7 +49,7 @@
         .title-button-container { text-align: center; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 10px; }
         .action-button, .view-switcher button, #language-selector { padding: 6px 16px; font-size: 0.9em; font-weight: 500; background-color: var(--button-bg-color); color: var(--text-color-primary); border: 1px solid var(--button-border-color); border-radius: 6px; cursor: pointer; transition: background-color 0.15s ease; }
         .action-button:hover, .view-switcher button:hover { background-color: var(--button-hover-bg-color); }
-        .view-switcher button.active, .sort-options button.active { background-color: var(--button-active-bg-color); color: var(--button-active-text-color); border-color: var(--button-active-border-color); font-weight: 600; }
+        .view-switcher button.active, .sort-options button.active, .sort-options button.current-sort { background-color: var(--button-active-bg-color); color: var(--button-active-text-color); border-color: var(--button-active-border-color); font-weight: 600; }
         #theme-toggle-btn .fa-sun { display: none; }
         html[data-theme="dark"] #theme-toggle-btn .fa-sun { display: inline-block; }
         html[data-theme="dark"] #theme-toggle-btn .fa-moon { display: none; }
@@ -120,21 +120,17 @@
 </head>
 <body>
     <div class="container">
-        <h1 data-translate-key="mainTitle">MWI Market Data</h1>
-        <p class="subheader" data-translate-key="subHeaderText">Displaying current market prices and tools.</p>
+        <h1>MWI Market Data</h1>
+        <p class="subheader">Displaying current market prices and tools.</p>
         
         <div class="title-button-container">
             <button id="theme-toggle-btn" class="action-button" aria-label="Toggle Theme"><i class="fas fa-moon"></i><i class="fas fa-sun"></i></button>
-            <select id="language-selector" aria-label="Select Language">
-                <option value="en">English</option>
-                <option value="zh">中文</option>
-            </select>
         </div>
 
         <div class="title-button-container view-switcher" id="view-switcher">
-            <button class="active" data-view="market" data-translate-key="viewMarket">Market</button>
-            <button data-view="flipper" data-translate-key="viewFlipper">Flip Finder</button>
-            <button data-view="portfolio" data-translate-key="viewPortfolio">My Portfolio</button>
+            <button class="active" data-view="market">Market</button>
+            <button data-view="flipper">Flip Finder</button>
+            <button data-view="portfolio">My Portfolio</button>
         </div>
 
         <!-- Main Market View -->
@@ -142,26 +138,26 @@
             <div class="controls">
                 <div class="controls-left">
                     <div class="search-form">
-                        <label for="search-input" data-translate-key="searchLabel">Search</label>
-                        <input type="text" id="search-input" data-translate-key-placeholder="searchPlaceholder" placeholder="Product Name...">
+                        <label for="search-input">Search</label>
+                        <input type="text" id="search-input" placeholder="Product Name...">
                     </div>
                     <div class="category-filter">
-                        <label for="category-filter" data-translate-key="categoryLabel">Category</label>
+                        <label for="category-filter">Category</label>
                         <select id="category-filter">
-                            <option value="All" data-translate-key="allCategories">All Categories</option>
+                            <option value="All">All Categories</option>
                         </select>
                     </div>
                 </div>
                 <div class="controls-right sort-options" id="sort-options">
-                    <span data-translate-key="sortBy">Sort By:</span>
-                    <button data-sort="name" data-translate-key="sortName">Name</button>
-                    <button data-sort="category" data-translate-key="sortCategory">Category</button>
-                    <button data-sort="ask" data-translate-key="sortAsk">Ask</button>
-                    <button data-sort="buy" data-translate-key="sortBuy">Buy</button>
+                    <span>Sort By:</span>
+                    <button data-sort="name">Name</button>
+                    <button data-sort="category">Category</button>
+                    <button data-sort="ask">Ask</button>
+                    <button data-sort="buy">Buy</button>
                 </div>
             </div>
 
-            <div id="loading-message" class="loading-message" data-translate-key="tableLoading">Loading market data...</div>
+            <div id="loading-message" class="loading-message">Loading market data...</div>
             
             <div id="market-table-wrapper" class="table-wrapper hidden">
                 <table id="item-table" class="styled-table">
@@ -169,12 +165,12 @@
                         <tr>
                             <th style="width: 35px;" aria-label="Pin Item"><i class="fas fa-thumbtack"></i></th>
                             <th style="width: 35px;" aria-label="Price Alert"><i class="fas fa-bell"></i></th>
-                            <th data-translate-key="colName">Name</th>
-                            <th data-translate-key="colCategory">Category</th>
-                            <th data-translate-key="colAsk">Ask</th>
-                            <th data-translate-key="colBuy">Buy</th>
-                            <th data-translate-key="colTrend">24h Trend</th>
-                            <th data-translate-key="colVolatility">7d Volatility</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Ask</th>
+                            <th>Buy</th>
+                            <th>24h Trend</th>
+                            <th>7d Volatility</th>
                         </tr>
                     </thead>
                     <tbody id="item-table-body"></tbody>
@@ -187,24 +183,24 @@
         <div id="flipper-view" class="hidden">
             <div class="controls" style="justify-content: center;">
                  <div class="sort-options">
-                    <span data-translate-key="sortBy">Sort By:</span>
-                    <button data-sort="marketMargin" class="active" data-translate-key="colProfitMargin">Profit Margin</button>
-                    <button data-sort="absoluteProfit" data-translate-key="colAbsoluteProfit">Absolute Profit</button>
+                    <span>Sort By:</span>
+                    <button data-sort="marketMargin" class="active">Profit Margin</button>
+                    <button data-sort="absoluteProfit">Absolute Profit</button>
                 </div>
             </div>
             <div style="text-align: center; margin-bottom: 20px; color: var(--text-color-secondary);">
-                <span data-translate-key="footerStatus"></span> <span id="flipper-last-update"></span>
+                <span>Data Fetched:</span> <span id="flipper-last-update"></span>
             </div>
             <div id="flipper-table-wrapper" class="table-wrapper">
                  <table id="flipper-table" class="styled-table">
                     <thead>
                         <tr>
-                            <th data-translate-key="colName">Name</th>
-                            <th data-translate-key="colBuy">Buy Price</th>
-                            <th data-translate-key="colAsk">Ask Price</th>
-                            <th data-translate-key="colVendor">Vendor Price</th>
-                            <th data-translate-key="colProfitMargin">Market Profit Margin</th>
-                            <th data-translate-key="colVendorProfit">Vendor Profit</th>
+                            <th>Name</th>
+                            <th>Buy Price</th>
+                            <th>Ask Price</th>
+                            <th>Vendor Price</th>
+                            <th>Market Profit Margin</th>
+                            <th>Vendor Profit</th>
                         </tr>
                     </thead>
                     <tbody id="flipper-table-body"></tbody>
@@ -214,19 +210,19 @@
 
         <!-- Portfolio View -->
         <div id="portfolio-view" class="hidden">
-            <h2 data-translate-key="portfolioTitle">My Portfolio</h2>
+            <h2>My Portfolio</h2>
             <div id="portfolio-summary" class="portfolio-summary hidden"></div>
             <div id="portfolio-table-wrapper" class="table-wrapper">
                 <table id="portfolio-table" class="styled-table">
                     <thead>
                         <tr>
-                            <th data-translate-key="colName">Name</th>
-                            <th data-translate-key="colQuantity">Quantity</th>
-                            <th data-translate-key="colAvgBuyPrice">Avg. Buy Price</th>
-                            <th data-translate-key="colTotalCost">Total Cost</th>
-                            <th data-translate-key="colCurrentValue">Current Value</th>
-                            <th data-translate-key="colProfitLoss">Profit/Loss</th>
-                            <th data-translate-key="colActions">Actions</th>
+                            <th>Name</th>
+                            <th>Quantity</th>
+                            <th>Avg. Buy Price</th>
+                            <th>Total Cost</th>
+                            <th>Current Value</th>
+                            <th>Profit/Loss</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="portfolio-table-body"></tbody>
@@ -235,9 +231,9 @@
         </div>
 
         <footer>
-            <span data-translate-key="footerMadeBy">Made by Sporky with AI</span> |
-            <span class="status"><span data-translate-key="footerStatus">Data Fetched:</span> <span id="last-update">N/A</span></span> |
-            <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer" data-translate-key="footerRepo">GitHub Repo</a>
+            <span>Made by Sporky with AI</span> |
+            <span class="status"><span>Data Fetched:</span> <span id="last-update">N/A</span></span> |
+            <a href="https://github.com/SporkSlinger/market-tracker-mwi" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
         </footer>
     </div>
     
@@ -260,8 +256,8 @@
             <h3 style="margin-top: 20px;">Enhanced Prices</h3>
             <div id="enhanced-prices-container" class="enhanced-data"></div>
             <div class="modal-actions">
-                <button id="add-to-portfolio-btn" class="action-button"><i class="fas fa-plus"></i> <span data-translate-key="addToPortfolio"></span></button>
-                <button id="set-alert-btn" class="action-button"><i class="fas fa-bell"></i> <span data-translate-key="setPriceAlert"></span></button>
+                <button id="add-to-portfolio-btn" class="action-button"><i class="fas fa-plus"></i> <span>Add to Portfolio</span></button>
+                <button id="set-alert-btn" class="action-button"><i class="fas fa-bell"></i> <span>Set Price Alert</span></button>
             </div>
         </div>
     </div>
@@ -274,16 +270,16 @@
             </div>
             <div class="form-grid">
                 <div>
-                    <label for="portfolio-quantity" data-translate-key="colQuantity"></label>
+                    <label for="portfolio-quantity">Quantity</label>
                     <input type="number" id="portfolio-quantity" min="1" step="1">
                 </div>
                  <div>
-                    <label for="portfolio-price" data-translate-key="buyPrice"></label>
+                    <label for="portfolio-price">Buy Price</label>
                     <input type="number" id="portfolio-price" min="0">
                 </div>
             </div>
             <div class="modal-actions">
-                <button id="save-portfolio-item" class="action-button primary" data-translate-key="save"></button>
+                <button id="save-portfolio-item" class="action-button primary">Save</button>
             </div>
         </div>
     </div>
@@ -294,23 +290,23 @@
                 <h3 id="alert-modal-title"></h3>
                 <span class="close-btn" aria-label="Close modal">&times;</span>
             </div>
-            <p style="text-align: center; color: var(--text-color-secondary);" data-translate-key="alertInfo"></p>
+            <p style="text-align: center; color: var(--text-color-secondary);">Get notified when the price goes above or below your target.</p>
             <div class="form-grid">
                  <div>
-                    <label for="alert-condition" data-translate-key="condition"></label>
+                    <label for="alert-condition">Condition</label>
                     <select id="alert-condition">
-                        <option value="above" data-translate-key="priceAbove"></option>
-                        <option value="below" data-translate-key="priceBelow"></option>
+                        <option value="above">Price is Above</option>
+                        <option value="below">Price is Below</option>
                     </select>
                 </div>
                 <div>
-                    <label for="alert-price" data-translate-key="targetPrice"></label>
+                    <label for="alert-price">Target Price</label>
                     <input type="number" id="alert-price" min="0">
                 </div>
             </div>
              <div class="modal-actions">
-                <button id="remove-alert-item" class="action-button danger hidden" data-translate-key="removeAlert"></button>
-                <button id="save-alert-item" class="action-button primary" data-translate-key="setAlert"></button>
+                <button id="remove-alert-item" class="action-button danger hidden">Remove Alert</button>
+                <button id="save-alert-item" class="action-button primary">Set Alert</button>
             </div>
         </div>
     </div>
@@ -323,8 +319,8 @@
             </div>
             <p id="confirm-modal-body" style="text-align: center;"></p>
             <div class="modal-actions">
-                <button id="confirm-modal-cancel" class="action-button" data-translate-key="cancel"></button>
-                <button id="confirm-modal-confirm" class="action-button danger" data-translate-key="confirm"></button>
+                <button id="confirm-modal-cancel" class="action-button">Cancel</button>
+                <button id="confirm-modal-confirm" class="action-button danger">Confirm</button>
             </div>
         </div>
     </div>
@@ -333,14 +329,13 @@
         // =================================================================================
         // SCRIPT ORGANIZATION
         // 1. Global State & Constants
-        // 2. Translations
-        // 3. Core Logic & Initialization
-        // 4. Data Loading & Processing
-        // 5. Rendering Functions
-        // 6. Event Handling
-        // 7. Modal Logic
-        // 8. Feature-Specific Logic (Portfolio, Alerts, etc.)
-        // 9. Utility & Helper Functions
+        // 2. Core Logic & Initialization
+        // 3. Data Loading & Processing
+        // 4. Rendering Functions
+        // 5. Event Handling
+        // 6. Modal Logic
+        // 7. Feature-Specific Logic (Portfolio, Alerts, etc.)
+        // 8. Utility & Helper Functions
         // =================================================================================
 
         // --- 1. GLOBAL STATE & CONSTANTS ---
@@ -349,7 +344,7 @@
         let currentPage = 1, currentSort = 'name_asc', currentSearch = '', currentCategoryFilter = 'All', currentView = 'market';
         let searchDebounceTimeout, currentItemInModal = null, flipperSortBy = 'marketMargin', lastFocusedElement = null;
         
-        const PINNED_ITEMS_KEY = 'mwiPinnedItems', LANG_STORAGE_KEY = 'mwiMarketLang', THEME_KEY = 'mwi-market-theme';
+        const PINNED_ITEMS_KEY = 'mwiPinnedItems', THEME_KEY = 'mwi-market-theme';
         const PORTFOLIO_KEY = 'mwiPortfolio', ALERTS_KEY = 'mwiPriceAlerts';
         const FILTERS_KEY = 'mwiSessionFilters';
 
@@ -363,7 +358,7 @@
             flipperLastUpdate: document.getElementById('flipper-last-update'), portfolioView: document.getElementById('portfolio-view'),
             portfolioSummary: document.getElementById('portfolio-summary'), portfolioTableBody: document.getElementById('portfolio-table-body'), 
             lastUpdate: document.getElementById('last-update'), themeToggle: document.getElementById('theme-toggle-btn'), 
-            languageSelector: document.getElementById('language-selector'), toastContainer: document.getElementById('toast-container')
+            toastContainer: document.getElementById('toast-container')
         };
         
         let priceChartInstance = null;
@@ -374,22 +369,15 @@
             confirm: { el: document.getElementById('confirmModal'), title: document.getElementById('confirm-modal-title'), body: document.getElementById('confirm-modal-body'), confirmBtn: document.getElementById('confirm-modal-confirm'), cancelBtn: document.getElementById('confirm-modal-cancel') }
         };
 
-        // --- 2. TRANSLATIONS ---
-        const translations = {
-            'en': { 'mainTitle': 'MWI Market Data', 'subHeaderText': 'Displaying current market prices and tools.', 'toggleTheme': 'Toggle Theme', 'searchLabel': 'Search', 'searchPlaceholder': 'Product Name...', 'categoryLabel': 'Category', 'allCategories': 'All Categories', 'sortBy': 'Sort By:', 'sortName': 'Name', 'sortCategory': 'Category', 'sortAsk': 'Ask', 'sortBuy': 'Buy', 'tableLoading': 'Loading market data...', 'colName': 'Name', 'colCategory': 'Category', 'colAsk': 'Ask', 'colBuy': 'Buy', 'colTrend': '24h Trend', 'colVolatility': '7d Volatility', 'pageInfo': 'Page {currentPage} of {totalPages}', 'prevPage': '« Previous', 'nextPage': 'Next »', 'footerMadeBy': 'Made by Sporky with AI', 'footerStatus': 'Data Fetched:', 'footerRepo': 'GitHub Repo', 'pinActionPin': 'Pin Item', 'pinActionUnpin': 'Unpin Item', 'vendorPrice': 'Vendor Price', 'volatilityTitle': 'Volatility (7d CV)', 'categoryInfo': 'Category: {category}', 'askPrice': 'Ask', 'buyPrice': 'Buy', 'noEnhancedData': 'No enhanced price data available.', 'noHistoryData': 'Not enough historical data available for this item.', 'viewMarket': 'Market', 'viewFlipper': 'Flip Finder', 'viewPortfolio': 'My Portfolio', 'flipperTitle': 'Flip Finder', 'portfolioTitle': 'My Portfolio', 'colProfitMargin': 'Profit Margin', 'colAbsoluteProfit': 'Absolute Profit', 'colVendorProfit': 'Vendor Profit', 'colVendor': 'Vendor Price', 'colQuantity': 'Quantity', 'colAvgBuyPrice': 'Avg. Buy Price', 'colTotalCost': 'Total Cost', 'colCurrentValue': 'Current Value', 'colProfitLoss': 'Profit/Loss', 'colActions': 'Actions', 'addToPortfolio': 'Add to Portfolio', 'setPriceAlert': 'Set Price Alert', 'save': 'Save', 'condition': 'Condition', 'priceAbove': 'Price is Above', 'priceBelow': 'Price is Below', 'targetPrice': 'Target Price', 'setAlert': 'Set Alert', 'removeAlert': 'Remove Alert', 'alertInfo': 'Get notified when the price goes above or below your target.', 'editPortfolioItem': 'Edit {name}', 'addPortfolioItem': 'Add {name} to Portfolio', 'edit': 'Edit', 'remove': 'Remove', 'totalPortfolioValue': 'Total Portfolio Value', 'totalProfitLoss': 'Total Profit/Loss', 'initialInvestment': 'Initial Investment', 'confirm': 'Confirm', 'cancel': 'Cancel', 'confirmRemoveTitle': 'Confirm Removal', 'confirmRemoveBody': 'Are you sure you want to remove {name} from your portfolio?', 'portfolioSaved': 'Portfolio saved!', 'alertSet': 'Price alert set!', 'itemRemoved': '{name} removed from portfolio.', 'noItemsFound': 'No items match your filters.', 'noFlipsFound': 'No profitable flips found.', 'portfolioEmpty': 'Your portfolio is empty.', 'vendorFlipTooltip': 'Profitable to sell to vendor' },
-            'zh': { 'mainTitle': 'MWI 市场数据', 'subHeaderText': '显示当前市场价格和工具。', 'toggleTheme': '切换主题', 'searchLabel': '搜索', 'searchPlaceholder': '物品名称...', 'categoryLabel': '类别', 'allCategories': '所有类别', 'sortBy': '排序方式:', 'sortName': '名称', 'sortCategory': '类别', 'sortAsk': '卖价', 'sortBuy': '买价', 'tableLoading': '正在加载市场数据...', 'colName': '名称', 'colCategory': '类别', 'colAsk': '卖价', 'colBuy': '买价', 'colTrend': '24小时趋势', 'colVolatility': '7日波动率', 'pageInfo': '第 {currentPage} 页 / 共 {totalPages} 页', 'prevPage': '« 上一页', 'nextPage': '下一页 »', 'footerMadeBy': '由 Sporky 与 AI 制作', 'footerStatus': '数据获取时间:', 'footerRepo': 'GitHub 仓库', 'pinActionPin': '置顶物品', 'pinActionUnpin': '取消置顶', 'vendorPrice': '商店价格', 'volatilityTitle': '波动率 (7日CV)', 'categoryInfo': '类别: {category}', 'askPrice': '卖价', 'buyPrice': '买价', 'noEnhancedData': '没有可用的强化价格数据。', 'noHistoryData': '此物品没有足够的历史数据。', 'viewMarket': '市场', 'viewFlipper': '倒卖查找器', 'viewPortfolio': '我的投资组合', 'flipperTitle': '倒卖查找器', 'portfolioTitle': '我的投资组合', 'colProfitMargin': '利润率', 'colAbsoluteProfit': '绝对利润', 'colVendorProfit': '商店利润', 'colVendor': '商店价格', 'colQuantity': '数量', 'colAvgBuyPrice': '平均买价', 'colTotalCost': '总成本', 'colCurrentValue': '当前价值', 'colProfitLoss': '利润/亏损', 'colActions': '操作', 'addToPortfolio': '添加到投资组合', 'setPriceAlert': '设置价格提醒', 'save': '保存', 'condition': '条件', 'priceAbove': '价格高于', 'priceBelow': '价格低于', 'targetPrice': '目标价格', 'setAlert': '设置提醒', 'removeAlert': '移除提醒', 'alertInfo': '当价格高于或低于您的目标时收到通知。', 'editPortfolioItem': '编辑 {name}', 'addPortfolioItem': '将 {name} 添加到投资组合', 'edit': '编辑', 'remove': '移除', 'totalPortfolioValue': '投资组合总价值', 'totalProfitLoss': '总利润/亏损', 'initialInvestment': '初始投资', 'confirm': '确认', 'cancel': '取消', 'confirmRemoveTitle': '确认移除', 'confirmRemoveBody': '您确定要从投资组合中移除 {name} 吗？', 'portfolioSaved': '投资组合已保存！', 'alertSet': '价格提醒已设置！', 'itemRemoved': '{name} 已从投资组合中移除。', 'noItemsFound': '没有找到符合条件的物品。', 'noFlipsFound': '目前没有可盈利的倒卖机会。', 'portfolioEmpty': '您的投资组合是空的。', 'vendorFlipTooltip': '卖给商人有利可图' }
-        };
-
-        // --- 3. CORE LOGIC & INITIALIZATION ---
+        // --- 2. CORE LOGIC & INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
-            initLanguage();
             initTheme();
             initFilters();
             setupEventListeners();
             loadData();
         });
 
-        // --- 4. DATA LOADING & PROCESSING ---
+        // --- 3. DATA LOADING & PROCESSING ---
         async function loadData() {
             DOMElements.loadingMessage.style.display = 'block';
             DOMElements.marketTableWrapper.classList.add('hidden');
@@ -416,7 +404,7 @@
                 populateCategoryFilter();
                 applyFiltersAndSort();
                 
-                const updateTime = new Date().toLocaleString(currentLanguage);
+                const updateTime = new Date().toLocaleString();
                 DOMElements.lastUpdate.textContent = updateTime;
                 DOMElements.flipperLastUpdate.textContent = updateTime;
                 DOMElements.loadingMessage.style.display = 'none';
@@ -455,12 +443,11 @@
             renderAllViews();
         }
 
-        // --- 5. RENDERING FUNCTIONS ---
+        // --- 4. RENDERING FUNCTIONS ---
         function renderAllViews() {
             if (currentView === 'market') renderCurrentPage();
             else if (currentView === 'flipper') renderFlipper();
             else if (currentView === 'portfolio') renderPortfolio();
-            translatePage();
         }
 
         function renderCurrentPage() {
@@ -468,13 +455,13 @@
             const itemsToDisplay = filteredAndSortedSummary.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
             
             DOMElements.tableBody.innerHTML = itemsToDisplay.length === 0 
-                ? `<tr><td colspan="8" class="empty-message" data-translate-key="noItemsFound"></td></tr>`
+                ? `<tr><td colspan="8" class="empty-message">No items match your filters.</td></tr>`
                 : itemsToDisplay.map(item => {
                     const isPinned = pinnedItems.includes(item.name);
                     const alert = priceAlerts.find(a => a.name === item.name);
-                    const pinTitle = getTranslation(isPinned ? 'pinActionUnpin' : 'pinActionPin');
-                    const alertTitle = getTranslation('setPriceAlert');
-                    const vendorFlip = (item.vendor > item.buy && item.buy > 0) ? `<i class="fas fa-coins vendor-flip-icon" title="${getTranslation('vendorFlipTooltip')}"></i>` : '';
+                    const pinTitle = isPinned ? 'Unpin Item' : 'Pin Item';
+                    const alertTitle = 'Set Price Alert';
+                    const vendorFlip = (item.vendor > item.buy && item.buy > 0) ? `<i class="fas fa-coins vendor-flip-icon" title="Profitable to sell to vendor"></i>` : '';
                     return `
                         <tr data-item-name="${item.name}">
                             <td><i class="fas fa-thumbtack pin-icon ${isPinned ? 'pinned' : ''}" data-item-name="${item.name}" title="${pinTitle}" aria-label="${pinTitle} for ${item.name}"></i></td>
@@ -497,7 +484,7 @@
                 .sort((a, b) => (b[flipperSortBy] || -Infinity) - (a[flipperSortBy] || -Infinity));
 
             DOMElements.flipperTableBody.innerHTML = flips.length === 0
-                ? `<tr><td colspan="6" class="empty-message" data-translate-key="noFlipsFound"></td></tr>`
+                ? `<tr><td colspan="6" class="empty-message">No profitable flips found.</td></tr>`
                 : flips.map(item => `
                     <tr data-item-name="${item.name}">
                         <td>${item.name}</td>
@@ -512,7 +499,7 @@
         function renderPortfolio() {
             DOMElements.portfolioSummary.classList.toggle('hidden', portfolio.length === 0);
             if (portfolio.length === 0) {
-                DOMElements.portfolioTableBody.innerHTML = `<tr><td colspan="7" class="empty-message" data-translate-key="portfolioEmpty"></td></tr>`;
+                DOMElements.portfolioTableBody.innerHTML = `<tr><td colspan="7" class="empty-message">Your portfolio is empty.</td></tr>`;
                 return;
             }
 
@@ -528,35 +515,35 @@
                 return `
                     <tr data-item-name="${pItem.name}">
                         <td>${pItem.name}</td>
-                        <td class="align-right">${pItem.quantity.toLocaleString(currentLanguage)}</td>
+                        <td class="align-right">${pItem.quantity.toLocaleString()}</td>
                         <td class="align-right">${formatPrice(pItem.price)}</td>
                         <td class="align-right">${formatPrice(itemCost)}</td>
                         <td class="align-right">${formatPrice(itemValue)}</td>
                         <td class="align-right"><span class="${profitLoss >= 0 ? 'profit-positive' : 'profit-negative'}">${formatPrice(profitLoss)}</span></td>
                         <td>
-                            <button class="action-button edit-portfolio-btn" data-name="${pItem.name}" data-translate-key="edit"></button>
-                            <button class="action-button remove-portfolio-btn" data-name="${pItem.name}" data-translate-key="remove"></button>
+                            <button class="action-button edit-portfolio-btn" data-name="${pItem.name}">Edit</button>
+                            <button class="action-button remove-portfolio-btn" data-name="${pItem.name}">Remove</button>
                         </td>
                     </tr>`;
             }).join('');
 
             const totalProfitLoss = totalValue - totalCost;
             DOMElements.portfolioSummary.innerHTML = `
-                <div class="summary-box"><h3 data-translate-key="initialInvestment"></h3><p>${formatPrice(totalCost)}</p></div>
-                <div class="summary-box"><h3 data-translate-key="totalPortfolioValue"></h3><p>${formatPrice(totalValue)}</p></div>
-                <div class="summary-box"><h3 data-translate-key="totalProfitLoss"></h3><p class="${totalProfitLoss >= 0 ? 'profit-positive' : 'profit-negative'}">${formatPrice(totalProfitLoss)}</p></div>`;
+                <div class="summary-box"><h3>Initial Investment</h3><p>${formatPrice(totalCost)}</p></div>
+                <div class="summary-box"><h3>Total Portfolio Value</h3><p>${formatPrice(totalValue)}</p></div>
+                <div class="summary-box"><h3>Total Profit/Loss</h3><p class="${totalProfitLoss >= 0 ? 'profit-positive' : 'profit-negative'}">${formatPrice(totalProfitLoss)}</p></div>`;
         }
 
         function updatePagination() {
             const totalPages = Math.ceil(filteredAndSortedSummary.length / itemsPerPage) || 1;
             currentPage = Math.max(1, Math.min(currentPage, totalPages));
-            DOMElements.pagination.querySelector('#page-info').textContent = getTranslation('pageInfo', { currentPage, totalPages });
+            DOMElements.pagination.querySelector('#page-info').textContent = `Page ${currentPage} of ${totalPages}`;
             DOMElements.pagination.querySelector('#prev-page').disabled = currentPage <= 1;
             DOMElements.pagination.querySelector('#next-page').disabled = currentPage >= totalPages;
             DOMElements.pagination.style.display = totalPages > 1 ? 'flex' : 'none';
         }
 
-        // --- 6. EVENT HANDLING ---
+        // --- 5. EVENT HANDLING ---
         function setupEventListeners() {
             DOMElements.viewSwitcher.addEventListener('click', e => e.target.tagName === 'BUTTON' && switchView(e.target.dataset.view));
             DOMElements.searchInput.addEventListener('input', handleSearchInput);
@@ -567,9 +554,8 @@
             DOMElements.flipperTableBody.addEventListener('click', handleTableClick);
             DOMElements.portfolioTableBody.addEventListener('click', handlePortfolioActions);
             DOMElements.themeToggle.addEventListener('click', () => applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
-            DOMElements.languageSelector.addEventListener('change', e => setLanguage(e.target.value));
             
-            DOMElements.pagination.innerHTML = `<button id="prev-page" data-translate-key="prevPage"></button><span id="page-info"></span><button id="next-page" data-translate-key="nextPage"></button>`;
+            DOMElements.pagination.innerHTML = `<button id="prev-page">&laquo; Previous</button><span id="page-info"></span><button id="next-page">Next &raquo;</button>`;
             DOMElements.pagination.querySelector('#prev-page').addEventListener('click', () => { if(currentPage > 1){ currentPage--; renderCurrentPage(); } });
             DOMElements.pagination.querySelector('#next-page').addEventListener('click', () => { const totalPages = Math.ceil(filteredAndSortedSummary.length / itemsPerPage); if(currentPage < totalPages){ currentPage++; renderCurrentPage(); } });
             
@@ -582,7 +568,7 @@
             window.addEventListener('click', e => { if (e.target.classList.contains('modal')) closeModal(e.target); });
             document.addEventListener('keydown', handleGlobalHotkeys);
             
-            updateSortButtons(); // Set initial sort state UI
+            updateSortButtons();
         }
         
         function handleSearchInput(e) {
@@ -635,11 +621,11 @@
                 const item = portfolio.find(p => p.name === name);
                 if (item) showPortfolioModal(name, item.quantity, item.price);
             } else if (e.target.classList.contains('remove-portfolio-btn')) {
-                showConfirm(getTranslation('confirmRemoveTitle'), getTranslation('confirmRemoveBody', {name}), () => {
+                showConfirm('Confirm Removal', `Are you sure you want to remove ${name} from your portfolio?`, () => {
                     portfolio = portfolio.filter(p => p.name !== name);
                     saveToStorage(PORTFOLIO_KEY, portfolio);
                     renderPortfolio();
-                    showToast(getTranslation('itemRemoved', {name}), 'info');
+                    showToast(`${name} removed from portfolio.`, 'info');
                 });
             }
         }
@@ -665,7 +651,7 @@
             if (handler) handler(e);
         }
 
-        // --- 7. MODAL LOGIC ---
+        // --- 6. MODAL LOGIC ---
         function closeModal(modalElement) {
             modalElement.style.display = 'none';
             if (lastFocusedElement) {
@@ -680,39 +666,36 @@
             
             currentItemInModal = itemName; 
             Modals.item.name.textContent = itemName;
-            Modals.item.category.innerHTML = getTranslation('categoryInfo', {category: item.category || 'N/A'});
-            Modals.item.volatility.innerHTML = `${getTranslation('volatilityTitle')}: <strong>${formatVolatility(item.volatility_norm_7d)}</strong>`;
-            Modals.item.vendor.innerHTML = `${getTranslation('vendorPrice')}: <strong>${formatPrice(item.vendor)}</strong>`;
+            Modals.item.category.textContent = `Category: ${item.category || 'N/A'}`;
+            Modals.item.volatility.innerHTML = `Volatility (7d CV): <strong>${formatVolatility(item.volatility_norm_7d)}</strong>`;
+            Modals.item.vendor.innerHTML = `Vendor Price: <strong>${formatPrice(item.vendor)}</strong>`;
             Modals.item.addPortfolioBtn.dataset.name = itemName;
             Modals.item.setAlertBtn.dataset.name = itemName;
             
             renderEnhancedPrices(enhancedData[itemName]);
             renderChart(historyData[itemName]);
-            translatePage(); 
             Modals.item.el.style.display = 'flex';
         }
         
         function showPortfolioModal(name, quantity = 1, price = '') {
-            Modals.portfolio.title.textContent = getTranslation(portfolio.some(p=>p.name===name) ? 'editPortfolioItem' : 'addPortfolioItem', { name });
+            Modals.portfolio.title.textContent = portfolio.some(p=>p.name===name) ? `Edit ${name}` : `Add ${name} to Portfolio`;
             Modals.portfolio.quantity.value = quantity;
             const marketItem = marketDataMap.get(name);
             Modals.portfolio.price.value = price || marketItem?.buy || '';
             Modals.portfolio.saveBtn.dataset.name = name;
-            translatePage();
             Modals.portfolio.el.style.display = 'flex';
             setTimeout(() => Modals.portfolio.quantity.focus(), 50);
         }
         
         function showAlertModal(name) {
             const alert = priceAlerts.find(a => a.name === name);
-            Modals.alert.title.textContent = `${getTranslation('setPriceAlert')} for ${name}`;
+            Modals.alert.title.textContent = `Set Price Alert for ${name}`;
             Modals.alert.condition.value = alert?.condition || 'below';
             const marketItem = marketDataMap.get(name);
             Modals.alert.price.value = alert?.price || marketItem?.ask || '';
             Modals.alert.saveBtn.dataset.name = name;
             Modals.alert.removeBtn.dataset.name = name;
             Modals.alert.removeBtn.classList.toggle('hidden', !alert);
-            translatePage();
             Modals.alert.el.style.display = 'flex';
             setTimeout(() => Modals.alert.price.focus(), 50);
         }
@@ -721,7 +704,6 @@
             Modals.confirm.title.textContent = title;
             Modals.confirm.body.textContent = body;
             Modals.confirm.el.style.display = 'flex';
-            translatePage();
 
             const confirmHandler = () => { onConfirmCallback(); closeModal(Modals.confirm.el); };
             const cancelHandler = () => closeModal(Modals.confirm.el);
@@ -729,7 +711,6 @@
             Modals.confirm.confirmBtn.addEventListener('click', confirmHandler, { once: true });
             Modals.confirm.cancelBtn.addEventListener('click', cancelHandler, { once: true });
             
-            // Cleanup listeners if closed by other means (ESC, background click)
             const observer = new MutationObserver(() => {
                 if (Modals.confirm.el.style.display === 'none') {
                     Modals.confirm.confirmBtn.removeEventListener('click', confirmHandler);
@@ -742,7 +723,7 @@
             setTimeout(() => Modals.confirm.cancelBtn.focus(), 50);
         }
 
-        // --- 8. FEATURE-SPECIFIC LOGIC ---
+        // --- 7. FEATURE-SPECIFIC LOGIC ---
         function handleSavePortfolio(e) {
             const name = e.target.dataset.name;
             const quantity = parseInt(Modals.portfolio.quantity.value);
@@ -756,7 +737,7 @@
             saveToStorage(PORTFOLIO_KEY, portfolio);
             renderPortfolio();
             closeModal(Modals.portfolio.el);
-            showToast(getTranslation('portfolioSaved'));
+            showToast('Portfolio saved!');
         }
 
         function handleSaveAlert(e) {
@@ -774,7 +755,7 @@
             checkPriceAlerts();
             renderCurrentPage();
             closeModal(Modals.alert.el);
-            showToast(getTranslation('alertSet'), 'info');
+            showToast('Price alert set!', 'info');
         }
 
         function handleRemoveAlert(e) {
@@ -808,7 +789,7 @@
             applyFiltersAndSort();
         }
 
-        // --- 9. UTILITY & HELPER FUNCTIONS ---
+        // --- 8. UTILITY & HELPER FUNCTIONS ---
         function switchView(view) {
             currentView = view;
             window.scrollTo(0, 0);
@@ -829,18 +810,15 @@
         function saveFilters() { sessionStorage.setItem(FILTERS_KEY, JSON.stringify({ search: currentSearch, category: currentCategoryFilter })); }
         function loadFromStorage(key, defaultValue) { try { return JSON.parse(localStorage.getItem(key)) || defaultValue; } catch (e) { return defaultValue; } }
         function saveToStorage(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
-        function initLanguage() { setLanguage(localStorage.getItem(LANG_STORAGE_KEY) || (navigator.language.startsWith('zh') ? 'zh' : 'en'), false); }
-        function setLanguage(lang, render = true) { currentLanguage = lang; localStorage.setItem(LANG_STORAGE_KEY, lang); document.documentElement.lang = lang; DOMElements.languageSelector.value = lang; updateSortButtons(); if(render) renderAllViews(); else translatePage(); }
         function initTheme() { const savedTheme = localStorage.getItem(THEME_KEY) || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); applyTheme(savedTheme, false); }
         function applyTheme(theme, fromClick = true) { document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : 'light'); if (theme !== 'dark') document.documentElement.removeAttribute('data-theme'); localStorage.setItem(THEME_KEY, theme); if (fromClick && currentItemInModal) { renderChart(historyData[currentItemInModal]); } }
-        function populateCategoryFilter() { const categories = [...new Set(marketSummary.map(item => item.category).filter(Boolean))].sort(); DOMElements.categoryFilter.innerHTML = `<option value="All" data-translate-key="allCategories"></option>`; categories.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; DOMElements.categoryFilter.appendChild(opt); }); DOMElements.categoryFilter.value = currentCategoryFilter; }
-        function formatPrice(price) { if (price == null) return '<span class="na-value">--</span>'; return price.toLocaleString(currentLanguage); }
+        function populateCategoryFilter() { const categories = [...new Set(marketSummary.map(item => item.category).filter(Boolean))].sort(); DOMElements.categoryFilter.innerHTML = `<option value="All">All Categories</option>`; categories.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; DOMElements.categoryFilter.appendChild(opt); }); DOMElements.categoryFilter.value = currentCategoryFilter; }
+        function formatPrice(price) { if (price == null) return '<span class="na-value">--</span>'; return price.toLocaleString(); }
         function formatTrend(trend) { if (trend == null) return formatPrice(null); const cls = trend >= 0 ? 'trend-positive' : 'trend-negative'; return `<span class="${cls}">${trend > 0 ? '+' : ''}${trend.toFixed(2)}%</span>`; }
         function formatVolatility(cv) { if (cv == null) return formatPrice(null); return `${cv.toFixed(2)}%`; }
-        function updateSortButtons() { DOMElements.sortOptions.querySelectorAll('button').forEach(btn => { let text = getTranslation(btn.dataset.translateKey); if (btn.dataset.sort === currentSort.split('_')[0]) { text += currentSort.endsWith('asc') ? ' ▲' : ' ▼'; } btn.textContent = text; btn.classList.toggle('current-sort', btn.dataset.sort === currentSort.split('_')[0]); }); }
-        function renderEnhancedPrices(enhanced) { Modals.item.enhanced.innerHTML = (enhanced && enhanced.tiers && Object.keys(enhanced.tiers).length > 0) ? Object.keys(enhanced.tiers).sort((a,b)=>parseInt(a)-parseInt(b)).map(tier => `<div class="enhanced-tier"><div class="tier-label">Tier +${tier}</div><div class="tier-prices"><span class="tier-ask">${getTranslation('askPrice')}: ${formatPrice(enhanced.tiers[tier].ask)}</span><span class="tier-buy">${getTranslation('buyPrice')}: ${formatPrice(enhanced.tiers[tier].buy)}</span></div></div>`).join('') : `<div style="grid-column: 1 / -1; color: var(--muted-text-color);" data-translate-key="noEnhancedData"></div>`; }
-        function renderChart(data) { if(priceChartInstance) priceChartInstance.destroy(); const parent = document.getElementById('chart-parent'); parent.innerHTML = '<canvas id="priceChart"></canvas>'; const canvas = document.getElementById('priceChart'); if(!data || data.length === 0){ parent.innerHTML = `<p class="empty-message" data-translate-key="noHistoryData"></p>`; return; } const points = data.map(p=>({x:p[0],ask:p[1],buy:p[2]})).filter(p=>p.ask!==null||p.buy!==null); priceChartInstance = new Chart(canvas, { type:'line', data:{ datasets:[{label:getTranslation('askPrice'),data:points.map(p=>({x:p.x,y:p.ask})),borderColor:'var(--negative-color)',tension:0.1,pointRadius:1,spanGaps:true},{label:getTranslation('buyPrice'),data:points.map(p=>({x:p.x,y:p.buy})),borderColor:'var(--positive-color)',tension:0.1,pointRadius:1,spanGaps:true}] }, options:{ responsive:true,maintainAspectRatio:false,scales:{x:{type:'time',time:{unit:'day',tooltipFormat:'MMM d, yyyy h:mm a'},ticks:{color:'var(--text-color-secondary)'},grid:{color:'var(--border-color)'}},y:{ticks:{callback:v=>v.toLocaleString(currentLanguage),color:'var(--text-color-secondary)'},grid:{color:'var(--border-color)'}}},plugins:{legend:{labels:{color:'var(--text-color-primary)'}},tooltip:{mode:'index',intersect:false}},interaction:{mode:'index',intersect:false}} }); }
-        function translatePage() { document.querySelectorAll('[data-translate-key]').forEach(el => { el.textContent = getTranslation(el.dataset.translateKey, el.dataset.translateParams ? JSON.parse(el.dataset.translateParams) : {}); }); document.querySelectorAll('[data-translate-key-placeholder]').forEach(el => { el.placeholder = getTranslation(el.dataset.translateKeyPlaceholder); }); }
+        function updateSortButtons() { DOMElements.sortOptions.querySelectorAll('button').forEach(btn => { const sortKey = btn.dataset.sort; let text = btn.textContent.replace(/ [▲▼]/, ''); if (sortKey === currentSort.split('_')[0]) { text += currentSort.endsWith('asc') ? ' ▲' : ' ▼'; } btn.textContent = text; btn.classList.toggle('current-sort', sortKey === currentSort.split('_')[0]); }); }
+        function renderEnhancedPrices(enhanced) { Modals.item.enhanced.innerHTML = (enhanced && enhanced.tiers && Object.keys(enhanced.tiers).length > 0) ? Object.keys(enhanced.tiers).sort((a,b)=>parseInt(a)-parseInt(b)).map(tier => `<div class="enhanced-tier"><div class="tier-label">Tier +${tier}</div><div class="tier-prices"><span class="tier-ask">Ask: ${formatPrice(enhanced.tiers[tier].ask)}</span><span class="tier-buy">Buy: ${formatPrice(enhanced.tiers[tier].buy)}</span></div></div>`).join('') : `<div style="grid-column: 1 / -1; color: var(--muted-text-color);">No enhanced price data available.</div>`; }
+        function renderChart(data) { if(priceChartInstance) priceChartInstance.destroy(); const parent = document.getElementById('chart-parent'); parent.innerHTML = '<canvas id="priceChart"></canvas>'; const canvas = document.getElementById('priceChart'); if(!data || data.length === 0){ parent.innerHTML = `<p class="empty-message">Not enough historical data available for this item.</p>`; return; } const points = data.map(p=>({x:p[0],ask:p[1],buy:p[2]})).filter(p=>p.ask!==null||p.buy!==null); priceChartInstance = new Chart(canvas, { type:'line', data:{ datasets:[{label:'Ask Price',data:points.map(p=>({x:p.x,y:p.ask})),borderColor:'var(--negative-color)',tension:0.1,pointRadius:1,spanGaps:true},{label:'Buy Price',data:points.map(p=>({x:p.x,y:p.buy})),borderColor:'var(--positive-color)',tension:0.1,pointRadius:1,spanGaps:true}] }, options:{ responsive:true,maintainAspectRatio:false,scales:{x:{type:'time',time:{unit:'day',tooltipFormat:'MMM d, yyyy h:mm a'},ticks:{color:'var(--text-color-secondary)'},grid:{color:'var(--border-color)'}},y:{ticks:{callback:v=>v.toLocaleString(),color:'var(--text-color-secondary)'},grid:{color:'var(--border-color)'}}},plugins:{legend:{labels:{color:'var(--text-color-primary)'}},tooltip:{mode:'index',intersect:false}},interaction:{mode:'index',intersect:false}} }); }
         function showToast(message, type = 'success', duration = 3000) { const icons = { success: 'fa-check-circle', info: 'fa-info-circle', warning: 'fa-exclamation-triangle' }; const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.innerHTML = `<i class="fas ${icons[type]} icon"></i> ${message}`; DOMElements.toastContainer.appendChild(toast); setTimeout(() => toast.classList.add('show'), 10); setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove()); }, duration); }
     </script>
 </body>
