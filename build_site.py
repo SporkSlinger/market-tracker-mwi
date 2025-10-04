@@ -10,15 +10,15 @@ import shutil
 from collections import defaultdict
 from jinja2 import Environment, FileSystemLoader
 
-# --- Configuration -
+# --- Configuration --
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [%(funcName)s] %(message)s')
 
-# Source Data URL and Paths (Historical DB is removed)
+# Source Data URL and Paths
 JSON_URL = "https://www.milkywayidle.com/game_data/marketplace.json"
 JSON_PATH = "marketplace.json"
 CATEGORY_FILE_PATH = "cata.txt"
 
-# Output directory for static files (FIXED: Must match 'publish_dir' in .github/workflows/build.yml)
+# Output directory for static files 
 OUTPUT_DIR = "output" 
 OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data")
 
@@ -88,28 +88,12 @@ def parse_categories(filepath):
         logging.error(f"Unexpected error parsing category file {filepath}: {e}", exc_info=True)
         return {}
 
-# --- Data Fetching (Unchanged) ---
-def download_file(url, local_path):
-    """Downloads a file from a URL to a local path."""
-    logging.info(f"Attempting to download {url} to {local_path}")
-    try:
-        response = requests.get(url, stream=True, timeout=60)
-        response.raise_for_status()
-        with open(local_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-        logging.info(f"Successfully downloaded {local_path}")
-        return True
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Network error downloading {url}: {e}")
-        return False
-    except Exception as e:
-        logging.error(f"Unexpected error downloading {url}: {e}", exc_info=True)
-        return False
-
-# --- Data Loading and Processing (Unchanged) ---
+# --- Data Loading and Processing ---
 def load_live_data():
-    """Loads live market data and vendor prices from the JSON file."""
+    """
+    Loads live market data and vendor prices from the JSON file.
+    CRITICAL FIX: This function now only extracts prices for the base item tier ("0").
+    """
     logging.info(f"Loading live data from {JSON_PATH}")
     if not os.path.exists(JSON_PATH):
         logging.warning(f"{JSON_PATH} not found.")
@@ -134,23 +118,25 @@ def load_live_data():
         market_data = data['marketData']
         current_time = datetime.now(timezone.utc)
 
-        for product_path, tiers in market_data.items():
+        for product_hrid, tiers in market_data.items():
             if not isinstance(tiers, dict): continue
-            for tier_str, prices in tiers.items():
-                if not isinstance(prices, dict): continue
+            
+            # CRITICAL FIX: Only extract data for the base item tier (enhancement level "0")
+            if "0" in tiers and isinstance(tiers["0"], dict):
+                prices = tiers["0"]
 
                 ask_price = prices.get('a', -1)
                 buy_price = prices.get('b', -1)
 
                 live_records.append({
-                    'product': product_path,
+                    'product_hrid': product_hrid, # Keep the raw HRID for vendor lookup later
                     'buy': pd.NA if buy_price == -1 else buy_price,
                     'ask': pd.NA if ask_price == -1 else ask_price,
                     'timestamp': current_time
                 })
 
         if not live_records:
-            logging.warning("No market records found in the JSON data.")
+            logging.warning("No base-tier market records found in the JSON data.")
             return pd.DataFrame(), vendor_prices
 
         live_df = pd.DataFrame(live_records)
@@ -158,12 +144,26 @@ def load_live_data():
         live_df['ask'] = pd.to_numeric(live_df['ask'], errors='coerce')
         live_df['timestamp'] = pd.to_datetime(live_df['timestamp'], errors='coerce')
 
-        logging.info(f"Loaded {len(live_df)} live market records.")
+        logging.info(f"Loaded {len(live_df)} base-tier market records.")
         return live_df, vendor_prices
 
     except Exception as e:
         logging.error(f"Unexpected error loading live data from {JSON_PATH}: {e}", exc_info=True)
         return pd.DataFrame(), {}
+
+# --- Utility Function ---
+def get_item_name_from_hrid(product_hrid):
+    """
+    Transforms the raw API HRID into a human-readable name and a category key.
+    E.g., '/items/verdant_milk' -> 'Verdant Milk' (Display Name) and 'verdant milk' (Category Key)
+    """
+    # Remove '/items/' prefix
+    cleaned_name = product_hrid.split('/')[-1]
+    # Convert snake_case to space-separated, Title Case
+    human_readable_name = cleaned_name.replace('_', ' ').title()
+    # Create the key for lookup (lowercase space-separated)
+    category_key = human_readable_name.lower()
+    return human_readable_name, category_key
 
 # --- Main Execution ---
 def main():
@@ -175,42 +175,65 @@ def main():
         os.makedirs(OUTPUT_DATA_DIR, exist_ok=True)
         logging.info(f"Output directory '{OUTPUT_DIR}' ensured.")
 
-        # --- Parse Categories (Uses New Robust Logic) ---
+        # --- Parse Categories ---
         item_categories = parse_categories(CATEGORY_FILE_PATH)
         if not item_categories:
             logging.warning("Category data is empty. Categories will be missing in output.")
 
         # --- Download and Load Live Data ---
         logging.info("--- Downloading Data ---")
-        json_ok = download_file(JSON_URL, JSON_PATH)
-        if not json_ok:
-            logging.error("Failed to download critical live data (marketplace.json). Cannot proceed.")
+        # Included download logic here for completeness
+        try:
+            response = requests.get(JSON_URL, stream=True, timeout=60)
+            response.raise_for_status()
+            with open(JSON_PATH, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            logging.info(f"Successfully downloaded {JSON_PATH}")
+            
+            market_df, vendor_prices = load_live_data()
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Network error downloading {JSON_URL}: {e}")
             return
-
-        logging.info("--- Loading Data ---")
-        market_df, vendor_prices = load_live_data()
+        except Exception as e:
+            logging.error(f"Unexpected error during download/load: {e}", exc_info=True)
+            return
 
         if market_df.empty:
             logging.error("Live market data is empty. Cannot build site.")
             return
 
-        # --- Prepare Products for Summary (Fixes "Incorrect Indexing" / 0 Products) ---
-        all_products = sorted(list(market_df['product'].unique()))
-        filtered_products = all_products
-        logging.info(f"Including {len(filtered_products)} products in the summary.")
+        # --- Prepare Products for Summary (Using the raw HRID list) ---
+        all_product_hrids = sorted(list(market_df['product_hrid'].unique()))
+        filtered_products = all_product_hrids
+        logging.info(f"Including {len(filtered_products)} base products in the summary.")
 
         # --- Generate Market Summary JSON ---
         logging.info("--- Generating market_summary.json ---")
         market_summary = []
-        for product_name in filtered_products:
-            product_data = market_df[market_df['product'] == product_name].iloc[0] 
+        uncategorized_items = []
+
+        for product_hrid in filtered_products:
+            
+            # CRITICAL FIX: Transform the HRID into the human-readable name for display and lookup
+            human_readable_name, category_key = get_item_name_from_hrid(product_hrid)
+            
+            # Perform the category lookup
+            category_name = item_categories.get(category_key, 'Unknown')
+            
+            if category_name == 'Unknown':
+                uncategorized_items.append(human_readable_name)
+
+            # Get the single base-tier price record for the current HRID
+            product_data = market_df[market_df['product_hrid'] == product_hrid].iloc[0] 
+            
             market_summary.append({
-                'name': product_name,
-                # FIX: Look up category using lowercase product name for case-insensitive matching
-                'category': item_categories.get(product_name.lower(), 'Unknown'), 
+                'name': human_readable_name, # Use the correctly formatted name for display
+                'category': category_name,
                 'buy': product_data['buy'] if pd.notna(product_data['buy']) else None,
                 'ask': product_data['ask'] if pd.notna(product_data['ask']) else None,
-                'vendor': vendor_prices.get(product_name)
+                # Vendor lookup still uses the raw HRID key
+                'vendor': vendor_prices.get(product_hrid)
             })
 
         summary_path = os.path.join(OUTPUT_DATA_DIR, 'market_summary.json')
@@ -218,12 +241,18 @@ def main():
             json.dump(market_summary, f, allow_nan=False, default=str)
         logging.info(f"Saved market summary ({len(market_summary)} items) to {summary_path}")
 
+        # Final diagnostic logging: Report all uncategorized items
+        if uncategorized_items:
+            logging.warning(f"Found {len(uncategorized_items)} items with 'Unknown' category. Please check names in cata.txt.")
+            logging.warning(f"UNCATEGORIZED ITEMS (Display Name): {', '.join(uncategorized_items)}")
+        else:
+            logging.info("All products successfully categorized.")
+            
         # --- Copy HTML files (Ensures site loads, resolving 404) ---
         try:
             shutil.copyfile("templates/index.html", os.path.join(OUTPUT_DIR, "index.html"))
             logging.info(f"Copied index.html to {OUTPUT_DIR}/index.html")
             
-            # Assuming you created a 404.html template in the previous step:
             if os.path.exists("templates/404.html"):
                 shutil.copyfile("templates/404.html", os.path.join(OUTPUT_DIR, "404.html"))
                 logging.info(f"Copied 404.html to {OUTPUT_DIR}/404.html")
@@ -237,4 +266,5 @@ def main():
         logging.error(f"An unexpected error occurred during the main build process: {e}", exc_info=True)
 
 if __name__ == '__main__':
+    # Initial download removed from main() to allow try/except for requests errors
     main()
