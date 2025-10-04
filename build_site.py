@@ -11,7 +11,7 @@ import shutil
 from collections import defaultdict # For grouping trends by category 
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound # For rendering HTML template 
 
-# --- Configuration -- 
+# --- Configuration - 
 # Use INFO for general progress, DEBUG for detailed step-by-step logging 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [%(funcName)s] %(message)s') 
 
