@@ -7,7 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script> <!-- Added Chart.js -->
 
     <style>
         /* --- CSS Variables for Theming --- */
@@ -65,10 +66,12 @@
         #item-table th.pin-header, #item-table td.pin-cell { width: 35px; text-align: center; padding: 10px 5px; }
         .pin-icon { cursor: pointer; color: var(--pin-color); font-size: 1.1em; }
         .pin-icon.pinned { color: var(--pin-color-active); }
-        #item-table tbody tr:hover { background-color: var(--table-row-hover-bg); }
+        #item-table tbody tr:hover { background-color: var(--table-row-hover-bg); cursor: pointer; } /* Added cursor: pointer */
         #item-table td:nth-child(2) { font-weight: 500; } /* Name */
         #item-table td:nth-child(3) { color: var(--muted-text-color); } /* Category */
         #item-table td:nth-child(4), #item-table td:nth-child(5) { text-align: right; font-family: var(--code-font); } /* Ask, Buy */
+        .trend-positive { color: var(--positive-color); }
+        .trend-negative { color: var(--negative-color); }
         .na-value { color: var(--na-value-color); }
         .pagination { text-align: center; margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .pagination button { padding: 7px 14px; background-color: var(--button-bg-color); border: 1px solid var(--button-border-color); color: var(--accent-color); border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.9em; }
@@ -79,6 +82,36 @@
         footer { text-align: center; margin-top: 40px; padding: 25px 0; font-size: 0.8em; color: var(--muted-text-color); border-top: 1px solid var(--border-color); }
         footer a { color: var(--muted-text-color); text-decoration: none; }
         footer a:hover { text-decoration: underline; }
+        
+        /* --- Modal Styles --- */
+        .modal { position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); display: none; }
+        .modal-content { 
+            background-color: var(--card-bg-color); margin: 5% auto; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; 
+            width: 90%; max-width: 900px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
+            display: flex; flex-direction: column; gap: 20px;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px; }
+        .modal-header h2 { margin: 0; font-size: 1.5em; font-weight: 600; color: var(--accent-color); }
+        .close-btn { color: var(--muted-text-color); font-size: 28px; font-weight: bold; cursor: pointer; transition: color 0.15s ease; }
+        .close-btn:hover, .close-btn:focus { color: var(--negative-color); text-decoration: none; }
+        .chart-container { height: 300px; width: 100%; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; background-color: var(--bg-color); }
+        .enhanced-data { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 10px; }
+        .enhanced-tier { background-color: var(--bg-color); padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.9em; }
+        .tier-label { font-weight: 600; color: var(--text-color-primary); margin-bottom: 4px; }
+        .tier-prices { font-family: var(--code-font); display: flex; justify-content: space-between; font-size: 0.85em; }
+        .tier-ask { color: var(--negative-color); }
+        .tier-buy { color: var(--positive-color); }
+        .volatility-section { display: flex; gap: 20px; font-size: 0.9em; margin-bottom: 10px; color: var(--text-color-secondary); }
+        .volatility-section strong { color: var(--text-color-primary); }
+
+        @media (max-width: 768px) {
+            .controls-left, .controls-right { width: 100%; justify-content: space-between; }
+            .search-form, .category-filter { width: 48%; }
+            .sort-options { justify-content: space-around; }
+            .modal-content { margin: 10% auto; width: 95%; }
+            #item-table th, #item-table td { padding: 8px 6px; font-size: 0.8em; }
+            .enhanced-data { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+        }
     </style>
 </head>
 <body>
@@ -130,6 +163,8 @@
                         <th data-translate-key="colCategory">Category</th>
                         <th data-translate-key="colAsk">Ask</th>
                         <th data-translate-key="colBuy">Buy</th>
+                        <th data-translate-key="colTrend">24h Trend</th> <!-- New Column -->
+                        <th data-translate-key="colVolatility">7d Volatility</th> <!-- New Column -->
                     </tr>
                 </thead>
                 <tbody id="item-table-body"></tbody>
@@ -148,12 +183,40 @@
         </footer>
     </div>
 
+    <!-- The Item Details Modal -->
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-item-name"></h2>
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+            </div>
+            
+            <div id="modal-content-body">
+                <p id="modal-category-info"></p>
+                <div class="volatility-section">
+                    <div id="modal-volatility">Volatility (7d CV): <strong>N/A</strong></div>
+                    <div id="modal-vendor-price">Vendor Price: <strong>N/A</strong></div>
+                </div>
+                
+                <h3>Price History (Last 30 Days)</h3>
+                <div class="chart-container">
+                    <canvas id="priceChart"></canvas>
+                </div>
+
+                <h3 style="margin-top: 20px;">Enhanced Prices (Tiers 0-12)</h3>
+                <div id="enhanced-prices-container" class="enhanced-data">
+                    <!-- Enhanced tier divs will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- Global State ---
         let marketSummary = [];
         let filteredAndSortedSummary = [];
         let currentPage = 1;
-        const itemsPerPage = 25; // Increased for better viewing
+        const itemsPerPage = 25; 
         let currentSort = 'name_asc';
         let currentSearch = '';
         let currentCategoryFilter = 'All';
@@ -161,6 +224,11 @@
         const PINNED_ITEMS_KEY = 'mwiPinnedItems';
         let currentLanguage = 'en';
         const LANG_STORAGE_KEY = 'mwiMarketLang';
+        
+        // --- NEW GLOBAL STATE FOR GRAPH/ENHANCED DATA ---
+        let enhancedData = {};
+        let historyData = {};
+        let indexData = {}; // Currently unused but fetched
 
         // --- DOM Elements ---
         const tableBodyEl = document.getElementById('item-table-body');
@@ -176,6 +244,10 @@
         const themeToggleButton = document.getElementById('theme-toggle-btn');
         const lastUpdateEl = document.getElementById('last-update');
         const languageSelector = document.getElementById('language-selector');
+        
+        // Modal elements
+        const modalEl = document.getElementById('itemModal');
+        let priceChartInstance = null; // Chart.js instance
 
         // --- Translations ---
         const translations = {
@@ -184,18 +256,22 @@
                 'searchLabel': 'Search', 'searchPlaceholder': 'Product Name...', 'categoryLabel': 'Category',
                 'allCategories': 'All Categories', 'sortBy': 'Sort By:', 'sortName': 'Name', 'sortCategory': 'Category',
                 'sortAsk': 'Ask', 'sortBuy': 'Buy', 'tableLoading': 'Loading market data...', 'colName': 'Name',
-                'colCategory': 'Category', 'colAsk': 'Ask', 'colBuy': 'Buy', 'pageInfo': 'Page {currentPage} of {totalPages}',
-                'prevPage': '« Previous', 'nextPage': 'Next »', 'footerMadeBy': 'Made by Sporky with AI',
-                'footerStatus': 'Data Fetched:', 'footerRepo': 'GitHub Repo', 'pinActionPin': 'Pin Item', 'pinActionUnpin': 'Unpin Item',
+                'colCategory': 'Category', 'colAsk': 'Ask', 'colBuy': 'Buy', 'colTrend': '24h Trend', 'colVolatility': '7d Volatility',
+                'pageInfo': 'Page {currentPage} of {totalPages}', 'prevPage': '« Previous', 'nextPage': 'Next »', 
+                'footerMadeBy': 'Made by Sporky with AI', 'footerStatus': 'Data Fetched:', 'footerRepo': 'GitHub Repo', 
+                'pinActionPin': 'Pin Item', 'pinActionUnpin': 'Unpin Item', 'vendorPrice': 'Vendor Price',
+                'volatilityTitle': 'Volatility (7d CV)', 'categoryInfo': 'Category: {category}', 'askPrice': 'Ask', 'buyPrice': 'Buy'
             },
             'zh': {
                 'mainTitle': 'MWI 市场数据', 'subHeaderText': '显示当前市场价格。', 'toggleTheme': '切换主题',
                 'searchLabel': '搜索', 'searchPlaceholder': '物品名称...', 'categoryLabel': '类别',
                 'allCategories': '所有类别', 'sortBy': '排序方式:', 'sortName': '名称', 'sortCategory': '类别',
                 'sortAsk': '卖价', 'sortBuy': '买价', 'tableLoading': '正在加载市场数据...', 'colName': '名称',
-                'colCategory': '类别', 'colAsk': '卖价', 'colBuy': '买价', 'pageInfo': '第 {currentPage} 页 / 共 {totalPages} 页',
-                'prevPage': '« 上一页', 'nextPage': '下一页 »', 'footerMadeBy': '由 Sporky 与 AI 制作',
-                'footerStatus': '数据获取时间:', 'footerRepo': 'GitHub 仓库', 'pinActionPin': '置顶物品', 'pinActionUnpin': '取消置顶',
+                'colCategory': '类别', 'colAsk': '卖价', 'colBuy': '买价', 'colTrend': '24小时趋势', 'colVolatility': '7日波动率',
+                'pageInfo': '第 {currentPage} 页 / 共 {totalPages} 页', 'prevPage': '« 上一页', 'nextPage': '下一页 »', 
+                'footerMadeBy': '由 Sporky 与 AI 制作', 'footerStatus': '数据获取时间:', 'footerRepo': 'GitHub 仓库', 
+                'pinActionPin': '置顶物品', 'pinActionUnpin': '取消置顶', 'vendorPrice': '商店价格',
+                'volatilityTitle': '波动率 (7日CV)', 'categoryInfo': '类别: {category}', 'askPrice': '卖价', 'buyPrice': '买价'
             }
         };
 
@@ -231,8 +307,22 @@
         // --- Utility Functions ---
         function formatPrice(price) {
             if (price === null || price === undefined) return '<span class="na-value">--</span>';
+            // Use currentLanguage for locale-aware number formatting
             return price.toLocaleString(currentLanguage);
         }
+        
+        function formatTrend(trend) {
+            if (trend === null || trend === undefined) return formatPrice(null);
+            const trendClass = trend >= 0 ? 'trend-positive' : 'trend-negative';
+            const sign = trend > 0 ? '+' : '';
+            return `<span class="${trendClass}">${sign}${trend.toFixed(2)}%</span>`;
+        }
+
+        function formatVolatility(cv) {
+            if (cv === null || cv === undefined) return formatPrice(null);
+            return `${cv.toFixed(2)}%`;
+        }
+
 
         // --- Pinning Logic ---
         function getPinnedItems() {
@@ -270,11 +360,22 @@
 
             try {
                 pinnedItems = getPinnedItems();
-                // ONLY fetch the summary file. The other files no longer exist.
-                const response = await fetch('./data/market_summary.json?t=' + Date.now());
-                if (!response.ok) throw new Error(`Failed to fetch market data (Status: ${response.status})`);
                 
-                marketSummary = await response.json();
+                // CRITICAL FIX: Fetch all four generated data files in parallel
+                const [summaryRes, enhancedRes, historyRes, indexRes] = await Promise.all([
+                    fetch('./data/market_summary.json?t=' + Date.now()),
+                    fetch('./data/market_enhanced.json?t=' + Date.now()),
+                    fetch('./data/market_history.json?t=' + Date.now()),
+                    fetch('./data/market_indices.json?t=' + Date.now()),
+                ]);
+                
+                if (!summaryRes.ok) throw new Error(`Failed to fetch summary data (Status: ${summaryRes.status})`);
+                
+                marketSummary = await summaryRes.json();
+                // Store new data globally
+                enhancedData = await enhancedRes.json();
+                historyData = await historyRes.json();
+                indexData = await indexRes.json();
                 
                 populateCategoryFilter();
                 applyFiltersAndSort();
@@ -291,6 +392,7 @@
         
         // --- Populate Category Filter ---
         function populateCategoryFilter() {
+            // Use the categories present in the current summary
             const categories = [...new Set(marketSummary.map(item => item.category).filter(Boolean))].sort();
             const currentValue = categoryFilterEl.value;
             categoryFilterEl.innerHTML = `<option value="All" data-translate-key="allCategories">${getTranslation('allCategories')}</option>`;
@@ -318,10 +420,16 @@
 
                 const [sortKey, direction] = currentSort.split('_');
                 const asc = direction === 'asc';
-                const valA = a[sortKey];
-                const valB = b[sortKey];
+                
+                // Trend, Volatility, Ask, Buy keys might be dynamic (e.g., volatility_norm_7d)
+                const keyA = sortKey === 'volatility' ? `volatility_norm_${VOLATILITY_DAYS}d` : sortKey;
+                const keyB = sortKey === 'volatility' ? `volatility_norm_${VOLATILITY_DAYS}d` : sortKey;
+                
+                const valA = a[keyA];
+                const valB = b[keyB];
 
-                if (typeof valA === 'number' || typeof valB === 'number') {
+                if (typeof valA === 'number' || typeof valB === 'number' || sortKey === 'ask' || sortKey === 'buy') {
+                    // Treat null/undefined values as Infinity or -Infinity for sorting price/trend/volatility
                     const numA = valA ?? (asc ? Infinity : -Infinity);
                     const numB = valB ?? (asc ? Infinity : -Infinity);
                     return asc ? numA - numB : numB - numA;
@@ -344,24 +452,34 @@
             const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
             currentPage = Math.max(1, Math.min(currentPage, totalPages));
             const itemsToDisplay = filteredAndSortedSummary.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+            const volatilityKey = `volatility_norm_${VOLATILITY_DAYS}d`;
 
             if (itemsToDisplay.length === 0) {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="5" style="text-align:center; padding: 20px;">No items match your filters.</td>`;
+                tr.innerHTML = `<td colspan="7" style="text-align:center; padding: 20px;">No items match your filters.</td>`;
                 tableBodyEl.appendChild(tr);
             } else {
                 itemsToDisplay.forEach(item => {
                     const tr = document.createElement('tr');
                     const isPinned = pinnedItems.includes(item.name);
-                    const pinIconClass = isPinned ? 'fas fa-star pin-icon pinned' : 'far fa-star pin-icon';
+                    const pinIconClass = isPinned ? 'fas fa-thumbtack pin-icon pinned' : 'far fa-thumbtack pin-icon';
+                    
+                    tr.setAttribute('data-item-name', item.name); // CRITICAL: Add item name for modal click
+                    
                     tr.innerHTML = `
                         <td class="pin-cell"><i class="${pinIconClass}" data-item-name="${item.name}" title="${getTranslation(isPinned ? 'pinActionUnpin' : 'pinActionPin')}"></i></td>
                         <td>${item.name}</td>
                         <td>${item.category || '<span class="na-value">N/A</span>'}</td>
                         <td>${formatPrice(item.ask)}</td>
                         <td>${formatPrice(item.buy)}</td>
+                        <td>${formatTrend(item.trend)}</td> <!-- New column -->
+                        <td>${formatVolatility(item[volatilityKey])}</td> <!-- New column -->
                     `;
-                    tr.querySelector('.pin-icon').addEventListener('click', (e) => togglePin(e.target.dataset.itemName));
+                    // Note: Pin click handler must use stopPropagation to prevent modal opening when pinning
+                    tr.querySelector('.pin-icon').addEventListener('click', (e) => {
+                        e.stopPropagation(); 
+                        togglePin(e.target.dataset.itemName);
+                    });
                     tableBodyEl.appendChild(tr);
                 });
             }
@@ -374,6 +492,178 @@
             nextButton.disabled = currentPage >= totalPages;
             paginationEl.style.display = totalPages > 1 ? 'flex' : 'none';
         }
+        
+        // --- Modal Logic ---
+        function closeModal() {
+            modalEl.style.display = 'none';
+            if (priceChartInstance) {
+                priceChartInstance.destroy();
+                priceChartInstance = null;
+            }
+        }
+        
+        function showItemDetails(itemName) {
+            const itemSummary = marketSummary.find(item => item.name === itemName);
+            const enhanced = enhancedData[itemName];
+            const history = historyData[itemName];
+            
+            if (!itemSummary) return; // Should not happen
+
+            document.getElementById('modal-item-name').textContent = itemName;
+            document.getElementById('modal-category-info').innerHTML = getTranslation('categoryInfo', {category: itemSummary.category || 'N/A'});
+            
+            // Volatility and Vendor Price
+            const volatilityKey = `volatility_norm_${VOLATILITY_DAYS}d`;
+            document.getElementById('modal-volatility').innerHTML = 
+                `${getTranslation('volatilityTitle')}: <strong>${formatVolatility(itemSummary[volatilityKey])}</strong>`;
+            document.getElementById('modal-vendor-price').innerHTML = 
+                `${getTranslation('vendorPrice')}: <strong>${formatPrice(itemSummary.vendor)}</strong>`;
+
+            // Enhanced Prices
+            const enhancedContainer = document.getElementById('enhanced-prices-container');
+            enhancedContainer.innerHTML = '';
+            
+            if (enhanced && enhanced.tiers) {
+                // Sort tiers numerically (keys are strings "0", "1", etc.)
+                const sortedTiers = Object.keys(enhanced.tiers).sort((a, b) => parseInt(a) - parseInt(b));
+                
+                sortedTiers.forEach(tier => {
+                    const prices = enhanced.tiers[tier];
+                    const tierDiv = document.createElement('div');
+                    tierDiv.className = 'enhanced-tier';
+                    tierDiv.innerHTML = `
+                        <div class="tier-label">Tier +${tier}</div>
+                        <div class="tier-prices">
+                            <span class="tier-ask">${getTranslation('askPrice')}: ${formatPrice(prices.ask)}</span>
+                            <span class="tier-buy">${getTranslation('buyPrice')}: ${formatPrice(prices.buy)}</span>
+                        </div>
+                    `;
+                    enhancedContainer.appendChild(tierDiv);
+                });
+            } else {
+                enhancedContainer.innerHTML = `<div style="grid-column: 1 / -1; color: var(--muted-text-color);">No enhanced price data available.</div>`;
+            }
+
+            // Price History Chart
+            renderChart(history);
+
+            modalEl.style.display = 'block';
+        }
+        
+        function renderChart(historyData) {
+            if (priceChartInstance) priceChartInstance.destroy(); // Destroy previous chart
+            
+            const canvasEl = document.getElementById('priceChart');
+            if (!historyData || historyData.length === 0) {
+                canvasEl.style.display = 'none';
+                canvasEl.parentElement.innerHTML = `<p style="text-align:center; color: var(--muted-text-color); padding: 50px 0;">Not enough historical data available for this item.</p>`;
+                return;
+            }
+            canvasEl.style.display = 'block';
+            
+            const dataPoints = historyData.map(point => ({
+                x: point[0], // timestamp
+                ask: point[1], // ask
+                buy: point[2]  // buy
+            }));
+            
+            // Filter out points where both ask and buy are null
+            const validDataPoints = dataPoints.filter(p => p.ask !== null || p.buy !== null);
+            
+            const dates = validDataPoints.map(p => p.x);
+            const askPrices = validDataPoints.map(p => p.ask);
+            const buyPrices = validDataPoints.map(p => p.buy);
+            
+            const borderColor = document.documentElement.getAttribute('data-theme') === 'dark' 
+                ? 'rgba(88, 166, 255, 0.7)' : 'rgba(9, 105, 218, 0.7)';
+            const backgroundColor = document.documentElement.getAttribute('data-theme') === 'dark' 
+                ? 'rgba(88, 166, 255, 0.1)' : 'rgba(9, 105, 218, 0.1)';
+
+            priceChartInstance = new Chart(canvasEl, {
+                type: 'line',
+                data: {
+                    labels: dates, // Chart.js uses this if no x-axis data is defined
+                    datasets: [
+                        {
+                            label: getTranslation('askPrice'),
+                            data: askPrices,
+                            borderColor: 'var(--negative-color)',
+                            backgroundColor: 'rgba(207, 34, 46, 0.1)',
+                            fill: false,
+                            tension: 0.1,
+                            pointRadius: 0
+                        },
+                        {
+                            label: getTranslation('buyPrice'),
+                            data: buyPrices,
+                            borderColor: 'var(--positive-color)',
+                            backgroundColor: 'rgba(26, 127, 55, 0.1)',
+                            fill: false,
+                            tension: 0.1,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                tooltipFormat: 'MMM D, YYYY h:mm A'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            },
+                            ticks: {
+                                color: 'var(--text-color-secondary)'
+                            },
+                            grid: {
+                                color: 'var(--border-color)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Price (Coin)'
+                            },
+                            ticks: {
+                                callback: function(value, index, values) { return value.toLocaleString(currentLanguage); },
+                                color: 'var(--text-color-secondary)'
+                            },
+                            grid: {
+                                color: 'var(--border-color)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'var(--text-color-primary)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Allow closing modal by clicking outside
+        window.onclick = function(event) {
+            if (event.target == modalEl) {
+                closeModal();
+            }
+        }
+        
+        // Allow closing modal by pressing ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && modalEl.style.display === 'block') {
+                closeModal();
+            }
+        });
+
 
         // --- Event Handlers ---
         searchInput.addEventListener('input', e => { currentSearch = e.target.value; applyFiltersAndSort(); });
@@ -392,6 +682,17 @@
                 sortOptionsEl.querySelectorAll('button').forEach(btn => btn.classList.remove('current-sort'));
                 e.target.classList.add('current-sort');
                 applyFiltersAndSort();
+            }
+        });
+        
+        // New click handler for table rows (excluding the pin icon)
+        tableBodyEl.addEventListener('click', (e) => {
+            let row = e.target.closest('tr');
+            if (row && !e.target.closest('.pin-cell')) {
+                const itemName = row.getAttribute('data-item-name');
+                if (itemName) {
+                    showItemDetails(itemName);
+                }
             }
         });
 
