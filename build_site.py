@@ -19,9 +19,8 @@ JSON_PATH = "marketplace.json"
 CATEGORY_FILE_PATH = "cata.txt"
 
 # Output directory for static files
-OUTPUT_DIR = "output"
+OUTPUT_DIR = "docs"
 OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data")
-TEMPLATE_DIR = "templates"
 
 # --- Category Parsing ---
 def parse_categories(filepath):
