@@ -9,7 +9,10 @@ Currencies
 Coin, Task Token, Cowbell, Chimerical Token, Sinister Token, Enchanted Token, Pirate Token
 
 Loots
-Bag Of 10 Cowbells, Purple's Gift, Small Artisan's Crate, Small Meteorite Cache, Small Treasure Chest, Medium Artisan's Crate, Medium Meteorite Cache, Medium Treasure Chest, Large Artisan's Crate, Large Meteorite Cache, Large Treasure Chest, Chimerical Chest, Sinister Chest, Enchanted Chest, Pirate Chest
+Bag Of 10 Cowbells, Purple's Gift, Small Artisan's Crate, Small Meteorite Cache, Small Treasure Chest
+Medium Artisan's Crate, Medium Meteorite Cache, Medium Treasure Chest
+Large Artisan's Crate, Large Meteorite Cache, Large Treasure Chest
+Chimerical Chest, Sinister Chest, Enchanted Chest, Pirate Chest
 
 Resources
 Milk, Verdant Milk, Azure Milk, Burble Milk, Crimson Milk, Rainbow Milk, Holy Milk
@@ -24,7 +27,7 @@ Egg, Wheat, Sugar
 Blueberry, Blackberry, Strawberry, Mooberry, Marsberry, Spaceberry
 Apple, Orange, Plum, Peach, Dragon Fruit, Star Fruit
 Arabica Coffee Bean, Robusta Coffee Bean, Liberica Coffee Bean, Excelsa Coffee Bean, Fieriosa Coffee Bean, Spacia Coffee Bean
-Green Tea Leaf, Black Tea Leaf, Burble Tea Leaf, Moolong Tea Leaf, Red Tea Leaf, Emp Tea Leaf   
+Green Tea Leaf, Black Tea Leaf, Burble Tea Leaf, Moolong Tea Leaf, Red Tea Leaf, Emp Tea Leaf
 Catalyst Of Coinification, Catalyst Of Decomposition, Catalyst Of Transmutation, Prime Catalyst
 Snake Fang, Shoebill Feather, Snail Shell, Crab Pincer, Turtle Shell, Marine Scale, Kraken Fang
 Treant Bark, Centaur Hoof, Luna Wing
@@ -75,7 +78,9 @@ Fierce Aura, Aqua Aura, Sylvan Aura, Flame Aura, Speed Aura, Critical Aura, Prom
 
 Keys
 Green Key Fragment, Blue Key Fragment, Purple Key Fragment, Orange Key Fragment, Brown Key Fragment, White Key Fragment, Stone Key Fragment, Dark Key Fragment, Burning Key Fragment
-Swamp Dungeon Key, Aqua Dungeon Key, Jungle Dungeon Key, Gobo Dungeon Key, Eye Dungeon Key, Sorcerer Dungeon Key, Bear Dungeon Key, Golem Dungeon Key, Twilight Dungeon Key, Abyssal Dungeon Key, Chimerical Entry Key, Chimerical Chest Key, Sinister Entry Key, Sinister Chest Key, Enchanted Entry Key, Enchanted Chest Key, Pirate Entry Key, Pirate Chest Key, Chimerical Key, Enchanted Key, Sinister Key
+Swamp Dungeon Key, Aqua Dungeon Key, Jungle Dungeon Key, Gobo Dungeon Key, Eye Dungeon Key, Sorcerer Dungeon Key, Bear Dungeon Key, Golem Dungeon Key, Twilight Dungeon Key, Abyssal Dungeon Key
+Chimerical Entry Key, Chimerical Chest Key, Sinister Entry Key, Sinister Chest Key, Enchanted Entry Key, Enchanted Chest Key, Pirate Entry Key, Pirate Chest Key
+Chimerical Key, Enchanted Key, Sinister Key
 
 Equipment
 Main Hand
@@ -86,37 +91,46 @@ Wooden Crossbow, Birch Crossbow, Cedar Crossbow, Purpleheart Crossbow, Ginkgo Cr
 Wooden Water Staff, Birch Water Staff, Cedar Water Staff, Purpleheart Water Staff, Ginkgo Water Staff, Redwood Water Staff, Arcane Water Staff, Frost Staff, Rippling Trident
 Wooden Nature Staff, Birch Nature Staff, Cedar Nature Staff, Purpleheart Nature Staff, Ginkgo Nature Staff, Redwood Nature Staff, Arcane Nature Staff, Jackalope Staff, Blooming Trident
 Wooden Fire Staff, Birch Fire Staff, Cedar Fire Staff, Purpleheart Fire Staff, Ginkgo Fire Staff, Redwood Fire Staff, Arcane Fire Staff, Infernal Battlestaff, Blazing Trident
+
 Off Hand
 Cheese Buckler, Verdant Buckler, Azure Buckler, Burble Buckler, Crimson Buckler, Rainbow Buckler, Holy Buckler, Knight's Defender, Gobo Defender, Knight's Aegis, Treant Shield
 Wooden Shield, Birch Shield, Cedar Shield, Purpleheart Shield, Ginkgo Shield, Redwood Shield, Arcane Shield, Manticore Shield, Vision Shield
 Tome Of Healing, Tome Of The Elements, Bishop's Codex, Watchful Relic
+
 Head
 Cheese Helmet, Verdant Helmet, Azure Helmet, Burble Helmet, Crimson Helmet, Rainbow Helmet, Holy Helmet, Knight's Helmet, Corsair Crest, Red Chef's Hat, Snail Shell Helmet
 Rough Hood, Reptile Hood, Gobo Hood, Beast Hood, Umbral Hood, Acrobatic Hood
 Cotton Hat, Linen Hat, Bamboo Hat, Silk Hat, Radiant Hat, Magician's Hat
 Fluffy Red Hat, Red Culinary Hat, Vision Helmet, Corsair Helmet
+
 Body
 Cheese Plate Body, Verdant Plate Body, Azure Plate Body, Burble Plate Body, Crimson Plate Body, Rainbow Plate Body, Holy Plate Body, Knight's Plate Body, Colossus Plate Body, Demonic Plate Body, Anchorbound Plate Body, Maelstrom Plate Body, Gator Vest, Kraken Tunic, Marine Tunic, Royal Fire Robe Top, Royal Nature Robe Top, Royal Water Robe Top, Turtle Shell Body
 Rough Tunic, Reptile Tunic, Gobo Tunic, Beast Tunic, Umbral Tunic, Revenant Tunic, Griffin Tunic
 Cotton Robe Top, Linen Robe Top, Bamboo Robe Top, Silk Robe Top, Radiant Robe Top, Luna Robe Top, Icy Robe Top, Flaming Robe Top
 Dairyhand's Top, Forager's Top, Lumberjack's Top, Cheesemaker's Top, Crafter's Top, Tailor's Top, Chef's Top, Brewer's Top, Alchemist's Top, Enhancer's Top
+
 Legs
 Cheese Plate Legs, Verdant Plate Legs, Azure Plate Legs, Burble Plate Legs, Crimson Plate Legs, Rainbow Plate Legs, Holy Plate Legs, Knight's Plate Legs, Colossus Plate Legs, Demonic Plate Legs, Anchorbound Plate Legs, Maelstrom Plate Legs, Kraken Chaps, Marine Chaps, Royal Fire Robe Bottoms, Royal Nature Robe Bottoms, Royal Water Robe Bottoms, Turtle Shell Legs
 Rough Chaps, Reptile Chaps, Gobo Chaps, Beast Chaps, Umbral Chaps, Revenant Chaps, Griffin Chaps
 Cotton Robe Bottoms, Linen Robe Bottoms, Bamboo Robe Bottoms, Silk Robe Bottoms, Radiant Robe Bottoms, Luna Robe Bottoms, Icy Robe Bottoms, Flaming Robe Bottoms
 Dairyhand's Bottoms, Forager's Bottoms, Lumberjack's Bottoms, Cheesemaker's Bottoms, Crafter's Bottoms, Tailor's Bottoms, Chef's Bottoms, Brewer's Bottoms, Alchemist's Bottoms, Enhancer's Bottoms
+
 Hands
 Cheese Gauntlets, Verdant Gauntlets, Azure Gauntlets, Burble Gauntlets, Crimson Gauntlets, Rainbow Gauntlets, Holy Gauntlets, Knight's Gauntlets, Pincer Gloves, Panda Gloves, Dodocamel Gauntlets, Magnetic Gloves, Sighted Bracers
 Rough Bracers, Reptile Bracers, Gobo Bracers, Beast Bracers, Umbral Bracers, Marksman Bracers
 Cotton Gloves, Linen Gloves, Bamboo Gloves, Silk Gloves, Radiant Gloves, Chrono Gloves, Enchanted Gloves
+
 Feet
 Cheese Boots, Verdant Boots, Azure Boots, Burble Boots, Crimson Boots, Rainbow Boots, Holy Boots, Knight's Boots, Turtle Boots, Black Bear Shoes, Centaur Boots, Collector's Boots, Grizzly Bear Shoes, Polar Bear Shoes, Shoebill Shoes, Sorcerer Boots
 Rough Boots, Reptile Boots, Gobo Boots, Beast Boots, Umbral Boots, Sighted Boots
 Cotton Boots, Linen Boots, Bamboo Boots, Silk Boots, Radiant Boots, Sorcerer's Sole
+
 Back
 Sinister Cape, Enchanted Cloak, Chimerical Quiver
+
 Pouch
 Small Pouch, Medium Pouch, Large Pouch, Giant Pouch, Guzzling Pouch, Gluttonous Pouch
+
 Two Hand
 Cheese Bulwark, Verdant Bulwark, Azure Bulwark, Burble Bulwark, Crimson Bulwark, Rainbow Bulwark, Holy Bulwark, Knight's Bulwark, Griffin Bulwark, Spiked Bulwark
 Wooden Bow, Birch Bow, Cedar Bow, Purpleheart Bow, Ginkgo Bow, Redwood Bow, Arcane Bow
@@ -132,22 +146,30 @@ Basic Task Badge, Advanced Task Badge, Expert Task Badge, Eye Watch, Marksman Br
 Tools
 Milking
 Cheese Brush, Verdant Brush, Azure Brush, Burble Brush, Crimson Brush, Rainbow Brush, Holy Brush, Celestial Brush
+
 Foraging
 Cheese Shears, Verdant Shears, Azure Shears, Burble Shears, Crimson Shears, Rainbow Shears, Holy Shears, Celestial Shears
+
 Woodcutting
 Cheese Hatchet, Verdant Hatchet, Azure Hatchet, Burble Hatchet, Crimson Hatchet, Rainbow Hatchet, Holy Hatchet, Celestial Hatchet
+
 Cheesesmithing
 Cheese Hammer, Verdant Hammer, Azure Hammer, Burble Hammer, Crimson Hammer, Rainbow Hammer, Holy Hammer, Celestial Hammer
+
 Crafting
 Cheese Chisel, Verdant Chisel, Azure Chisel, Burble Chisel, Crimson Chisel, Rainbow Chisel, Holy Chisel, Celestial Chisel
+
 Tailoring
 Cheese Needle, Verdant Needle, Azure Needle, Burble Needle, Crimson Needle, Rainbow Needle, Holy Needle, Celestial Needle
+
 Cooking
 Cheese Spatula, Verdant Spatula, Azure Spatula, Burble Spatula, Crimson Spatula, Rainbow Spatula, Holy Spatula, Celestial Spatula
+
 Brewing
 Cheese Pot, Verdant Pot, Azure Pot, Burble Pot, Crimson Pot, Rainbow Pot, Holy Pot, Celestial Pot
+
 Alchemy
 Cheese Alembic, Verdant Alembic, Azure Alembic, Burble Alembic, Crimson Alembic, Rainbow Alembic, Holy Alembic, Celestial Alembic
+
 Enhancing
 Cheese Enhancer, Verdant Enhancer, Azure Enhancer, Burble Enhancer, Crimson Enhancer, Rainbow Enhancer, Holy Enhancer, Celestial Enhancer
-
