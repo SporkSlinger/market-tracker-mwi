@@ -212,6 +212,9 @@
     </div>
 
     <script>
+        // --- Global Constants ---
+        const VOLATILITY_DAYS = 7; // Fix: Added missing constant declaration.
+        
         // --- Global State ---
         let marketSummary = [];
         let filteredAndSortedSummary = [];
@@ -361,7 +364,7 @@
             try {
                 pinnedItems = getPinnedItems();
                 
-                // CRITICAL FIX: Fetch all four generated data files in parallel
+                // Fetch all four generated data files in parallel
                 const [summaryRes, enhancedRes, historyRes, indexRes] = await Promise.all([
                     fetch('./data/market_summary.json?t=' + Date.now()),
                     fetch('./data/market_enhanced.json?t=' + Date.now()),
@@ -452,7 +455,7 @@
             const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
             currentPage = Math.max(1, Math.min(currentPage, totalPages));
             const itemsToDisplay = filteredAndSortedSummary.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-            const volatilityKey = `volatility_norm_${VOLATILITY_DAYS}d`;
+            const volatilityKey = `volatility_norm_${VOLATILITY_DAYS}d`; // Uses the global constant
 
             if (itemsToDisplay.length === 0) {
                 const tr = document.createElement('tr');
