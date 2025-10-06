@@ -661,12 +661,13 @@
         };
         
         function handleGlobalHotkeys(e) {
-            if (document.querySelector('.modal[style*="display: flex"]')) {
-                if (e.key === 'Escape') closeModal(document.querySelector('.modal[style*="display: flex"]'));
+            const openModal = document.querySelector('.modal[style*="display: flex"]');
+            if (openModal) {
+                if (e.key === 'Escape') closeModal(openModal);
                 return;
             }
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
-                if (e.key === 'Escape') e.target.blur();
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') {
+                if (e.key === 'Escape') document.activeElement.blur();
                 return;
             }
             const handler = hotkeyMap[e.key.toLowerCase()];
@@ -680,6 +681,7 @@
                 lastFocusedElement.focus();
                 lastFocusedElement = null;
             }
+            currentItemInModal = null;
         }
 
         function showItemDetails(itemName) {
