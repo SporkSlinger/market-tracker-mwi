@@ -100,8 +100,9 @@
         button.primary { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
         button.danger { background-color: var(--negative-color); color: white; border-color: var(--negative-color); }
 
-        /* --- Portfolio Summary --- */
-        .portfolio-summary { display: flex; justify-content: space-around; padding: 16px; margin-bottom: 20px; background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; text-align: center; }
+        /* --- Portfolio & Indices Summary --- */
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .summary-box { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 16px; text-align: center; }
         .summary-box h3 { margin: 0 0 5px 0; font-size: 0.9em; color: var(--text-color-secondary); font-weight: 500; }
         .summary-box p { margin: 0; font-size: 1.4em; font-weight: 600; font-family: var(--code-font); }
         
@@ -135,6 +136,7 @@
 
         <!-- Main Market View -->
         <div id="market-view">
+            <div id="market-indices-summary" class="summary-grid hidden"></div>
             <div class="controls">
                 <div class="controls-left">
                     <div class="search-form">
@@ -211,7 +213,7 @@
         <!-- Portfolio View -->
         <div id="portfolio-view" class="hidden">
             <h2>My Portfolio</h2>
-            <div id="portfolio-summary" class="portfolio-summary hidden"></div>
+            <div id="portfolio-summary" class="summary-grid hidden"></div>
             <div id="portfolio-table-wrapper" class="table-wrapper">
                 <table id="portfolio-table" class="styled-table">
                     <thead>
@@ -339,7 +341,7 @@
         // =================================================================================
 
         // --- 1. GLOBAL STATE & CONSTANTS ---
-        let marketSummary = [], enhancedData = {}, historyData = {}, marketDataMap = new Map();
+        let marketSummary = [], enhancedData = {}, historyData = {}, marketIndices = {}, marketDataMap = new Map();
         let filteredAndSortedSummary = [], portfolio = [], priceAlerts = [];
         let currentPage = 1, currentSort = 'name_asc', currentSearch = '', currentCategoryFilter = 'All', currentView = 'market';
         let searchDebounceTimeout, currentItemInModal = null, flipperSortBy = 'marketMargin', lastFocusedElement = null;
@@ -352,14 +354,14 @@
         const DOMElements = {
             loadingMessage: document.getElementById('loading-message'), viewSwitcher: document.getElementById('view-switcher'),
             marketView: document.getElementById('market-view'), marketTableWrapper: document.getElementById('market-table-wrapper'),
-            tableBody: document.getElementById('item-table-body'), pagination: document.getElementById('pagination'),
-            searchInput: document.getElementById('search-input'), categoryFilter: document.getElementById('category-filter'),
-            sortOptions: document.getElementById('sort-options'), flipperView: document.getElementById('flipper-view'),
-            flipperSortOptions: document.querySelector('#flipper-view .sort-options'), flipperTableBody: document.getElementById('flipper-table-body'),
-            flipperLastUpdate: document.getElementById('flipper-last-update'), portfolioView: document.getElementById('portfolio-view'),
-            portfolioSummary: document.getElementById('portfolio-summary'), portfolioTableBody: document.getElementById('portfolio-table-body'), 
-            lastUpdate: document.getElementById('last-update'), themeToggle: document.getElementById('theme-toggle-btn'), 
-            toastContainer: document.getElementById('toast-container')
+            marketIndicesSummary: document.getElementById('market-indices-summary'), tableBody: document.getElementById('item-table-body'), 
+            pagination: document.getElementById('pagination'), searchInput: document.getElementById('search-input'), 
+            categoryFilter: document.getElementById('category-filter'), sortOptions: document.getElementById('sort-options'), 
+            flipperView: document.getElementById('flipper-view'), flipperSortOptions: document.querySelector('#flipper-view .sort-options'), 
+            flipperTableBody: document.getElementById('flipper-table-body'), flipperLastUpdate: document.getElementById('flipper-last-update'), 
+            portfolioView: document.getElementById('portfolio-view'), portfolioSummary: document.getElementById('portfolio-summary'), 
+            portfolioTableBody: document.getElementById('portfolio-table-body'), lastUpdate: document.getElementById('last-update'), 
+            themeToggle: document.getElementById('theme-toggle-btn'), toastContainer: document.getElementById('toast-container')
         };
         
         let priceChartInstance = null;
@@ -388,9 +390,9 @@
             
             try {
                 const cacheBuster = '?t=' + Date.now();
-                const [summaryRes, enhancedRes, historyRes] = await Promise.all([
+                const [summaryRes, enhancedRes, historyRes, indicesRes] = await Promise.all([
                     fetch('./data/market_summary.json' + cacheBuster), fetch('./data/market_enhanced.json' + cacheBuster),
-                    fetch('./data/market_history.json' + cacheBuster)
+                    fetch('./data/market_history.json' + cacheBuster), fetch('./data/market_indices.json' + cacheBuster)
                 ]);
                 
                 if (!summaryRes.ok) throw new Error(`Failed to fetch summary data (Status: ${summaryRes.status})`);
@@ -400,6 +402,7 @@
                 marketSummary.forEach(item => marketDataMap.set(item.name, item));
                 enhancedData = await enhancedRes.json();
                 historyData = await historyRes.json();
+                marketIndices = await indicesRes.json();
                 
                 checkPriceAlerts();
                 populateCategoryFilter();
@@ -446,9 +449,27 @@
 
         // --- 4. RENDERING FUNCTIONS ---
         function renderAllViews() {
-            if (currentView === 'market') renderCurrentPage();
+            if (currentView === 'market') {
+                renderMarketIndices();
+                renderCurrentPage();
+            }
             else if (currentView === 'flipper') renderFlipper();
             else if (currentView === 'portfolio') renderPortfolio();
+        }
+
+        function renderMarketIndices() {
+            const sortedIndices = Object.entries(marketIndices).sort(([,a], [,b]) => b - a);
+            if (sortedIndices.length === 0) {
+                DOMElements.marketIndicesSummary.classList.add('hidden');
+                return;
+            }
+            DOMElements.marketIndicesSummary.innerHTML = sortedIndices.map(([category, trend]) => `
+                <div class="summary-box">
+                    <h3>${category}</h3>
+                    <p>${formatTrend(trend)}</p>
+                </div>
+            `).join('');
+            DOMElements.marketIndicesSummary.classList.remove('hidden');
         }
 
         function renderCurrentPage() {
