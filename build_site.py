@@ -93,6 +93,7 @@ def download_file(url, local_path):
 
 # --- Data Loading ---
 def load_historical_data(days_to_load):
+    # FIX: This function has been rewritten to correctly process ask and buy data separately.
     logging.info(f"Loading historical data for {days_to_load} days from {DB_PATH}")
     if not os.path.exists(DB_PATH):
         logging.warning(f"{DB_PATH} not found.")
@@ -101,12 +102,16 @@ def load_historical_data(days_to_load):
     try:
         with sqlite3.connect(DB_PATH) as conn:
             cutoff_timestamp = (datetime.now() - timedelta(days=days_to_load)).timestamp()
+            
+            # 1. Load ask and bid data into separate dataframes.
             ask_df_wide = pd.read_sql_query("SELECT * FROM ask WHERE time >= ?", conn, params=(cutoff_timestamp,))
             bid_df_wide = pd.read_sql_query("SELECT * FROM bid WHERE time >= ?", conn, params=(cutoff_timestamp,))
+
     except sqlite3.Error as e:
         logging.error(f"Database error: {e}", exc_info=True)
         return pd.DataFrame()
 
+    # 2. Process each dataframe independently.
     def melt_and_process(df, value_name):
         if df.empty or 'time' not in df.columns: return pd.DataFrame()
         id_vars, value_vars = ['time'], [col for col in df.columns if col != 'time']
@@ -120,6 +125,8 @@ def load_historical_data(days_to_load):
     buy_df = melt_and_process(bid_df_wide, 'buy')
 
     if ask_df.empty and buy_df.empty: return pd.DataFrame()
+    
+    # 3. Correctly merge the clean dataframes.
     if ask_df.empty:
         buy_df['ask'] = pd.NA
         return buy_df
@@ -167,7 +174,6 @@ def load_live_data():
 
 # --- Single-Pass Data Processing ---
 def process_data_in_one_pass(df, item_categories, vendor_prices, vol_days=7):
-    # FIX: This function is now more efficient and builds the market summary directly.
     logging.info("Processing all data in a single pass...")
     market_summary = []
     history = defaultdict(list)
@@ -179,14 +185,12 @@ def process_data_in_one_pass(df, item_categories, vendor_prices, vol_days=7):
     for product, group in df.groupby('product'):
         group = group.sort_values(by='timestamp')
         
-        # 1. Get Latest Data
         latest_row = group.iloc[-1]
         current_price = latest_row['ask']
         
         trend = None
         volatility = None
 
-        # 2. Resilient Trend Calculation
         if pd.notna(current_price) and len(group) > 1:
             past_24h_prices = group[(group['timestamp'] >= trend_cutoff) & (group['timestamp'] < latest_row['timestamp'])]['ask'].dropna()
             
@@ -201,7 +205,6 @@ def process_data_in_one_pass(df, item_categories, vendor_prices, vol_days=7):
             if previous_price is not None and previous_price > 0:
                 trend = ((current_price - previous_price) / previous_price) * 100
 
-        # 3. Volatility Calculation
         vol_group = group[group['timestamp'] >= vol_cutoff]
         valid_ask = vol_group['ask'].dropna()
         if len(valid_ask) >= 2:
@@ -210,7 +213,6 @@ def process_data_in_one_pass(df, item_categories, vendor_prices, vol_days=7):
             if mean_price > 0:
                 volatility = (std_dev / mean_price) * 100
         
-        # 4. Assemble Market Summary entry
         human_name, category_key = get_item_name_from_hrid(product)
         market_summary.append({
             'name': human_name,
@@ -222,7 +224,6 @@ def process_data_in_one_pass(df, item_categories, vendor_prices, vol_days=7):
             'volatility_norm_7d': volatility
         })
         
-        # 5. History Generation
         group['js_timestamp'] = group['timestamp'].astype(np.int64) // 10**6
         history_points = group[['js_timestamp', 'ask', 'buy']].dropna(how='all', subset=['ask', 'buy']).values.tolist()
         if history_points:
@@ -258,13 +259,12 @@ def main():
     historical_df = load_historical_data(HISTORICAL_DAYS) if db_ok else pd.DataFrame()
 
     combined_df = pd.concat([historical_df, base_live_df], ignore_index=True)
-    combined_df.sort_values(by=['product', 'timestamp'], inplace=True)
-    combined_df.drop_duplicates(subset=['product', 'timestamp'], keep='last', inplace=True)
+    if 'timestamp' in combined_df.columns:
+        combined_df.sort_values(by=['product', 'timestamp'], inplace=True)
+        combined_df.drop_duplicates(subset=['product', 'timestamp'], keep='last', inplace=True)
 
-    # FIX: Use the optimized single-pass function and get results directly.
     market_summary, history_data = process_data_in_one_pass(combined_df.copy(), item_categories, vendor_prices, VOLATILITY_DAYS)
     
-    # Market indices can now be calculated from the final summary.
     market_indices = calculate_market_indices(market_summary)
 
     def write_json(data, filename):
@@ -288,3 +288,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
